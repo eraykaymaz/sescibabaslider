@@ -18,24 +18,20 @@ body {
   width: 100%;
   margin: 0 auto;
   position: relative;
+  max-width: 1200px;
 }
 
 /* Kaydırma hattı */
 .slider-track-sescibabaprodcss {
   display: flex;
   gap: 10px;
-  width: calc(200%);
-  animation: scroll-sescibabaprodcss 25s linear infinite;
-}
-
-/* Hover’da dur */
-.slider-wrap-sescibabaprodcss:hover .slider-track-sescibabaprodcss {
-  animation-play-state: paused;
+  width: max-content;
+  transition: transform 0.6s ease;
 }
 
 /* Ürün kartı */
 .slide-sescibabaprodcss {
-  flex: 0 0 20%;
+  flex: 0 0 125px;
   text-align: center;
   box-sizing: border-box;
 }
@@ -45,12 +41,12 @@ body {
   height: 125px;
   border-radius: 10px;
   object-fit: cover;
-  transition: transform .3s, box-shadow .3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .slide-sescibabaprodcss:hover img {
   transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(0,0,0,.2);
+  box-shadow: 0 0 12px rgba(0,0,0,0.25);
 }
 
 .slide-sescibabaprodcss p {
@@ -60,33 +56,40 @@ body {
   font-weight: 500;
 }
 
-/* Kayma animasyonu */
-@keyframes scroll-sescibabaprodcss {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Ok butonları */
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.8);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  transition: background 0.3s;
+  z-index: 10;
 }
+.slider-arrow:hover {
+  background: rgba(0,0,0,0.15);
+}
+.slider-prev { left: 5px; }
+.slider-next { right: 5px; }
 
 /* Mobil uyum */
 @media (max-width: 768px) {
-  .slider-track-sescibabaprodcss {
-    animation: none;
-    width: max-content;
-  }
-  .slider-wrap-sescibabaprodcss {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-  .slide-sescibabaprodcss {
-    flex: 0 0 auto;
-  }
+  .slider-wrap-sescibabaprodcss { max-width: 100%; }
+  .slider-arrow { display: none; }
 }
 </style>
 </head>
 <body>
 
-<div class="slider-wrap-sescibabaprodcss">
-  <div class="slider-track-sescibabaprodcss">
+<div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
+  <button class="slider-arrow slider-prev">❮</button>
+  <div class="slider-track-sescibabaprodcss" id="sliderTrack">
 
     <!-- Ürünler -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/studyo-tipi-kulaklik" target="_top"><img src="https://www.sescibaba.com/neumann-ndh-20-black-edition-kapali-studyo-kulakligi-neumann-ndh-20-93977-90-O.jpg" alt="Kulaklıklar"></a><p>Kulaklıklar</p></div>
@@ -101,7 +104,47 @@ body {
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
 
   </div>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
 
+<script>
+(function(){
+  const track = document.getElementById("sliderTrack");
+  const slider = document.getElementById("sliderWrap");
+  const next = document.querySelector(".slider-next");
+  const prev = document.querySelector(".slider-prev");
+  let scrollAmount = 0;
+  let step = 0.6;
+  let paused = false;
+
+  // hover'da dur
+  slider.addEventListener("mouseenter", ()=>paused = true);
+  slider.addEventListener("mouseleave", ()=>paused = false);
+
+  // otomatik kayma
+  function autoScroll(){
+    if(!paused){
+      scrollAmount += step;
+      if(scrollAmount >= track.scrollWidth/2){ scrollAmount = 0; }
+      track.style.transform = "translateX(-"+scrollAmount+"px)";
+    }
+    requestAnimationFrame(autoScroll);
+  }
+
+  // ok kontrolleri
+  next.addEventListener("click", ()=>{
+    scrollAmount += 130;
+    if(scrollAmount >= track.scrollWidth/2){ scrollAmount = 0; }
+    track.style.transform = "translateX(-"+scrollAmount+"px)";
+  });
+  prev.addEventListener("click", ()=>{
+    scrollAmount -= 130;
+    if(scrollAmount < 0){ scrollAmount = track.scrollWidth/2; }
+    track.style.transform = "translateX(-"+scrollAmount+"px)";
+  });
+
+  autoScroll();
+})();
+</script>
 </body>
 </html>
