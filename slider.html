@@ -12,12 +12,21 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Kapsayıcı */
+/* === BAŞLIK === */
+.slider-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+  margin: 25px 0 10px 5px;
+  text-align: left;
+}
+
+/* === SLIDER === */
 .slider-wrap-sescibabaprodcss {
-  overflow: hidden;                /* taşmaları gizle */
+  overflow: hidden;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto;
   position: relative;
 }
 
@@ -28,7 +37,12 @@ body {
   animation: scrollLoop 30s linear infinite;
 }
 
-/* Ürünler */
+/* Hover’da durur */
+.slider-wrap-sescibabaprodcss:hover .slider-track-sescibabaprodcss {
+  animation-play-state: paused;
+}
+
+/* Ürün kutusu */
 .slide-sescibabaprodcss {
   flex: 0 0 auto;
   width: 150px;
@@ -56,40 +70,50 @@ body {
   font-weight: 500;
 }
 
-/* Sonsuz akış animasyonu */
+/* Sonsuz döngü animasyonu */
 @keyframes scrollLoop {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
 
-/* Ok butonları */
+/* Oklar */
 .slider-arrow {
   position: absolute;
-  top: 50%;
+  top: 45%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.9);
   border: none;
   font-size: 22px;
   cursor: pointer;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   box-shadow: 0 0 6px rgba(0,0,0,.25);
-  transition: background .3s;
+  transition: background .3s, transform .2s;
   z-index: 20;
 }
-.slider-arrow:hover { background: rgba(0,0,0,.15); }
+.slider-arrow:hover {
+  background: rgba(0,0,0,.15);
+  transform: translateY(-50%) scale(1.1);
+}
 .slider-prev { left: 5px; }
 .slider-next { right: 5px; }
 
-@media(max-width:768px){.slider-arrow{display:none}}
+@media(max-width:768px){
+  .slider-arrow{display:none}
+  .slider-title{text-align:center;font-size:18px;}
+}
 </style>
 </head>
 <body>
 
+<!-- === Başlık === -->
+<h2 class="slider-title">Bu Ürünü Görüntüleyen Müşterilerin Görüntülediği Diğer Ürünler</h2>
+
 <div class="slider-wrap-sescibabaprodcss">
+  <button class="slider-arrow slider-prev">❮</button>
   <div class="slider-track-sescibabaprodcss">
-    <!-- Ürünler 2 kez tekrarlanır = kesintisiz döngü -->
+    <!-- 🔁 Ürünler iki kez tekrarlanıyor -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -100,7 +124,7 @@ body {
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
 
-    <!-- 🔁 Aynı ürünler tekrar eklenir -->
+    <!-- ikinci kopya (sonsuz döngü için) -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -111,6 +135,7 @@ body {
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
   </div>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
 
 </body>
