@@ -19,6 +19,7 @@ body {
   max-width: 1200px;
   margin: 0 auto 20px auto;
   position: relative;
+  touch-action: pan-y;
 }
 
 /* Track */
@@ -33,7 +34,7 @@ body {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
-  padding: 20px 0 15px; /* 🔹 Üst 20px, alt 15px boşluk */
+  padding: 20px 0 15px;
   box-sizing: border-box;
 }
 
@@ -46,7 +47,7 @@ body {
 }
 
 .slide-sescibabaprodcss:hover img {
-  transform: scale(1.08); /* 🔹 daha doğal büyüme */
+  transform: scale(1.08);
   box-shadow: 0 4px 14px rgba(0,0,0,.3);
   z-index: 10;
 }
@@ -84,37 +85,14 @@ body {
 @media(max-width:768px){
   .slider-arrow{display:none}
 }
-
-/* === Sonsuz kayma === */
-@keyframes scrollLoop {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.slider-track-sescibabaprodcss {
-  animation: scrollLoop 30s linear infinite;
-}
-.slider-wrap-sescibabaprodcss:hover .slider-track-sescibabaprodcss {
-  animation-play-state: paused;
-}
 </style>
 </head>
 <body>
 
-<div class="slider-wrap-sescibabaprodcss">
+<div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
-  <div class="slider-track-sescibabaprodcss">
+  <div class="slider-track-sescibabaprodcss" id="sliderTrack">
     <!-- 🔁 Ürünler iki kez tekrarlanıyor -->
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
-
-    <!-- ikinci kopya -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -128,5 +106,58 @@ body {
   <button class="slider-arrow slider-next">❯</button>
 </div>
 
+<script>
+(function(){
+  const track=document.getElementById("sliderTrack");
+  const slider=document.getElementById("sliderWrap");
+  const next=document.querySelector(".slider-next");
+  const prev=document.querySelector(".slider-prev");
+  const slides=Array.from(track.children);
+  const slideWidth=175; // 150 + 25 boşluk
+  let index=0;
+  let paused=false;
+
+  // Sonsuz klonlar oluştur
+  track.innerHTML += track.innerHTML;
+
+  function goToSlide(i){
+    track.style.transform=`translateX(-${i*slideWidth}px)`;
+  }
+
+  function autoSlide(){
+    if(!paused){
+      index++;
+      if(index>=slides.length){
+        index=0;
+        track.style.transition="none";
+        goToSlide(index);
+        setTimeout(()=>track.style.transition="transform 0.6s ease",20);
+      }else{
+        goToSlide(index);
+      }
+    }
+  }
+
+  let autoPlay=setInterval(autoSlide,2000);
+  slider.addEventListener("mouseenter",()=>paused=true);
+  slider.addEventListener("mouseleave",()=>paused=false);
+
+  next.addEventListener("click",()=>{
+    clearInterval(autoPlay);
+    index++;
+    if(index>=slides.length)index=0;
+    goToSlide(index);
+    autoPlay=setInterval(autoSlide,2000);
+  });
+
+  prev.addEventListener("click",()=>{
+    clearInterval(autoPlay);
+    index--;
+    if(index<0)index=slides.length-1;
+    goToSlide(index);
+    autoPlay=setInterval(autoSlide,2000);
+  });
+})();
+</script>
 </body>
 </html>
