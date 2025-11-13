@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sescibaba Slider Oluşturucu</title>
+<style>
+body {
+  background-color: #0f1115;
+  font-family: "Inter", Arial, sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+  color: #ef355a;
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #181b22;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.5);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.table th, .table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #2a2d35;
+}
+.table th {
+  background-color: #20232a;
+  font-weight: 600;
+}
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: #2b2f38;
+  color: #fff;
+}
+button {
+  background-color: #ef355a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 5px;
+  transition: background 0.2s ease;
+}
+button:hover {
+  background-color: #ff5170;
+}
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+textarea {
+  width: 100%;
+  height: 260px;
+  border-radius: 8px;
+  background: #111317;
+  color: #00ff9c;
+  padding: 10px;
+  border: none;
+  font-family: monospace;
+  resize: vertical;
+}
+.copy-info {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<h1>🎧 Sescibaba Slider Oluşturucu</h1>
+
+<div class="container">
+  <div class="actions">
+    <button id="addRow">+ Satır Ekle</button>
+    <button id="removeRow">– Satır Sil</button>
+    <button id="generate">Kodu Oluştur</button>
+    <button id="copyCode">📋 Panoya Kopyala</button>
+  </div>
+
+  <table class="table" id="productTable">
+    <thead>
+      <tr>
+        <th>Ürün Adı</th>
+        <th>Resim URL</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="text" placeholder="Örn: Pop Filtre"></td>
+        <td><input type="text" placeholder="https://..."></td>
+        <td><input type="text" placeholder="https://..."></td>
+      </tr>
+      <tr>
+        <td><input type="text" placeholder="Örn: Dinamik Mikrofon"></td>
+        <td><input type="text" placeholder="https://..."></td>
+        <td><input type="text" placeholder="https://..."></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <textarea id="output" readonly placeholder="Burada oluşturulan kod görünecek..."></textarea>
+  <div class="copy-info">✔ Kodu oluşturduktan sonra Panoya Kopyala butonuna tıklayın.</div>
+</div>
+
+<script>
+const table = document.querySelector("#productTable tbody");
+const addRowBtn = document.querySelector("#addRow");
+const removeRowBtn = document.querySelector("#removeRow");
+const generateBtn = document.querySelector("#generate");
+const copyBtn = document.querySelector("#copyCode");
+const output = document.querySelector("#output");
+
+addRowBtn.addEventListener("click", () => {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input type="text" placeholder="Ürün Adı"></td>
+    <td><input type="text" placeholder="https://..."></td>
+    <td><input type="text" placeholder="https://..."></td>
+  `;
+  table.appendChild(row);
+});
+
+removeRowBtn.addEventListener("click", () => {
+  if (table.rows.length > 1) table.deleteRow(-1);
+});
+
+generateBtn.addEventListener("click", () => {
+  const rows = table.querySelectorAll("tr");
+  let html = `<div class="slider-wrap-sescibabaprodcss">\n<div class="slider-track-sescibabaprodcss">\n`;
+
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll("input");
+    const name = inputs[0].value.trim();
+    const img = inputs[1].value.trim();
+    const link = inputs[2].value.trim();
+    if (name && img && link) {
+      html += `<div class="slide-sescibabaprodcss"><a href="${link}" target="_top"><img src="${img}" alt="${name}"></a><p>${name}</p></div>\n`;
+    }
+  });
+
+  html += `</div>\n</div>`;
+  output.value = html;
+});
+
+copyBtn.addEventListener("click", () => {
+  output.select();
+  document.execCommand("copy");
+  copyBtn.textContent = "✅ Kopyalandı!";
+  setTimeout(() => (copyBtn.textContent = "📋 Panoya Kopyala"), 2000);
+});
+</script>
+</body>
+</html>
