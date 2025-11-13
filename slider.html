@@ -14,7 +14,7 @@ body {
 
 /* Ana kapsayıcı */
 .slider-wrap-sescibabaprodcss {
-  overflow: visible;                /* 🔹 Hover’da kesilmeyi önler */
+  overflow: visible;                /* hover sırasında taşma kesilmesin */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -25,7 +25,7 @@ body {
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  column-gap: 30px;                /* 🔹 Ürünler arası net boşluk */
+  column-gap: 25px;                /* Ürün aralıkları */
   transition: transform 0.6s ease;
 }
 
@@ -101,13 +101,12 @@ body {
 
 <script>
 (function(){
-  const track=document.getElementById("sliderTrack");
-  const slider=document.getElementById("sliderWrap");
-  const next=document.querySelector(".slider-next");
-  const prev=document.querySelector(".slider-prev");
-  
-  const slideWidth = 180; // 150px + 30px gap
-  const step = 2; // 🔹 Her kaymada 2 ürün
+  const track = document.getElementById("sliderTrack");
+  const slider = document.getElementById("sliderWrap");
+  const next = document.querySelector(".slider-next");
+  const prev = document.querySelector(".slider-prev");
+
+  const slideWidth = 175; // 150 + 25 boşluk
   const visibleCount = 5;
   let index = 0;
   let paused = false;
@@ -117,12 +116,12 @@ body {
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  // otomatik kayma
+  // 🔹 sadece 2 kayma sonra başa dön
   function autoSlide(){
     if(!paused){
-      index += step;
-      if(index > totalSlides - visibleCount){
-        index = 0; // sona geldiğinde başa dön
+      index++;
+      if(index > 2){ // sadece 2 kere kay, sonra başa dön
+        index = 0;
       }
       goToSlide(index);
     }
@@ -134,14 +133,14 @@ body {
   slider.addEventListener("mouseleave",()=>paused=false);
 
   next.addEventListener("click",()=>{
-    index += step;
-    if(index > totalSlides - visibleCount){ index = 0; }
+    index++;
+    if(index > 2){ index = 0; }
     goToSlide(index);
   });
 
   prev.addEventListener("click",()=>{
-    index -= step;
-    if(index < 0){ index = totalSlides - visibleCount; }
+    index--;
+    if(index < 0){ index = 2; }
     goToSlide(index);
   });
 })();
