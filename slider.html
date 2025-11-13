@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Sonsuz Slider</title>
+<title>Sescibaba Slider (Oklar Çalışır)</title>
 <style>
 body {
   margin: 0;
@@ -19,14 +19,13 @@ body {
   max-width: 1200px;
   margin: 0 auto 20px auto;
   position: relative;
-  touch-action: pan-y;
 }
 
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
   gap: 25px;
-  will-change: transform;
+  transition: transform 0.5s ease-in-out;
 }
 
 /* Ürün kutusu */
@@ -92,7 +91,6 @@ body {
 <div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
   <div class="slider-track-sescibabaprodcss" id="sliderTrack">
-    <!-- Ürünler -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -109,39 +107,52 @@ body {
 <script>
 (() => {
   const track = document.getElementById("sliderTrack");
-  const slider = document.getElementById("sliderWrap");
+  const slides = Array.from(track.children);
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-  
-  let direction = 1;
+  const slideWidth = 175; // her kayma adımı
+  const visibleCount = 5; // ekranda kaç ürün görünsün
+  const totalSlides = slides.length;
+  let index = 0;
   let paused = false;
-  let position = 0;
-  const slideWidth = 175;
-  const slides = Array.from(track.children);
-  const totalWidth = slides.length * slideWidth;
 
-  // klonla sonsuz döngü efekti
-  track.innerHTML += track.innerHTML;
-
-  function animate() {
-    if (!paused) {
-      position += direction;
-      if (position >= totalWidth) position = 0;
-      if (position <= -totalWidth) position = 0;
-      track.style.transform = `translateX(${-position}px)`;
-    }
-    requestAnimationFrame(animate);
+  function goToSlide(i){
+    track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  animate();
+  // otomatik kayma
+  function autoSlide(){
+    if(!paused){
+      index++;
+      if(index > totalSlides - visibleCount){
+        index = 0;
+      }
+      goToSlide(index);
+    }
+  }
 
-  // Hover durdurma
-  slider.addEventListener("mouseenter", () => paused = true);
-  slider.addEventListener("mouseleave", () => paused = false);
+  let autoPlay = setInterval(autoSlide, 2500);
 
-  // Oklar yön değiştirir
-  next.addEventListener("click", () => direction = 1);
-  prev.addEventListener("click", () => direction = -1);
+  // hover durdurur
+  document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
+  document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
+
+  // oklar manuel çalışır
+  next.addEventListener("click",()=>{
+    clearInterval(autoPlay);
+    index++;
+    if(index > totalSlides - visibleCount){ index = 0; }
+    goToSlide(index);
+    autoPlay = setInterval(autoSlide,2500);
+  });
+
+  prev.addEventListener("click",()=>{
+    clearInterval(autoPlay);
+    index--;
+    if(index < 0){ index = totalSlides - visibleCount; }
+    goToSlide(index);
+    autoPlay = setInterval(autoSlide,2500);
+  });
 })();
 </script>
 </body>
