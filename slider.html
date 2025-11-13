@@ -14,7 +14,7 @@ body {
 
 /* Ana kapsayıcı */
 .slider-wrap-sescibabaprodcss {
-  overflow: visible;
+  overflow: visible;                /* 🔹 Hover’da kesilmeyi önler */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -25,7 +25,7 @@ body {
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  column-gap: 30px; /* 🔹 aralıklar netleşti */
+  column-gap: 30px;                /* 🔹 Ürünler arası net boşluk */
   transition: transform 0.6s ease;
 }
 
@@ -34,6 +34,7 @@ body {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
+  position: relative;
 }
 
 .slide-sescibabaprodcss img {
@@ -41,14 +42,13 @@ body {
   height: 150px;
   border-radius: 10px;
   object-fit: cover;
-  transition: transform .3s, box-shadow .3s;
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
 .slide-sescibabaprodcss:hover img {
   transform: scale(1.12);
-  box-shadow: 0 4px 12px rgba(0,0,0,.25);
-  position: relative;
-  z-index: 5;
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+  z-index: 10;
 }
 
 .slide-sescibabaprodcss p {
@@ -72,7 +72,7 @@ body {
   height: 38px;
   box-shadow: 0 0 6px rgba(0,0,0,.25);
   transition: background .3s;
-  z-index: 10;
+  z-index: 20;
 }
 .slider-arrow:hover { background: rgba(0,0,0,.15); }
 .slider-prev { left: 5px; }
@@ -86,7 +86,10 @@ body {
 <div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
   <div class="slider-track-sescibabaprodcss" id="sliderTrack">
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Mikrofonlar"></a><p>Mikrofonlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
@@ -102,23 +105,24 @@ body {
   const slider=document.getElementById("sliderWrap");
   const next=document.querySelector(".slider-next");
   const prev=document.querySelector(".slider-prev");
-
-  const slideWidth = 180; // 🔹 150 + 30px boşluk
+  
+  const slideWidth = 180; // 150px + 30px gap
+  const step = 2; // 🔹 Her kaymada 2 ürün
   const visibleCount = 5;
   let index = 0;
   let paused = false;
-  let totalSlides = track.children.length;
+  const totalSlides = track.children.length;
 
   function goToSlide(i){
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
+  // otomatik kayma
   function autoSlide(){
     if(!paused){
-      index++;
+      index += step;
       if(index > totalSlides - visibleCount){
-        // son slide’dan sonra başa dön
-        index = 0;
+        index = 0; // sona geldiğinde başa dön
       }
       goToSlide(index);
     }
@@ -130,13 +134,13 @@ body {
   slider.addEventListener("mouseleave",()=>paused=false);
 
   next.addEventListener("click",()=>{
-    index++;
+    index += step;
     if(index > totalSlides - visibleCount){ index = 0; }
     goToSlide(index);
   });
 
   prev.addEventListener("click",()=>{
-    index--;
+    index -= step;
     if(index < 0){ index = totalSlides - visibleCount; }
     goToSlide(index);
   });
