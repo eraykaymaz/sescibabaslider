@@ -6,13 +6,59 @@
 <title>Sescibaba Slider</title>
 <style>
 body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
-.slider-wrap-sescibabaprodcss{overflow:hidden;width:100%;max-width:1200px;margin:0 auto;position:relative;touch-action:pan-y}
-.slider-track-sescibabaprodcss{display:flex;gap:10px;width:max-content;transition:transform .6s ease}
-.slide-sescibabaprodcss{flex:0 0 125px;text-align:center}
-.slide-sescibabaprodcss img{width:125px;height:125px;border-radius:10px;object-fit:cover;transition:transform .3s,box-shadow .3s}
-.slide-sescibabaprodcss:hover img{transform:scale(1.1);box-shadow:0 0 12px rgba(0,0,0,.25)}
-.slide-sescibabaprodcss p{font-size:13px;color:#000;margin-top:6px;font-weight:500}
-.slider-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.8);border:none;font-size:22px;cursor:pointer;border-radius:50%;width:35px;height:35px;box-shadow:0 0 5px rgba(0,0,0,.2);transition:background .3s;z-index:10}
+.slider-wrap-sescibabaprodcss{
+  overflow:visible;               /* hover'da taşmayı gösterebilmek için */
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+  touch-action:pan-y;
+}
+.slider-track-sescibabaprodcss{
+  display:flex;
+  gap:15px;                       /* görseller arası mesafe */
+  transition:transform .6s ease;
+  width:max-content;
+}
+.slide-sescibabaprodcss{
+  flex:0 0 150px;
+  text-align:center;
+}
+.slide-sescibabaprodcss img{
+  width:150px;
+  height:150px;
+  border-radius:10px;
+  object-fit:cover;
+  transition:transform .3s,box-shadow .3s;
+  margin:0 auto;
+}
+.slide-sescibabaprodcss:hover img{
+  transform:scale(1.12);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  position:relative;
+  z-index:5;
+}
+.slide-sescibabaprodcss p{
+  font-size:13px;
+  color:#000;
+  margin-top:6px;
+  font-weight:500;
+}
+.slider-arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,.85);
+  border:none;
+  font-size:22px;
+  cursor:pointer;
+  border-radius:50%;
+  width:38px;
+  height:38px;
+  box-shadow:0 0 5px rgba(0,0,0,.2);
+  transition:background .3s;
+  z-index:10;
+}
 .slider-arrow:hover{background:rgba(0,0,0,.15)}
 .slider-prev{left:5px}
 .slider-next{right:5px}
@@ -44,16 +90,17 @@ body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
   const slider=document.getElementById("sliderWrap");
   const next=document.querySelector(".slider-next");
   const prev=document.querySelector(".slider-prev");
-  const slideWidth=135; // 125 + gap
+  const slideWidth=165; // 150 + gap(15)
   let index=0,paused=false,isDragging=false,startX=0,scrollStart=0;
   const totalSlides=track.children.length;
 
-  // otomatik kayma birer birer
+  function goToSlide(i){track.style.transform=`translateX(-${i*slideWidth}px)`;}
+
   function autoSlide(){
-    if(!paused && !isDragging){
+    if(!paused&&!isDragging){
       index++;
-      if(index > totalSlides - 5) index = 0;
-      track.style.transform=`translateX(-${index * slideWidth}px)`;
+      if(index>totalSlides-5)index=0;
+      goToSlide(index);
     }
   }
   let autoPlay=setInterval(autoSlide,2000);
@@ -61,16 +108,8 @@ body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
   slider.addEventListener("mouseenter",()=>paused=true);
   slider.addEventListener("mouseleave",()=>paused=false);
 
-  next.addEventListener("click",()=>{
-    index++;
-    if(index > totalSlides - 5) index = 0;
-    track.style.transform=`translateX(-${index * slideWidth}px)`;
-  });
-  prev.addEventListener("click",()=>{
-    index--;
-    if(index < 0) index = totalSlides - 5;
-    track.style.transform=`translateX(-${index * slideWidth}px)`;
-  });
+  next.addEventListener("click",()=>{index++;if(index>totalSlides-5)index=0;goToSlide(index);});
+  prev.addEventListener("click",()=>{index--;if(index<0)index=totalSlides-5;goToSlide(index);});
 
   // dokunmatik sürükleme
   slider.addEventListener("touchstart",e=>{
@@ -84,10 +123,7 @@ body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
     const dx=e.touches[0].pageX-startX;
     track.style.transform=`translateX(${dx-scrollStart}px)`;
   });
-  slider.addEventListener("touchend",e=>{
-    isDragging=false;
-    autoPlay=setInterval(autoSlide,2000);
-  });
+  slider.addEventListener("touchend",()=>{isDragging=false;autoPlay=setInterval(autoSlide,2000);});
 })();
 </script>
 </body>
