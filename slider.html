@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Dokunmatik + Bold</title>
+<title>Sescibaba Slider - Dokunmatik Tam Destek</title>
 <style>
 body {
   margin: 0;
@@ -54,10 +54,10 @@ body {
 
 /* 🔹 Başlık yazı ayarı */
 .slide-sescibabaprodcss p {
-  font-size: 15px;  /* 🔸 2 seviye büyütüldü */
+  font-size: 15px;
   color: #000;
   margin-top: 10px;
-  font-weight: 700; /* 🔸 bold yapıldı */
+  font-weight: 700;
 }
 
 /* Oklar */
@@ -171,15 +171,22 @@ body {
     autoPlay = setInterval(autoSlide,2500);
   });
 
-  // 🔹 Dokunmatik (swipe) desteği
+  // 🔹 Dokunmatik (swipe) desteği – iOS / Android tam uyumlu
   let startX = 0;
   let endX = 0;
 
-  track.addEventListener("touchstart",(e)=> startX = e.touches[0].clientX );
-  track.addEventListener("touchmove",(e)=> endX = e.touches[0].clientX );
-  track.addEventListener("touchend",()=>{
+  track.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+
+  track.addEventListener("touchmove", (e) => {
+    endX = e.touches[0].clientX;
+    e.preventDefault(); // 🔧 tarayıcı scroll’unu engeller
+  }, { passive: false });
+
+  track.addEventListener("touchend", () => {
     const delta = startX - endX;
-    if(Math.abs(delta) > 50){ // kaydırma eşiği
+    if(Math.abs(delta) > 50){
       if(delta > 0){ // sola kaydır
         index++;
         if(index > totalSlides - visibleCount){ index = 0; }
@@ -189,7 +196,7 @@ body {
       }
       goToSlide(index);
     }
-  });
+  }, { passive: true });
 })();
 </script>
 </body>
