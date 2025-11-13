@@ -12,15 +12,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* === BAŞLIK === */
-.slider-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #222;
-  margin: 25px 0 10px 5px;
-  text-align: left;
-}
-
 /* === SLIDER === */
 .slider-wrap-sescibabaprodcss {
   overflow: hidden;
@@ -34,12 +25,7 @@ body {
 .slider-track-sescibabaprodcss {
   display: flex;
   gap: 25px;
-  animation: scrollLoop 30s linear infinite;
-}
-
-/* Hover’da durur */
-.slider-wrap-sescibabaprodcss:hover .slider-track-sescibabaprodcss {
-  animation-play-state: paused;
+  transition: transform 0.6s ease;
 }
 
 /* Ürün kutusu */
@@ -47,6 +33,7 @@ body {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
+  padding-top: 10px; /* 🔹 Görsel üstü boşluk */
 }
 
 .slide-sescibabaprodcss img {
@@ -68,12 +55,6 @@ body {
   color: #000;
   margin-top: 8px;
   font-weight: 500;
-}
-
-/* Sonsuz döngü animasyonu */
-@keyframes scrollLoop {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
 }
 
 /* Oklar */
@@ -101,19 +82,15 @@ body {
 
 @media(max-width:768px){
   .slider-arrow{display:none}
-  .slider-title{text-align:center;font-size:18px;}
 }
 </style>
 </head>
 <body>
 
-<!-- === Başlık === -->
-<h2 class="slider-title">Bu Ürünü Görüntüleyen Müşterilerin Görüntülediği Diğer Ürünler</h2>
-
-<div class="slider-wrap-sescibabaprodcss">
+<div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
-  <div class="slider-track-sescibabaprodcss">
-    <!-- 🔁 Ürünler iki kez tekrarlanıyor -->
+  <div class="slider-track-sescibabaprodcss" id="sliderTrack">
+    <!-- Ürün listesi (tek set yeterli, JS döngü yapar) -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -121,22 +98,4 @@ body {
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
-
-    <!-- ikinci kopya (sonsuz döngü için) -->
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
-  </div>
-  <button class="slider-arrow slider-next">❯</button>
-</div>
-
-</body>
-</html>
+    <div class="slide-sescibab
