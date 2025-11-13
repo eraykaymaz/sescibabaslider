@@ -12,9 +12,9 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Slider kapsayıcı */
+/* Ana kapsayıcı */
 .slider-wrap-sescibabaprodcss {
-  overflow: visible; /* hover’da taşmayı gösterebilmek için */
+  overflow: visible;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -22,17 +22,17 @@ body {
   touch-action: pan-y;
 }
 
-/* Kaydırma hattı */
+/* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  gap: 25px; /* 🔹 ürünler arası boşluk artırıldı */
+  column-gap: 30px; /* 🔹 aralıklar netleşti */
   transition: transform 0.6s ease;
-  width: max-content;
 }
 
-/* Ürün kartı */
+/* Ürün kutusu */
 .slide-sescibabaprodcss {
-  flex: 0 0 150px;
+  flex: 0 0 auto;
+  width: 150px;
   text-align: center;
 }
 
@@ -41,12 +41,12 @@ body {
   height: 150px;
   border-radius: 10px;
   object-fit: cover;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform .3s, box-shadow .3s;
 }
 
 .slide-sescibabaprodcss:hover img {
   transform: scale(1.12);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
   position: relative;
   z-index: 5;
 }
@@ -54,37 +54,31 @@ body {
 .slide-sescibabaprodcss p {
   font-size: 13px;
   color: #000;
-  margin-top: 6px;
+  margin-top: 8px;
   font-weight: 500;
 }
 
-/* Ok butonları */
+/* Oklar */
 .slider-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,.85);
   border: none;
   font-size: 22px;
   cursor: pointer;
   border-radius: 50%;
   width: 38px;
   height: 38px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s;
+  box-shadow: 0 0 6px rgba(0,0,0,.25);
+  transition: background .3s;
   z-index: 10;
 }
-
-.slider-arrow:hover {
-  background: rgba(0, 0, 0, 0.15);
-}
-
+.slider-arrow:hover { background: rgba(0,0,0,.15); }
 .slider-prev { left: 5px; }
 .slider-next { right: 5px; }
 
-@media (max-width: 768px) {
-  .slider-arrow { display: none; }
-}
+@media (max-width:768px){.slider-arrow{display:none}}
 </style>
 </head>
 <body>
@@ -92,11 +86,7 @@ body {
 <div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
   <div class="slider-track-sescibabaprodcss" id="sliderTrack">
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/studyo-tipi-kulaklik" target="_top"><img src="https://www.sescibaba.com/neumann-ndh-20-black-edition-kapali-studyo-kulakligi-neumann-ndh-20-93977-90-O.jpg" alt="Kulaklıklar"></a><p>Kulaklıklar</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Referans Monitörler"></a><p>Referans Monitörler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Mikrofonlar"></a><p>Mikrofonlar</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
@@ -113,30 +103,27 @@ body {
   const next=document.querySelector(".slider-next");
   const prev=document.querySelector(".slider-prev");
 
-  const slideWidth = 175; // 150px + gap(25)
-  const visibleCount = 5; // aynı anda 5 ürün görünür
+  const slideWidth = 180; // 🔹 150 + 30px boşluk
+  const visibleCount = 5;
   let index = 0;
   let paused = false;
-  let isDragging = false;
-  let startX = 0;
-  let scrollStart = 0;
-  const totalSlides = track.children.length;
+  let totalSlides = track.children.length;
 
   function goToSlide(i){
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  // otomatik kayma (sondan sonra başa döner)
   function autoSlide(){
-    if(!paused && !isDragging){
+    if(!paused){
       index++;
       if(index > totalSlides - visibleCount){
-        // sona gelince başa dön
+        // son slide’dan sonra başa dön
         index = 0;
       }
       goToSlide(index);
     }
   }
+
   let autoPlay = setInterval(autoSlide, 2000);
 
   slider.addEventListener("mouseenter",()=>paused=true);
@@ -144,30 +131,14 @@ body {
 
   next.addEventListener("click",()=>{
     index++;
-    if(index > totalSlides - visibleCount){index = 0;}
-    goToSlide(index);
-  });
-  prev.addEventListener("click",()=>{
-    index--;
-    if(index < 0){index = totalSlides - visibleCount;}
+    if(index > totalSlides - visibleCount){ index = 0; }
     goToSlide(index);
   });
 
-  // dokunmatik sürükleme
-  slider.addEventListener("touchstart",e=>{
-    clearInterval(autoPlay);
-    isDragging=true;
-    startX=e.touches[0].pageX;
-    scrollStart=index*slideWidth;
-  });
-  slider.addEventListener("touchmove",e=>{
-    if(!isDragging)return;
-    const dx=e.touches[0].pageX-startX;
-    track.style.transform=`translateX(${dx-scrollStart}px)`;
-  });
-  slider.addEventListener("touchend",()=>{
-    isDragging=false;
-    autoPlay=setInterval(autoSlide,2000);
+  prev.addEventListener("click",()=>{
+    index--;
+    if(index < 0){ index = totalSlides - visibleCount; }
+    goToSlide(index);
   });
 })();
 </script>
