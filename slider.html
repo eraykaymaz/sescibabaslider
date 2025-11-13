@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider</title>
+<title>Sescibaba Sonsuz Slider</title>
 <style>
 body {
   margin: 0;
@@ -12,29 +12,27 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Ana kapsayıcı */
+/* Kapsayıcı */
 .slider-wrap-sescibabaprodcss {
-  overflow: visible;                /* hover sırasında taşma kesilmesin */
+  overflow: hidden;                /* taşmaları gizle */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
-  touch-action: pan-y;
 }
 
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  column-gap: 25px;                /* Ürün aralıkları */
-  transition: transform 0.6s ease;
+  gap: 25px;
+  animation: scrollLoop 30s linear infinite;
 }
 
-/* Ürün kutusu */
+/* Ürünler */
 .slide-sescibabaprodcss {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
-  position: relative;
 }
 
 .slide-sescibabaprodcss img {
@@ -58,7 +56,13 @@ body {
   font-weight: 500;
 }
 
-/* Oklar */
+/* Sonsuz akış animasyonu */
+@keyframes scrollLoop {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Ok butonları */
 .slider-arrow {
   position: absolute;
   top: 50%;
@@ -78,14 +82,25 @@ body {
 .slider-prev { left: 5px; }
 .slider-next { right: 5px; }
 
-@media (max-width:768px){.slider-arrow{display:none}}
+@media(max-width:768px){.slider-arrow{display:none}}
 </style>
 </head>
 <body>
 
-<div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
-  <button class="slider-arrow slider-prev">❮</button>
-  <div class="slider-track-sescibabaprodcss" id="sliderTrack">
+<div class="slider-wrap-sescibabaprodcss">
+  <div class="slider-track-sescibabaprodcss">
+    <!-- Ürünler 2 kez tekrarlanır = kesintisiz döngü -->
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
+
+    <!-- 🔁 Aynı ürünler tekrar eklenir -->
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
@@ -96,54 +111,7 @@ body {
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
   </div>
-  <button class="slider-arrow slider-next">❯</button>
 </div>
 
-<script>
-(function(){
-  const track = document.getElementById("sliderTrack");
-  const slider = document.getElementById("sliderWrap");
-  const next = document.querySelector(".slider-next");
-  const prev = document.querySelector(".slider-prev");
-
-  const slideWidth = 175; // 150 + 25 boşluk
-  const visibleCount = 5;
-  let index = 0;
-  let paused = false;
-  const totalSlides = track.children.length;
-
-  function goToSlide(i){
-    track.style.transform = `translateX(-${i * slideWidth}px)`;
-  }
-
-  // 🔹 sadece 2 kayma sonra başa dön
-  function autoSlide(){
-    if(!paused){
-      index++;
-      if(index > 2){ // sadece 2 kere kay, sonra başa dön
-        index = 0;
-      }
-      goToSlide(index);
-    }
-  }
-
-  let autoPlay = setInterval(autoSlide, 2000);
-
-  slider.addEventListener("mouseenter",()=>paused=true);
-  slider.addEventListener("mouseleave",()=>paused=false);
-
-  next.addEventListener("click",()=>{
-    index++;
-    if(index > 2){ index = 0; }
-    goToSlide(index);
-  });
-
-  prev.addEventListener("click",()=>{
-    index--;
-    if(index < 0){ index = 2; }
-    goToSlide(index);
-  });
-})();
-</script>
 </body>
 </html>
