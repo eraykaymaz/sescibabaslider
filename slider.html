@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - 3D Ayraclı Versiyon</title>
+<title>Sescibaba Slider - Temiz Kenarlı & 3D Ayraclı</title>
 <style>
 body {
   margin: 0;
@@ -38,13 +38,13 @@ body {
   box-sizing: border-box;
 }
 
+/* 🔹 Görseller - çerçeve kaldırıldı */
 .slide-sescibabaprodcss img {
   width: 150px;
   height: 150px;
   border-radius: 10px;
-  object-fit: contain;          /* 🔹 orantılı küçültme */
-  background-color: #f9f9f9;
-  padding: 5px;
+  object-fit: contain;   /* oran koruyarak küçülür */
+  background: none;      /* arka plan ve padding kaldırıldı */
   transition: transform .3s ease, box-shadow .3s ease;
 }
 
@@ -96,12 +96,12 @@ body {
   .slider-track-sescibabaprodcss{gap:15px;}
 }
 
-/* 🔹 Alt çizgi (3D ayraç) */
+/* 🔹 Alt çizgi (3D ayraç) + boşluk */
 .slider-divider {
   width: 92%;
   height: 2px;
   background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
-  margin: 10px auto 20px;  /* 🔸 biraz yukarı alındı */
+  margin: 10px auto 40px;  /* 🔸 alt boşluk artırıldı (30px daha fazla) */
   border-radius: 2px;
   box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.2);
 }
@@ -139,7 +139,7 @@ body {
   <button class="slider-arrow slider-next">❯</button>
 </div>
 
-<!-- 🔹 3D efektli alt ayracı -->
+<!-- 🔹 3D efektli alt ayracı + ekstra boşluk -->
 <div class="slider-divider"></div>
 
 <script>
@@ -218,40 +218,28 @@ body {
   let startX = 0;
   let endX = 0;
 
-  track.addEventListener(
-    "touchstart",
-    (e) => {
-      startX = e.touches[0].clientX;
-      stopAuto(true);
-    },
-    { passive: true }
-  );
+  track.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    stopAuto(true);
+  }, { passive: true });
 
-  track.addEventListener(
-    "touchmove",
-    (e) => {
-      endX = e.touches[0].clientX;
-    },
-    { passive: true }
-  );
+  track.addEventListener("touchmove", (e) => {
+    endX = e.touches[0].clientX;
+  }, { passive: true });
 
-  track.addEventListener(
-    "touchend",
-    () => {
-      const delta = startX - endX;
-      if (Math.abs(delta) > 50) {
-        if (delta > 0) {
-          index++;
-          if (index > totalSlides - visibleCount) index = 0;
-        } else {
-          index--;
-          if (index < 0) index = totalSlides - visibleCount;
-        }
-        goToSlide(index);
+  track.addEventListener("touchend", () => {
+    const delta = startX - endX;
+    if (Math.abs(delta) > 50) {
+      if (delta > 0) {
+        index++;
+        if (index > totalSlides - visibleCount) index = 0;
+      } else {
+        index--;
+        if (index < 0) index = totalSlides - visibleCount;
       }
-    },
-    { passive: true }
-  );
+      goToSlide(index);
+    }
+  }, { passive: true });
 
   window.addEventListener("resize", () => {
     updateSizes();
