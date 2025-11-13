@@ -7,7 +7,7 @@
 <style>
 body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
 .slider-wrap-sescibabaprodcss{overflow:hidden;width:100%;max-width:1200px;margin:0 auto;position:relative;touch-action:pan-y}
-.slider-track-sescibabaprodcss{display:flex;gap:10px;width:max-content;transition:transform .4s ease}
+.slider-track-sescibabaprodcss{display:flex;gap:10px;width:max-content;transition:transform .6s ease}
 .slide-sescibabaprodcss{flex:0 0 125px;text-align:center}
 .slide-sescibabaprodcss img{width:125px;height:125px;border-radius:10px;object-fit:cover;transition:transform .3s,box-shadow .3s}
 .slide-sescibabaprodcss:hover img{transform:scale(1.1);box-shadow:0 0 12px rgba(0,0,0,.25)}
@@ -44,46 +44,50 @@ body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}
   const slider=document.getElementById("sliderWrap");
   const next=document.querySelector(".slider-next");
   const prev=document.querySelector(".slider-prev");
-  let scrollAmount=0,step=0.6,paused=false,isDragging=false,startX=0,scrollStart=0;
+  const slideWidth=135; // 125 + gap
+  let index=0,paused=false,isDragging=false,startX=0,scrollStart=0;
+  const totalSlides=track.children.length;
+
+  // otomatik kayma birer birer
+  function autoSlide(){
+    if(!paused && !isDragging){
+      index++;
+      if(index > totalSlides - 5) index = 0;
+      track.style.transform=`translateX(-${index * slideWidth}px)`;
+    }
+  }
+  let autoPlay=setInterval(autoSlide,2000);
 
   slider.addEventListener("mouseenter",()=>paused=true);
   slider.addEventListener("mouseleave",()=>paused=false);
 
-  // otomatik kayma
-  function autoScroll(){
-    if(!paused&&!isDragging){
-      scrollAmount+=step;
-      if(scrollAmount>=track.scrollWidth/2)scrollAmount=0;
-      track.style.transform="translateX(-"+scrollAmount+"px)";
-    }
-    requestAnimationFrame(autoScroll);
-  }
-
-  // oklar
   next.addEventListener("click",()=>{
-    scrollAmount+=130;if(scrollAmount>=track.scrollWidth/2)scrollAmount=0;
-    track.style.transform="translateX(-"+scrollAmount+"px)";
+    index++;
+    if(index > totalSlides - 5) index = 0;
+    track.style.transform=`translateX(-${index * slideWidth}px)`;
   });
   prev.addEventListener("click",()=>{
-    scrollAmount-=130;if(scrollAmount<0)scrollAmount=track.scrollWidth/2;
-    track.style.transform="translateX(-"+scrollAmount+"px)";
+    index--;
+    if(index < 0) index = totalSlides - 5;
+    track.style.transform=`translateX(-${index * slideWidth}px)`;
   });
 
   // dokunmatik sürükleme
   slider.addEventListener("touchstart",e=>{
+    clearInterval(autoPlay);
     isDragging=true;
     startX=e.touches[0].pageX;
-    scrollStart=scrollAmount;
+    scrollStart=index*slideWidth;
   });
   slider.addEventListener("touchmove",e=>{
     if(!isDragging)return;
     const dx=e.touches[0].pageX-startX;
-    scrollAmount=scrollStart-dx;
-    track.style.transform="translateX(-"+scrollAmount+"px)";
+    track.style.transform=`translateX(${dx-scrollStart}px)`;
   });
-  slider.addEventListener("touchend",()=>{isDragging=false;});
-
-  autoScroll();
+  slider.addEventListener("touchend",e=>{
+    isDragging=false;
+    autoPlay=setInterval(autoSlide,2000);
+  });
 })();
 </script>
 </body>
