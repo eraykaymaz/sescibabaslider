@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider 8 Ürün</title>
+<title>Sescibaba Slider - 8 Ürün</title>
 <style>
 body {
   margin: 0;
@@ -24,7 +24,7 @@ body {
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  gap: 18px; /* 🔹 Aralık biraz azaltıldı */
+  gap: 18px;
   transition: transform 0.5s ease-in-out;
 }
 
@@ -95,15 +95,28 @@ body {
 <div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
   <button class="slider-arrow slider-prev">❮</button>
   <div class="slider-track-sescibabaprodcss" id="sliderTrack">
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Monitörler"></a><p>Monitörler</p></div>
+
+    <!-- 🔹 Senin ürünlerin -->
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/studyo-tipi-kulaklik" target="_top"><img src="https://www.sescibaba.com/neumann-ndh-20-black-edition-kapali-studyo-kulakligi-neumann-ndh-20-93977-90-O.jpg" alt="Kulaklıklar"></a><p>Kulaklıklar</p></div>
+
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Referans Monitörler"></a><p>Referans Monitörler</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
+
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
+
   </div>
   <button class="slider-arrow slider-next">❯</button>
 </div>
@@ -114,8 +127,8 @@ body {
   const slides = Array.from(track.children);
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-  const slideWidth = 168; // 🔹 150px + 18px gap
-  const visibleCount = 8; // 🔹 ekranda 8 ürün görünsün
+  const slideWidth = 168; // 150px + 18px gap
+  const visibleCount = 8; // ekranda 8 ürün görünsün
   const totalSlides = slides.length;
   let index = 0;
   let paused = false;
