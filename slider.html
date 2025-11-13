@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider (Oklar Çalışır)</title>
+<title>Sescibaba Slider 8 Ürün</title>
 <style>
 body {
   margin: 0;
@@ -16,7 +16,7 @@ body {
 .slider-wrap-sescibabaprodcss {
   overflow: hidden;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1850px;
   margin: 0 auto 20px auto;
   position: relative;
 }
@@ -24,7 +24,7 @@ body {
 /* Track */
 .slider-track-sescibabaprodcss {
   display: flex;
-  gap: 25px;
+  gap: 18px; /* 🔹 Aralık biraz azaltıldı */
   transition: transform 0.5s ease-in-out;
 }
 
@@ -81,8 +81,12 @@ body {
 .slider-prev { left: 5px; }
 .slider-next { right: 5px; }
 
+@media(max-width:1200px){ .slide-sescibabaprodcss{width:140px;} }
+@media(max-width:992px){ .slide-sescibabaprodcss{width:130px;} }
 @media(max-width:768px){
   .slider-arrow{display:none}
+  .slide-sescibabaprodcss{width:120px;}
+  .slider-track-sescibabaprodcss{gap:15px;}
 }
 </style>
 </head>
@@ -110,8 +114,8 @@ body {
   const slides = Array.from(track.children);
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-  const slideWidth = 175; // her kayma adımı
-  const visibleCount = 3; // ekranda kaç ürün görünsün
+  const slideWidth = 168; // 🔹 150px + 18px gap
+  const visibleCount = 8; // 🔹 ekranda 8 ürün görünsün
   const totalSlides = slides.length;
   let index = 0;
   let paused = false;
@@ -120,7 +124,6 @@ body {
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  // otomatik kayma
   function autoSlide(){
     if(!paused){
       index++;
@@ -133,11 +136,9 @@ body {
 
   let autoPlay = setInterval(autoSlide, 2500);
 
-  // hover durdurur
   document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
   document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
 
-  // oklar manuel çalışır
   next.addEventListener("click",()=>{
     clearInterval(autoPlay);
     index++;
