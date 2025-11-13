@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Mobil Tüm Ürünler</title>
+<title>Sescibaba Slider - Alt Ayraclı Versiyon</title>
 <style>
 body {
   margin: 0;
@@ -17,7 +17,7 @@ body {
   overflow: hidden;
   width: 100%;
   max-width: 1850px;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 0 auto;
   position: relative;
 }
 
@@ -42,7 +42,9 @@ body {
   width: 150px;
   height: 150px;
   border-radius: 10px;
-  object-fit: cover;
+  object-fit: contain;          /* oran koruyarak küçültür */
+  background-color: #f9f9f9;    /* kenar boşluğu olursa nötr zemin */
+  padding: 5px;
   transition: transform .3s ease, box-shadow .3s ease;
 }
 
@@ -93,6 +95,15 @@ body {
   .slide-sescibabaprodcss{width:120px;}
   .slider-track-sescibabaprodcss{gap:15px;}
 }
+
+/* 🔹 Alt çizgi (ayraç) */
+.slider-divider {
+  width: 90%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ccc, transparent);
+  margin: 25px auto 10px;
+  border-radius: 1px;
+}
 </style>
 </head>
 <body>
@@ -126,6 +137,9 @@ body {
   <button class="slider-arrow slider-next">❯</button>
 </div>
 
+<!-- 🔹 Alt ayracı -->
+<div class="slider-divider"></div>
+
 <script>
 (() => {
   const track = document.getElementById("sliderTrack");
@@ -144,7 +158,7 @@ body {
   function updateSizes() {
     slideWidth = slides[0].offsetWidth + 18;
     if (window.innerWidth < 768) {
-      visibleCount = Math.floor(window.innerWidth / (slideWidth + 5)); // ekrana kaç ürün sığıyorsa o kadar
+      visibleCount = Math.floor(window.innerWidth / (slideWidth + 5));
     } else {
       visibleCount = 8;
     }
