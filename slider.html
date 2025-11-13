@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Dokunmatik Optimize</title>
+<title>Sescibaba Slider - Dokunmatik Uyumlu</title>
 <style>
 body {
   margin: 0;
@@ -55,7 +55,7 @@ body {
   }
 }
 
-/* 🔹 Başlık yazı ayarı */
+/* Yazılar */
 .slide-sescibabaprodcss p {
   font-size: 15px;
   color: #000;
@@ -137,51 +137,60 @@ body {
   const totalSlides = slides.length;
   let index = 0;
   let paused = false;
+  let autoPlay;
+  let restartTimer;
 
   function goToSlide(i){
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  function autoSlide(){
-    if(!paused){
-      index++;
-      if(index > totalSlides - visibleCount){
-        index = 0;
+  function startAuto(){
+    autoPlay = setInterval(()=>{
+      if(!paused){
+        index++;
+        if(index > totalSlides - visibleCount) index = 0;
+        goToSlide(index);
       }
-      goToSlide(index);
+    },2500);
+  }
+
+  function stopAuto(tempPause=false){
+    clearInterval(autoPlay);
+    if(tempPause){
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(()=>startAuto(),3000); // 3 sn sonra yeniden başlat
     }
   }
 
-  let autoPlay = setInterval(autoSlide, 2500);
+  startAuto();
 
-  // Hover durdurma sadece masaüstü için
+  // hover durdurma (sadece masaüstü)
   if (window.matchMedia('(hover: hover)').matches) {
     document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
     document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
   }
 
-  // Oklar
+  // oklar
   next.addEventListener("click",()=>{
-    clearInterval(autoPlay);
+    stopAuto(true);
     index++;
-    if(index > totalSlides - visibleCount){ index = 0; }
+    if(index > totalSlides - visibleCount) index = 0;
     goToSlide(index);
-    autoPlay = setInterval(autoSlide,2500);
   });
   prev.addEventListener("click",()=>{
-    clearInterval(autoPlay);
+    stopAuto(true);
     index--;
-    if(index < 0){ index = totalSlides - visibleCount; }
+    if(index < 0) index = totalSlides - visibleCount;
     goToSlide(index);
-    autoPlay = setInterval(autoSlide,2500);
   });
 
-  // 🔹 Dokunmatik swipe (tam optimize)
+  // 🔹 Dokunmatik swipe (otomatikle uyumlu)
   let startX = 0;
   let endX = 0;
 
   track.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
+    stopAuto(true); // kullanıcı dokununca otomatik kayma dursun
   }, { passive: true });
 
   track.addEventListener("touchmove", (e) => {
@@ -193,10 +202,10 @@ body {
     if(Math.abs(delta) > 50){
       if(delta > 0){ // sola kaydır
         index++;
-        if(index > totalSlides - visibleCount){ index = 0; }
+        if(index > totalSlides - visibleCount) index = 0;
       } else { // sağa kaydır
         index--;
-        if(index < 0){ index = totalSlides - visibleCount; }
+        if(index < 0) index = totalSlides - visibleCount;
       }
       goToSlide(index);
     }
