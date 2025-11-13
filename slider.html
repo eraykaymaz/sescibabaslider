@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sescibaba Slider</title>
+<style>
+body{margin:0;padding:0;font-family:Arial, sans-serif;background:#fff;}
+.slider-wrap-sescibabaprodcss{overflow:hidden;max-width:800px;margin:20px auto;}
+.slider-track-sescibabaprodcss{display:flex;width:calc(135px*10);animation:scroll-sescibabaprodcss 22s cubic-bezier(.65,0,.35,1) infinite alternate;touch-action:pan-x;}
+.slider-wrap-sescibabaprodcss:hover .slider-track-sescibabaprodcss{animation-play-state:paused;}
+.slide-sescibabaprodcss{flex:0 0 135px;text-align:center;margin:0 5px;}
+.slide-sescibabaprodcss img{width:125px;height:125px;border-radius:8px;transition:transform .3s,box-shadow .3s;}
+.slide-sescibabaprodcss:hover img{transform:scale(1.15);box-shadow:0 0 10px rgba(0,0,0,.2);}
+.slide-sescibabaprodcss p{font-size:13px;color:#000;margin-top:5px;}
+@keyframes scroll-sescibabaprodcss{0%,100%{transform:translateX(0);}50%{transform:translateX(-50%);}}
+@media(max-width:768px){.slider-wrap-sescibabaprodcss{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+.slider-track-sescibabaprodcss{animation:none;width:max-content;}
+.slide-sescibabaprodcss{flex:0 0 auto;}}
+</style>
+</head>
+<body>
+<div class="slider-wrap-sescibabaprodcss">
+  <div class="slider-track-sescibabaprodcss">
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun1"><img src="https://placehold.co/125x125"><p>Ürün 1</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun2"><img src="https://placehold.co/125x125"><p>Ürün 2</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun3"><img src="https://placehold.co/125x125"><p>Ürün 3</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun4"><img src="https://placehold.co/125x125"><p>Ürün 4</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun5"><img src="https://placehold.co/125x125"><p>Ürün 5</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun6"><img src="https://placehold.co/125x125"><p>Ürün 6</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun7"><img src="https://placehold.co/125x125"><p>Ürün 7</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun8"><img src="https://placehold.co/125x125"><p>Ürün 8</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun9"><img src="https://placehold.co/125x125"><p>Ürün 9</p></a></div>
+    <div class="slide-sescibabaprodcss"><a href="https://sescibaba.com/urun10"><img src="https://placehold.co/125x125"><p>Ürün 10</p></a></div>
+  </div>
+</div>
+</body>
+</html>
