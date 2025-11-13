@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Tam Mobil Uyumlu</title>
+<title>Sescibaba Slider - Mobil Tüm Ürünler</title>
 <style>
 body {
   margin: 0;
@@ -46,7 +46,7 @@ body {
   transition: transform .3s ease, box-shadow .3s ease;
 }
 
-/* Hover efekti sadece masaüstü için */
+/* Hover sadece masaüstü için */
 @media (hover:hover) {
   .slide-sescibabaprodcss:hover img {
     transform: scale(1.08);
@@ -132,57 +132,69 @@ body {
   const slides = Array.from(track.children);
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-
-  const slideWidth = slides[0].offsetWidth + 18; // dinamik hesapla
-  let visibleCount = window.innerWidth < 768 ? 3 : 8; // mobilde 3, masaüstü 8
   const totalSlides = slides.length;
 
+  let slideWidth;
+  let visibleCount;
   let index = 0;
   let paused = false;
   let autoPlay;
   let restartTimer;
 
-  function goToSlide(i){
-    track.style.transform = `translateX(-${i * slideWidth}px)`;
-  }
-
-  function startAuto(){
-    autoPlay = setInterval(()=>{
-      if(!paused){
-        index++;
-        if(index > totalSlides - visibleCount) index = 0;
-        goToSlide(index);
-      }
-    },3000);
-  }
-
-  function stopAuto(tempPause=false){
-    clearInterval(autoPlay);
-    if(tempPause){
-      clearTimeout(restartTimer);
-      restartTimer = setTimeout(()=>startAuto(),3000);
+  function updateSizes() {
+    slideWidth = slides[0].offsetWidth + 18;
+    if (window.innerWidth < 768) {
+      visibleCount = Math.floor(window.innerWidth / (slideWidth + 5)); // ekrana kaç ürün sığıyorsa o kadar
+    } else {
+      visibleCount = 8;
     }
   }
 
-  startAuto();
-
-  // hover durdurma (masaüstü)
-  if (window.matchMedia('(hover: hover)').matches) {
-    document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
-    document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
+  function goToSlide(i) {
+    track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  // oklar
-  next.addEventListener("click",()=>{
+  function startAuto() {
+    autoPlay = setInterval(() => {
+      if (!paused) {
+        index++;
+        if (index > totalSlides - visibleCount) index = 0;
+        goToSlide(index);
+      }
+    }, 3000);
+  }
+
+  function stopAuto(tempPause = false) {
+    clearInterval(autoPlay);
+    if (tempPause) {
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(() => startAuto(), 3000);
+    }
+  }
+
+  updateSizes();
+  startAuto();
+
+  if (window.matchMedia("(hover: hover)").matches) {
+    document
+      .getElementById("sliderWrap")
+      .addEventListener("mouseenter", () => (paused = true));
+    document
+      .getElementById("sliderWrap")
+      .addEventListener("mouseleave", () => (paused = false));
+  }
+
+  next.addEventListener("click", () => {
     stopAuto(true);
     index++;
-    if(index > totalSlides - visibleCount) index = 0;
+    if (index > totalSlides - visibleCount) index = 0;
     goToSlide(index);
   });
-  prev.addEventListener("click",()=>{
+
+  prev.addEventListener("click", () => {
     stopAuto(true);
     index--;
-    if(index < 0) index = totalSlides - visibleCount;
+    if (index < 0) index = totalSlides - visibleCount;
     goToSlide(index);
   });
 
@@ -190,32 +202,43 @@ body {
   let startX = 0;
   let endX = 0;
 
-  track.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-    stopAuto(true);
-  }, { passive: true });
+  track.addEventListener(
+    "touchstart",
+    (e) => {
+      startX = e.touches[0].clientX;
+      stopAuto(true);
+    },
+    { passive: true }
+  );
 
-  track.addEventListener("touchmove", (e) => {
-    endX = e.touches[0].clientX;
-  }, { passive: true });
+  track.addEventListener(
+    "touchmove",
+    (e) => {
+      endX = e.touches[0].clientX;
+    },
+    { passive: true }
+  );
 
-  track.addEventListener("touchend", () => {
-    const delta = startX - endX;
-    if(Math.abs(delta) > 50){
-      if(delta > 0){
-        index++;
-        if(index > totalSlides - visibleCount) index = 0;
-      } else {
-        index--;
-        if(index < 0) index = totalSlides - visibleCount;
+  track.addEventListener(
+    "touchend",
+    () => {
+      const delta = startX - endX;
+      if (Math.abs(delta) > 50) {
+        if (delta > 0) {
+          index++;
+          if (index > totalSlides - visibleCount) index = 0;
+        } else {
+          index--;
+          if (index < 0) index = totalSlides - visibleCount;
+        }
+        goToSlide(index);
       }
-      goToSlide(index);
-    }
-  });
+    },
+    { passive: true }
+  );
 
-  // pencere yeniden boyutlandığında mobil/masaüstü geçişi için
-  window.addEventListener("resize", ()=>{
-    visibleCount = window.innerWidth < 768 ? 3 : 8;
+  window.addEventListener("resize", () => {
+    updateSizes();
     goToSlide(index);
   });
 })();
