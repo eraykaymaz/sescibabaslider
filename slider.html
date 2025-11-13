@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Dokunmatik Tam Destek</title>
+<title>Sescibaba Slider - Dokunmatik Optimize</title>
 <style>
 body {
   margin: 0;
@@ -46,10 +46,13 @@ body {
   transition: transform .3s ease, box-shadow .3s ease;
 }
 
-.slide-sescibabaprodcss:hover img {
-  transform: scale(1.08);
-  box-shadow: 0 4px 14px rgba(0,0,0,.3);
-  z-index: 10;
+/* 🔹 Hover efekti sadece masaüstü için */
+@media (hover:hover) {
+  .slide-sescibabaprodcss:hover img {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.3);
+    z-index: 10;
+  }
 }
 
 /* 🔹 Başlık yazı ayarı */
@@ -151,9 +154,11 @@ body {
 
   let autoPlay = setInterval(autoSlide, 2500);
 
-  // Hover durdurma
-  document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
-  document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
+  // Hover durdurma sadece masaüstü için
+  if (window.matchMedia('(hover: hover)').matches) {
+    document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
+    document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
+  }
 
   // Oklar
   next.addEventListener("click",()=>{
@@ -171,7 +176,7 @@ body {
     autoPlay = setInterval(autoSlide,2500);
   });
 
-  // 🔹 Dokunmatik (swipe) desteği – iOS / Android tam uyumlu
+  // 🔹 Dokunmatik swipe (tam optimize)
   let startX = 0;
   let endX = 0;
 
@@ -181,8 +186,7 @@ body {
 
   track.addEventListener("touchmove", (e) => {
     endX = e.touches[0].clientX;
-    e.preventDefault(); // 🔧 tarayıcı scroll’unu engeller
-  }, { passive: false });
+  }, { passive: true });
 
   track.addEventListener("touchend", () => {
     const delta = startX - endX;
@@ -196,7 +200,7 @@ body {
       }
       goToSlide(index);
     }
-  }, { passive: true });
+  });
 })();
 </script>
 </body>
