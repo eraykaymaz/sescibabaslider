@@ -26,7 +26,7 @@ body {
 .slider-track-sescibabaprodcss {
   display: flex;
   gap: 25px;
-  transition: transform 0.6s ease;
+  will-change: transform;
 }
 
 /* Ürün kutusu */
@@ -34,7 +34,7 @@ body {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
-  padding: 25px 0 20px; /* 🔹 Üst boşluk artırıldı */
+  padding: 25px 0 20px;
   box-sizing: border-box;
 }
 
@@ -107,38 +107,41 @@ body {
 </div>
 
 <script>
-(function(){
+(() => {
   const track = document.getElementById("sliderTrack");
   const slider = document.getElementById("sliderWrap");
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
   
-  let direction = 1; // 1 = sağa, -1 = sola
+  let direction = 1;
   let paused = false;
   let position = 0;
-  const slideWidth = 175; // 150 + 25 boşluk
-  const totalSlides = track.children.length;
+  const slideWidth = 175;
+  const slides = Array.from(track.children);
+  const totalWidth = slides.length * slideWidth;
 
-  // sonsuz kayma için klon ekle
+  // klonla sonsuz döngü efekti
   track.innerHTML += track.innerHTML;
 
-  function moveSlides(){
-    if(!paused){
+  function animate() {
+    if (!paused) {
       position += direction;
+      if (position >= totalWidth) position = 0;
+      if (position <= -totalWidth) position = 0;
       track.style.transform = `translateX(${-position}px)`;
-      // sonsuz döngü
-      if(position >= totalSlides * slideWidth) position = 0;
-      if(position <= 0 && direction < 0) position = totalSlides * slideWidth;
     }
+    requestAnimationFrame(animate);
   }
 
-  let autoPlay = setInterval(moveSlides, 15); // 🔹 hız ayarı (ne kadar küçük, o kadar hızlı)
+  animate();
 
-  slider.addEventListener("mouseenter",()=>paused = true);
-  slider.addEventListener("mouseleave",()=>paused = false);
+  // Hover durdurma
+  slider.addEventListener("mouseenter", () => paused = true);
+  slider.addEventListener("mouseleave", () => paused = false);
 
-  next.addEventListener("click",()=> direction = 1);
-  prev.addEventListener("click",()=> direction = -1);
+  // Oklar yön değiştirir
+  next.addEventListener("click", () => direction = 1);
+  prev.addEventListener("click", () => direction = -1);
 })();
 </script>
 </body>
