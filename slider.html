@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Alt Ayraclı Versiyon</title>
+<title>Sescibaba Slider - 3D Ayraclı Versiyon</title>
 <style>
 body {
   margin: 0;
@@ -42,8 +42,8 @@ body {
   width: 150px;
   height: 150px;
   border-radius: 10px;
-  object-fit: contain;          /* oran koruyarak küçültür */
-  background-color: #f9f9f9;    /* kenar boşluğu olursa nötr zemin */
+  object-fit: contain;          /* 🔹 orantılı küçültme */
+  background-color: #f9f9f9;
   padding: 5px;
   transition: transform .3s ease, box-shadow .3s ease;
 }
@@ -96,13 +96,14 @@ body {
   .slider-track-sescibabaprodcss{gap:15px;}
 }
 
-/* 🔹 Alt çizgi (ayraç) */
+/* 🔹 Alt çizgi (3D ayraç) */
 .slider-divider {
-  width: 90%;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #ccc, transparent);
-  margin: 25px auto 10px;
-  border-radius: 1px;
+  width: 92%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
+  margin: 10px auto 20px;  /* 🔸 biraz yukarı alındı */
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.2);
 }
 </style>
 </head>
@@ -125,7 +126,8 @@ body {
 
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
 
-    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/pf-155-pf-155-pop-filtre-91907-12-O.webp" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
+    <!-- 🔸 Pop Filtre - yeni görsel -->
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/gm-pop-filter-pop-filtre-gator-frameworks-gm-pop-filter-94975-98-O.jpg" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
 
     <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
 
@@ -137,7 +139,7 @@ body {
   <button class="slider-arrow slider-next">❯</button>
 </div>
 
-<!-- 🔹 Alt ayracı -->
+<!-- 🔹 3D efektli alt ayracı -->
 <div class="slider-divider"></div>
 
 <script>
