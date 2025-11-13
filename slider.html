@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - Dokunmatik Uyumlu</title>
+<title>Sescibaba Slider - Tam Mobil Uyumlu</title>
 <style>
 body {
   margin: 0;
@@ -46,7 +46,7 @@ body {
   transition: transform .3s ease, box-shadow .3s ease;
 }
 
-/* 🔹 Hover efekti sadece masaüstü için */
+/* Hover efekti sadece masaüstü için */
 @media (hover:hover) {
   .slide-sescibabaprodcss:hover img {
     transform: scale(1.08);
@@ -132,9 +132,11 @@ body {
   const slides = Array.from(track.children);
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-  const slideWidth = 168;
-  const visibleCount = 8;
+
+  const slideWidth = slides[0].offsetWidth + 18; // dinamik hesapla
+  let visibleCount = window.innerWidth < 768 ? 3 : 8; // mobilde 3, masaüstü 8
   const totalSlides = slides.length;
+
   let index = 0;
   let paused = false;
   let autoPlay;
@@ -151,20 +153,20 @@ body {
         if(index > totalSlides - visibleCount) index = 0;
         goToSlide(index);
       }
-    },2500);
+    },3000);
   }
 
   function stopAuto(tempPause=false){
     clearInterval(autoPlay);
     if(tempPause){
       clearTimeout(restartTimer);
-      restartTimer = setTimeout(()=>startAuto(),3000); // 3 sn sonra yeniden başlat
+      restartTimer = setTimeout(()=>startAuto(),3000);
     }
   }
 
   startAuto();
 
-  // hover durdurma (sadece masaüstü)
+  // hover durdurma (masaüstü)
   if (window.matchMedia('(hover: hover)').matches) {
     document.getElementById("sliderWrap").addEventListener("mouseenter",()=>paused=true);
     document.getElementById("sliderWrap").addEventListener("mouseleave",()=>paused=false);
@@ -184,13 +186,13 @@ body {
     goToSlide(index);
   });
 
-  // 🔹 Dokunmatik swipe (otomatikle uyumlu)
+  // 🔹 Dokunmatik swipe
   let startX = 0;
   let endX = 0;
 
   track.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
-    stopAuto(true); // kullanıcı dokununca otomatik kayma dursun
+    stopAuto(true);
   }, { passive: true });
 
   track.addEventListener("touchmove", (e) => {
@@ -200,15 +202,21 @@ body {
   track.addEventListener("touchend", () => {
     const delta = startX - endX;
     if(Math.abs(delta) > 50){
-      if(delta > 0){ // sola kaydır
+      if(delta > 0){
         index++;
         if(index > totalSlides - visibleCount) index = 0;
-      } else { // sağa kaydır
+      } else {
         index--;
         if(index < 0) index = totalSlides - visibleCount;
       }
       goToSlide(index);
     }
+  });
+
+  // pencere yeniden boyutlandığında mobil/masaüstü geçişi için
+  window.addEventListener("resize", ()=>{
+    visibleCount = window.innerWidth < 768 ? 3 : 8;
+    goToSlide(index);
   });
 })();
 </script>
