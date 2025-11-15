@@ -49,14 +49,22 @@ body {
   transform: scale(1.08);
 }
 
-.slide p {
-  font-size: 15px;
-  color: #000;
-  margin-top: 10px;
+.slide-title {
+  font-size: 14px;
   font-weight: 700;
+  color: #000;
+  margin-top: 8px;
+  height: 38px;
+  overflow: hidden;
 }
 
-/* Alt ayraç (3D çizgi) */
+.slide-price {
+  font-size: 15px;
+  color: #d10000;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
 .slider-divider {
   width: 92%;
   height: 2px;
@@ -82,56 +90,56 @@ body {
 <div class="slider-divider"></div>
 
 <script>
-// ===============================
-//  URL’den kategori alıyoruz
-// ===============================
+// =====================================================
+//  KATEGORİYİ URL'DEN AL
+// =====================================================
 const url = new URL(window.location.href);
-const category = url.searchParams.get("cat");
+const catID = url.searchParams.get("cat");
 
-if (!category) {
+if (!catID) {
   document.getElementById("track").innerHTML =
-    "<div class='info-text'>Kategori belirtilmedi: ?cat=Kulaklık</div>";
+    "<div class='info-text'>HATA: slider.html?cat=CAT004 formatında çağırmalısınız.</div>";
+  throw new Error("CAT parametresi yok");
 }
 
-// ===============================
-//  Ana Çalıştırma Fonksiyonu
-// ===============================
+// =====================================================
+//  ANA ÇALIŞTIRMA FONKSİYONU
+// =====================================================
 (async () => {
   const map = await fetch("./data/category-map.json").then(r => r.json());
   const products = await fetch("./data/products.json").then(r => r.json());
+
   const track = document.getElementById("track");
 
-  // Kategori yoksa
-  if (!map[category]) {
-    track.innerHTML = `<div class='info-text'>Kategori bulunamadı: ${category}</div>`;
+  if (!map[catID]) {
+    track.innerHTML = `<div class='info-text'>Kategori bulunamadı: ${catID}</div>`;
     return;
   }
 
-  const related = map[category]; // 15 öneri kategori
+  const related = map[catID].related;
 
-  let productList = [];
+  let list = [];
 
-  // Her öneri kategorinin ürünlerini alıyoruz
-  for (let cat of related) {
-    if (products[cat] && products[cat].length > 0) {
-      productList.push(...products[cat]);
+  // 15 öneri kategorinin ürünlerini topla
+  for (let rc of related) {
+    if (products[rc] && products[rc].length > 0) {
+      list.push(...products[rc]);
     }
   }
 
-  // Ürünler yoksa
-  if (productList.length === 0) {
+  // Tekrarsız ürün
+  list = [...new Set(list)];
+
+  if (list.length === 0) {
     track.innerHTML =
-      `<div class='info-text'>${category} kategorisi için ürün eklenmemiş.</div>`;
+      `<div class='info-text'>Bu kategori için ürün eklenmemiş.</div>`;
     return;
   }
 
-  // Tekrarsız yap
-  productList = [...new Set(productList)];
-
-  // ===============================
-  //  Ürün bilgilerini API'den çek
-  // ===============================
-  for (let link of productList) {
+  // =====================================================
+  //  ÜRÜN BİLGİLERİNİ API’DEN ÇEK
+  // =====================================================
+  for (let link of list) {
     const api =
       "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
       encodeURIComponent(link);
@@ -147,7 +155,8 @@ if (!category) {
       <div class="slide">
         <a href="${link}" target="_top">
           <img src="${d.image}" alt="${d.title}">
-          <p>${d.title}</p>
+          <div class="slide-title">${d.title}</div>
+          <div class="slide-price">${d.price}</div>
         </a>
       </div>
     `;
