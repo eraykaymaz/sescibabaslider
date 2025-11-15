@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Kategori Bazlı Slider Üretici – Final</title>
+<title>Slider Üretici – Final</title>
 
 <style>
 body{font-family:Arial;padding:10px;background:#f5f5f5;margin:0;}
@@ -41,12 +41,23 @@ img{width:80px;height:80px;object-fit:contain;}
 <script>
 
 /* ============================================================
-      A01–A02–A03 MAP → SENİN YAPIŞTIRMAN İÇİN YER
+      A01 – A02 – A03 → İlk 15'lik Related Map
 ============================================================ */
 const CATEGORY_MAP = {
-"A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
-"A02":{"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]},
-"A03":{"related":["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]}
+
+  "A01": {
+    "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
+  },
+
+  "A02": {
+    "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]
+  },
+
+  "A03": {
+    "related": ["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]
+  }
+
+  /* → Diğer tüm A-Kodlarını buraya ekleyeceksin */
 };
 
 /* ============================================================
@@ -168,7 +179,7 @@ window.makeSlider = async function(CODE){
 };
 
 /* ============================================================
-      SLIDER HTML — RESPONSIVE + AUTO + HOVER ZOOM
+      SLIDER HTML — FINAL
 ============================================================ */
 function sliderHTML(CODE, items){
 return `
