@@ -49,22 +49,38 @@ img{width:65px;height:65px;object-fit:contain;}
 
 let PRODUCTS = {};
 let CATEGORY_MAP = {};
+let dataReady = { products:false, map:false };
 
-document.body.appendChild(Object.assign(document.createElement("script"), {
-    src: "./data/category-map.js",
-    onload: ()=> CATEGORY_MAP = window.CATEGORY_MAP
-}));
+/* ------------------------------------ */
+/* DOSYALARI YÜKLE                       */
+/* ------------------------------------ */
+function loadDataFiles(){
+    return new Promise(resolve=>{
+        const s1 = document.createElement("script");
+        s1.src = "./data/category-map.js?v="+Date.now();
+        s1.onload = ()=>{ CATEGORY_MAP = window.CATEGORY_MAP; dataReady.map = true; check(); };
+        document.body.appendChild(s1);
 
-document.body.appendChild(Object.assign(document.createElement("script"), {
-    src: "./data/products.js",
-    onload: ()=> PRODUCTS = window.PRODUCTS
-}));
+        const s2 = document.createElement("script");
+        s2.src = "./data/products.js?v="+Date.now();
+        s2.onload = ()=>{ PRODUCTS = window.PRODUCTS; dataReady.products = true; check(); };
+        document.body.appendChild(s2);
 
-document.getElementById("excelFile").addEventListener("change", handleExcel);
+        function check(){
+            if(dataReady.map && dataReady.products){
+                resolve();
+            }
+        }
+    });
+}
+
+await loadDataFiles();
 
 /* ------------------------------------ */
 /* EXCEL YÜKLEME                        */
 /* ------------------------------------ */
+document.getElementById("excelFile").addEventListener("change", handleExcel);
+
 async function handleExcel(e){
     const file = e.target.files[0];
     const data = await file.arrayBuffer();
@@ -95,7 +111,7 @@ async function handleExcel(e){
 }
 
 /* ------------------------------------ */
-/* TABLO SATIRI                         */
+/* SATIR OLUŞTUR                         */
 /* ------------------------------------ */
 function renderRow(i, row, api, CAT){
     const tbody = document.querySelector("#productTable tbody");
@@ -125,9 +141,6 @@ function renderRow(i, row, api, CAT){
     tbody.appendChild(tr);
 }
 
-/* ------------------------------------ */
-/* GÜNCELLE                              */
-/* ------------------------------------ */
 function getLinkHTML(i, CAT, link, stock){
     if(stock === "VAR" && link){
         return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
@@ -141,47 +154,15 @@ function getLinkHTML(i, CAT, link, stock){
     `;
 }
 
-async function updateLink(i, CAT){
-    const newLink = document.getElementById("inp_"+i).value.trim();
-    if(!newLink) return;
-
-    PRODUCTS[CAT] = [newLink];
-
-    const api = await fetchAPI(newLink);
-
-    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
-    document.getElementById("title_"+i).innerHTML = api.title;
-    document.getElementById("price_"+i).innerHTML = api.price;
-    document.getElementById("catapi_"+i).innerHTML = api.category;
-
-    const cell = document.getElementById("cell_"+i);
-    const row = document.getElementById("row_"+i);
-
-    if(api.stock === "VAR"){
-        row.classList.remove("red-row");
-        cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
-    } else {
-        row.classList.add("red-row");
-        cell.innerHTML = `
-            <div class="flex-row">
-              <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-              <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-            </div>
-        `;
-    }
-}
-
 /* ------------------------------------ */
-/* API ÇEKME                             */
+/* API                                   */
 /* ------------------------------------ */
 async function fetchAPI(url){
     try{
-        const r = await fetch(
-          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
-        );
+        const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
         return await r.json();
     }catch(e){
-        return {title:"-", price:"-", image:"", category:"-", stock:"YOK"};
+        return {title:"-",price:"-",image:"",category:"-",stock:"YOK"};
     }
 }
 
@@ -198,10 +179,11 @@ function generateProductsJS(){
 }
 
 /* ------------------------------------ */
-/* SLIDER ÜRET (HTML + CSS — JS YOK)     */
+/* SLIDER ÜRET (HTML + CSS)              */
 /* ------------------------------------ */
 async function createSlider(CAT){
     const related = CATEGORY_MAP[CAT]?.related || [];
+
     let items = [];
 
     for(const rc of related){
@@ -212,7 +194,7 @@ async function createSlider(CAT){
         items.push({ link, ...api });
     }
 
-    const html = generatePureHTMLSlider(CAT, items);
+    const html = buildCSSHTMLSlider(CAT, items);
 
     const blob = new Blob([html], {type:"text/html"});
     const a = document.createElement("a");
@@ -222,39 +204,30 @@ async function createSlider(CAT){
 }
 
 /* ------------------------------------ */
-/* PURE HTML + CSS SLIDER GENERATOR     */
+/* PURE HTML CSS SLIDER GENERATOR       */
 /* ------------------------------------ */
-function generatePureHTMLSlider(CAT, items){
-
+function buildCSSHTMLSlider(CAT, items){
 return `
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>${CAT} Slider</title>
+<title>${CAT}</title>
 
 <style>
 body{margin:0;padding:0;font-family:Arial;}
 .slider-container{
-  display:flex;overflow-x:auto;scroll-behavior:smooth;
-  gap:18px;padding:20px;
+  display:flex;overflow-x:auto;gap:18px;padding:20px;
+  scroll-behavior:smooth;
 }
-.slider-container::-webkit-scrollbar{height:8px;}
-.slider-container::-webkit-scrollbar-thumb{
-  background:#ccc;border-radius:4px;
-}
-.item{
-  min-width:150px;text-align:center;
-}
+.item{min-width:150px;text-align:center;}
 .item img{
   width:150px;height:150px;object-fit:contain;
   border-radius:12px;background:#fff;
 }
-.title{
-  margin-top:8px;font-size:14px;font-weight:700;
-}
+.title{margin-top:8px;font-size:14px;font-weight:700;}
 .price{margin-top:4px;font-size:15px;font-weight:800;color:#d30000;}
-.stock{margin-top:4px;font-size:14px;font-weight:700;color:#999;}
+.stock{margin-top:4px;font-size:14px;font-weight:700;color:#777;}
 </style>
 
 </head>
@@ -263,7 +236,9 @@ body{margin:0;padding:0;font-family:Arial;}
 <div class="slider-container">
 ${items.map(p=>`
   <div class="item">
-    <a href="${p.link}" target="_top"><img src="${p.image}"></a>
+    <a href="${p.link}" target="_top">
+      <img src="${p.image}">
+    </a>
     <div class="title">${p.title}</div>
     ${p.stock==="VAR" ? `<div class="price">${p.price}</div>` : `<div class="stock">Tükendi</div>`}
   </div>
@@ -271,8 +246,7 @@ ${items.map(p=>`
 </div>
 
 </body>
-</html>
-`;
+</html>`;
 }
 
 </script>
