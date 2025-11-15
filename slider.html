@@ -6,30 +6,55 @@
 <title>Sescibaba Akıllı Slider</title>
 
 <style>
-body { margin: 0; padding: 0; background: #fff; font-family: Arial; }
+body { margin:0; padding:0; background:#fff; font-family:Arial, sans-serif; }
 
-.slider-wrap { overflow: hidden; width: 100%; max-width: 1850px; margin: 0 auto; position: relative; }
-.slider-track { display: flex; gap: 18px; transition: transform .5s; }
-.slide-item { width: 150px; text-align: center; padding: 20px 0; }
-.slide-item img { width: 150px; height: 150px; object-fit: contain; border-radius: 12px; }
+.slider-wrap { overflow:hidden; width:100%; max-width:1850px; margin:0 auto; position:relative; }
+.slider-track { display:flex; gap:18px; transition:transform .5s ease-in-out; }
 
-.product-title { font-size: 14px; font-weight: 700; margin-top: 10px; }
-.product-price { font-size: 15px; font-weight: 800; color: #d30000; margin-top: 4px; }
+.slide-item { width:150px; text-align:center; padding:18px 0; }
+.slide-item img { width:150px; height:150px; object-fit:contain; border-radius:12px; }
 
-.slider-arrow {
-  position: absolute; top: 45%; transform: translateY(-50%);
-  background: rgba(255,255,255,.9); border: none;
-  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-  font-size: 22px; box-shadow: 0 0 6px rgba(0,0,0,.25);
+.product-title { font-size:14px; font-weight:700; margin-top:10px; }
+.product-price { font-size:15px; font-weight:800; color:#d30000; margin-top:4px; }
+
+/* SEPTE EKLE */
+.addcart-btn {
+  margin-top:6px;
+  padding:6px 12px;
+  background:#1a73e8;
+  color:#fff;
+  border-radius:6px;
+  font-size:13px;
+  cursor:pointer;
+  display:inline-block;
+}
+.addcart-btn:hover { background:#0c58c9; }
+
+/* TÜKENDİ */
+.outofstock {
+  margin-top:6px;
+  padding:6px 12px;
+  background:#ffb3b3;
+  color:#b60000;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:bold;
 }
 
-.slider-prev { left: 5px; }
-.slider-next { right: 5px; }
+.slider-arrow {
+  position:absolute; top:45%; transform:translateY(-50%);
+  background:rgba(255,255,255,.9);
+  border:none; font-size:22px; cursor:pointer;
+  border-radius:50%; width:40px; height:40px;
+  box-shadow:0 0 6px rgba(0,0,0,.25);
+}
+.slider-prev { left:5px; }
+.slider-next { right:5px; }
 
 .slider-divider {
-  width: 92%; height: 2px;
-  margin: 10px auto 40px;
-  background: linear-gradient(to right, transparent, rgba(0,0,0,.15), transparent);
+  width:92%; height:2px;
+  background:linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
+  margin:10px auto 40px;
 }
 </style>
 </head>
@@ -48,14 +73,24 @@ body { margin: 0; padding: 0; background: #fff; font-family: Arial; }
 function loadScript(src){
   return new Promise((resolve,reject)=>{
     const s=document.createElement("script");
-    s.src = src + "?v=" + Date.now();
-    s.onload = resolve;
-    s.onerror = reject;
+    s.src=src+"?v="+Date.now();
+    s.onload=resolve; s.onerror=reject;
     document.body.appendChild(s);
   });
 }
 
-const getParam = (k)=> new URLSearchParams(location.search).get(k);
+const getParam = k => new URLSearchParams(location.search).get(k);
+
+function formatPrice(raw){
+  if(!raw) return "";
+  raw = raw.toString();
+
+  if(raw.includes("₺")) return raw.replace("₺","") + " ₺";
+  if(raw.includes("$")) return raw.replace("$","") + " $";
+  if(raw.includes("€")) return raw.replace("€","") + " €";
+
+  return raw;
+}
 
 async function loadSlider(){
   const CAT = getParam("cat") || "CAT001";
@@ -66,30 +101,42 @@ async function loadSlider(){
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
-  if (!map[CAT]) { console.error("CAT bulunamadı:", CAT); return; }
-
-  const related = map[CAT].related;   // DÜZELTME: related dizisi
+  const related = map[CAT]?.related || [];
   const track = document.getElementById("sliderTrack");
 
-  for (let sub of related){
-    const productLink = pro[sub]?.[0];
-    if (!productLink) continue;
+  for(let rc of related){
+    const productLink = pro[rc]?.[0];
+    if(!productLink) continue;
 
-    const api = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(productLink)).then(r=>r.json());
+    const api = await fetch(
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(productLink)
+    ).then(r=>r.json());
+
+    const price = formatPrice(api.price);
+    const stock = api.inStock;  // Worker API → true/false
+
+    const div = document.createElement("div");
+    div.className = "slide-item";
 
     const t = api.title.split(" ");
     const line1 = t.slice(0,3).join(" ");
     const line2 = t.slice(3,6).join(" ");
 
-    let div = document.createElement("div");
-    div.className = "slide-item";
     div.innerHTML = `
       <a href="${productLink}" target="_top">
         <img src="${api.image}">
       </a>
+
       <div class="product-title">${line1}<br>${line2}</div>
-      <div class="product-price">${api.price}</div>
+      <div class="product-price">${price}</div>
+
+      ${
+        stock
+        ? `<a href="${productLink}?add_to_cart=1" target="_top" class="addcart-btn">Sepete Ekle</a>`
+        : `<div class="outofstock">Tükendi</div>`
+      }
     `;
+
     track.appendChild(div);
   }
 
@@ -97,22 +144,34 @@ async function loadSlider(){
 }
 
 function initSlider(){
-  const track = document.getElementById("sliderTrack");
-  const slides = [...track.children];
-  if (slides.length === 0) return;
+  const track=document.getElementById("sliderTrack");
+  const slides=[...track.children];
+  const next=document.querySelector(".slider-next");
+  const prev=document.querySelector(".slider-prev");
 
-  const next = document.querySelector(".slider-next");
-  const prev = document.querySelector(".slider-prev");
-  let index = 0;
-  let slideWidth = slides[0].offsetWidth + 18;
+  if(slides.length===0) return;
 
-  const goTo = (i)=> track.style.transform = `translateX(-${i * slideWidth}px)`;
+  let slideWidth, visibleCount, index=0;
 
-  next.onclick = ()=>{ index++; if(index >= slides.length-8) index=0; goTo(index); };
-  prev.onclick = ()=>{ index--; if(index < 0) index = slides.length-8; goTo(index); };
+  function update(){
+    slideWidth = slides[0].offsetWidth + 18;
+    visibleCount = window.innerWidth<768
+      ? Math.floor(window.innerWidth/(slideWidth+5))
+      : 8;
+  }
+
+  function move(i){ track.style.transform=`translateX(-${i*slideWidth}px)`; }
+
+  update();
+
+  next.onclick=()=>{ index++; if(index>=slides.length-visibleCount) index=0; move(index); };
+  prev.onclick=()=>{ index--; if(index<0) index=slides.length-visibleCount; move(index); };
+
+  window.addEventListener("resize",()=>{ update(); move(index); });
 }
 
 loadSlider();
 </script>
+
 </body>
 </html>
