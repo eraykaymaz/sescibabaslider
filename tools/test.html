@@ -53,44 +53,47 @@ let CATEGORY_MAP = null;
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
-    const file = e.target.files[0];
-    const data = await file.arrayBuffer();
-    const excel = XLSX.read(data);
-    const sheet = excel.Sheets[excel.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    try{
+        const file = e.target.files[0];
+        const data = await file.arrayBuffer();
+        const excel = XLSX.read(data);
+        const sheet = excel.Sheets[excel.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-    const tbody = document.querySelector("#productTable tbody");
-    tbody.innerHTML = "";
+        const tbody = document.querySelector("#productTable tbody");
+        tbody.innerHTML = "";
 
-    for(let i=1;i<json.length;i++){
-        const row = json[i];
-        const catName = row[0];
-        const CAT = row[1];
-        let link = row[2];
+        for(let i=1;i<json.length;i++){
+            const row = json[i];
+            const catName = row[0];
+            const CAT = row[1];
+            const link = row[2];
 
-        if(!CAT) continue;
+            if(!CAT) continue;
 
-        if(!PRODUCTS[CAT]) PRODUCTS[CAT] = {};
+            // boş obje
+            PRODUCTS[CAT] = { cat: CAT, link: link, title:"-", image:"", price:"-", stock:"YOK", category:"-" };
 
-        PRODUCTS[CAT].link = link || null;
+            let api = await fetchAPI(link);
 
-        let api = link ? await fetchAPI(link) : blankAPI();
+            PRODUCTS[CAT] = {
+                cat: CAT,
+                link: link,
+                title: api.title,
+                image: api.image,
+                price: api.price,
+                stock: api.stock,
+                category: api.category
+            };
 
-        PRODUCTS[CAT] = {
-            cat: CAT,
-            link: link,
-            title: api.title,
-            image: api.image,
-            price: api.price,
-            stock: api.stock,
-            category: api.category
-        };
-
-        renderRow(i, catName, CAT, api);
+            renderRow(i, catName, CAT, api);
+        }
+    }catch(err){
+        alert("Excel yüklenirken hata oluştu: " + err);
     }
 }
 
-/* ---------------- RENDER ROW ---------------- */
+/* ---------------- RENDER ---------------- */
 function renderRow(i, catName, CAT, api){
     const tbody = document.querySelector("#productTable tbody");
     const tr = document.createElement("tr");
@@ -105,19 +108,22 @@ function renderRow(i, catName, CAT, api){
       <td>${api.category}</td>
       <td>${CAT}</td>
       <td>
-        <button class="slider-btn" onclick="generateSlider('${CAT}')">CAT → Slider Üret</button>
+        <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>
       </td>
     `;
 
     tbody.appendChild(tr);
 }
 
-/* ---------------- API ---------------- */
+/* ---------------- API SAFE ---------------- */
 async function fetchAPI(url){
+    if(!url) return blankAPI();
     try{
         const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
-        return await r.json();
+        const js = await r.json();
+        return js;
     }catch(e){
+        console.warn("API ERROR:", e);
         return blankAPI();
     }
 }
@@ -139,12 +145,12 @@ async function loadCategoryMap(){
         const s=document.createElement("script");
         s.src="data/category-map.js?v="+Date.now();
         s.onload=()=>{ CATEGORY_MAP = window.CATEGORY_MAP; resolve(); };
-        s.onerror=reject;
+        s.onerror=(e)=>reject("MAP yüklenemedi");
         document.body.appendChild(s);
     });
 }
 
-/* ---------------- SLIDER ÜRET ---------------- */
+/* ---------------- SLIDER ---------------- */
 async function generateSlider(mainCAT){
     await loadCategoryMap();
 
@@ -160,10 +166,9 @@ async function generateSlider(mainCAT){
         <div class="slide-item">
             <a href="${p.link}" target="_top"><img src="${p.image}"></a>
             <div class="product-title">${p.title}</div>
-            ${
-              p.stock==="YOK"
-              ? `<div class="out-stock">Tükendi</div>`
-              : `<div class="product-price">${p.price}</div>`
+            ${ p.stock==="YOK"
+                ? `<div class="out-stock">Tükendi</div>`
+                : `<div class="product-price">${p.price}</div>`
             }
         </div>`;
     }
@@ -179,7 +184,7 @@ return `
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <title>Slider</title>
-<meta name="viewport" content="width=device-width">
+<meta name="viewport">
 <style>
 body{margin:0;font-family:Arial;}
 .slider-wrap{max-width:1850px;margin:auto;overflow:hidden;position:relative;}
@@ -189,7 +194,7 @@ body{margin:0;font-family:Arial;}
 .product-title{font-size:14px;font-weight:700;margin-top:10px;}
 .product-price{font-size:15px;font-weight:800;color:#d30000;margin-top:4px;}
 .out-stock{font-size:14px;font-weight:800;color:#999;margin-top:6px;}
-.slider-arrow{position:absolute;top:45%;width:40px;height:40px;background:#fff;border:0;border-radius:50%;cursor:pointer;font-size:22px;}
+.slider-arrow{position:absolute;top:45%;width:40px;height:40px;background:#fff;border:0;border-radius:50%;cursor:pointer;}
 .slider-prev{left:5px;} .slider-next{right:5px;}
 </style>
 
