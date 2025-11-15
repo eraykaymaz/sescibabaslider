@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel Ürün Görüntüleyici – Ultra Kompakt Final</title>
+<title>Excel Ürün Görüntüleyici – Final Düzgün Sıralı</title>
 
 <style>
 body {
@@ -122,14 +122,18 @@ async function loadExcel() {
 
   excelRows = [];
 
+  // EXCEL'DEN GERÇEK SATIR SIRASINI KAYDET — *** PATCH ***
   for (let i = 1; i < rows.length; i++) {
     let catName = rows[i][0];
     let catCode = rows[i][1];
     let link = rows[i][2];
     if (!catName || !catCode || !link) continue;
 
-    excelRows.push({ catName, catCode, link });
+    excelRows.push({ rowIndex: i, catName, catCode, link });
   }
+
+  // SIRAYI EXCEL SIRASINA GÖRE ZORUNLU YAP — *** PATCH ***
+  excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
 
   document.getElementById("status").innerText = "Ürünler alınıyor...";
 
@@ -152,6 +156,7 @@ async function loadExcel() {
     }
 
     productData.push({
+      excelIndex: item.rowIndex,     // *** PATCH ***
       excelCategoryName: item.catName,
       catCode: item.catCode,
       link: item.link,
@@ -165,6 +170,8 @@ async function loadExcel() {
     let tr = document.createElement("tr");
 
     if (d.stock === "YOK") tr.classList.add("row-nok");
+
+    tr.setAttribute("data-index", item.rowIndex);   // *** PATCH ***
 
     tr.innerHTML = `
       <td><img class="thumb" src="${d.image}"></td>
@@ -198,8 +205,13 @@ async function loadExcel() {
 }
 
 
+// ------------------------------------------
+//     GÜNCELLEME — PATCH UYUMLU
+// ------------------------------------------
 async function updateLink(btn) {
+
   const tr = btn.closest("tr");
+  const index = parseInt(tr.dataset.index); // *** PATCH ***
   const input = tr.querySelector(".newLink");
   const newLink = input.value.trim();
   if (!newLink) return alert("Yeni link boş olamaz!");
@@ -211,7 +223,6 @@ async function updateLink(btn) {
     encodeURIComponent(newLink)
   ).then(r => r.json());
 
-  // güncelle
   tr.children[0].querySelector("img").src = d.image;
   tr.children[1].innerHTML = d.title.substring(0,60) + "...";
   tr.children[2].innerText = d.price;
@@ -219,8 +230,7 @@ async function updateLink(btn) {
 
   if (d.stock === "VAR") {
     tr.classList.remove("row-nok");
-    tr.children[6].innerHTML =
-      `<a href="${newLink}" target="_blank">Git</a>`;
+    tr.children[6].innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
   } else {
     tr.classList.add("row-nok");
     tr.children[6].innerHTML = `
@@ -229,25 +239,26 @@ async function updateLink(btn) {
     `;
   }
 
-  // json güncelle
-  const index = tr.rowIndex - 1;
-  productData[index].link = newLink;
-  productData[index].title = d.title;
-  productData[index].price = d.price;
-  productData[index].image = d.image;
-  productData[index].apiCategory = d.category;
-  productData[index].stock = d.stock;
+  // JSON GÜNCELLEME — EXCEL SIRALAMALI — *** PATCH ***
+  let real = productData.find(p => p.excelIndex === index);
+  real.link = newLink;
+  real.title = d.title;
+  real.price = d.price;
+  real.image = d.image;
+  real.apiCategory = d.category;
+  real.stock = d.stock;
 
   btn.innerText = "Güncelle";
 }
 
-// -----------------------------------------------
-// products.json üret
-// -----------------------------------------------
+
+// ------------------------------------------
+//            products.json üret
+// ------------------------------------------
 function generateProducts() {
 
   if (productData.length === 0)
-    return alert("Excel yüklenmedi!");
+    return alert("Önce Excel yükle!");
 
   let output = {};
 
@@ -260,18 +271,4 @@ function generateProducts() {
     output[p.catCode].push(p.link);
   }
 
-  const blob = new Blob([JSON.stringify(output, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "products.json";
-  a.click();
-}
-
-</script>
-
-</body>
-</html>
+  const blob = new Blob([JSON.s]()
