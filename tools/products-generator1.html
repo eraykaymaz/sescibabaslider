@@ -48,9 +48,23 @@ img{width:65px;height:65px;object-fit:contain;}
 <script>
 
 let PRODUCTS = {};
+let CATEGORY_MAP = {};
+
+document.body.appendChild(Object.assign(document.createElement("script"), {
+    src: "./data/category-map.js",
+    onload: ()=> CATEGORY_MAP = window.CATEGORY_MAP
+}));
+
+document.body.appendChild(Object.assign(document.createElement("script"), {
+    src: "./data/products.js",
+    onload: ()=> PRODUCTS = window.PRODUCTS
+}));
 
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
+/* ------------------------------------ */
+/* EXCEL YÜKLEME                        */
+/* ------------------------------------ */
 async function handleExcel(e){
     const file = e.target.files[0];
     const data = await file.arrayBuffer();
@@ -80,6 +94,9 @@ async function handleExcel(e){
     }
 }
 
+/* ------------------------------------ */
+/* TABLO SATIRI                         */
+/* ------------------------------------ */
 function renderRow(i, row, api, CAT){
     const tbody = document.querySelector("#productTable tbody");
     const tr = document.createElement("tr");
@@ -108,6 +125,9 @@ function renderRow(i, row, api, CAT){
     tbody.appendChild(tr);
 }
 
+/* ------------------------------------ */
+/* GÜNCELLE                              */
+/* ------------------------------------ */
 function getLinkHTML(i, CAT, link, stock){
     if(stock === "VAR" && link){
         return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
@@ -151,6 +171,9 @@ async function updateLink(i, CAT){
     }
 }
 
+/* ------------------------------------ */
+/* API ÇEKME                             */
+/* ------------------------------------ */
 async function fetchAPI(url){
     try{
         const r = await fetch(
@@ -162,6 +185,9 @@ async function fetchAPI(url){
     }
 }
 
+/* ------------------------------------ */
+/* PRODUCTS.JS ÜRET                       */
+/* ------------------------------------ */
 function generateProductsJS(){
     const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
     const blob = new Blob([text], {type:"application/javascript"});
@@ -171,9 +197,82 @@ function generateProductsJS(){
     a.click();
 }
 
-function createSlider(CAT){
-    // sonraki adımda dolduracağız
-    console.log("Selected CAT:", CAT);
+/* ------------------------------------ */
+/* SLIDER ÜRET (HTML + CSS — JS YOK)     */
+/* ------------------------------------ */
+async function createSlider(CAT){
+    const related = CATEGORY_MAP[CAT]?.related || [];
+    let items = [];
+
+    for(const rc of related){
+        const link = PRODUCTS[rc]?.[0];
+        if(!link) continue;
+
+        const api = await fetchAPI(link);
+        items.push({ link, ...api });
+    }
+
+    const html = generatePureHTMLSlider(CAT, items);
+
+    const blob = new Blob([html], {type:"text/html"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = CAT + ".html";
+    a.click();
+}
+
+/* ------------------------------------ */
+/* PURE HTML + CSS SLIDER GENERATOR     */
+/* ------------------------------------ */
+function generatePureHTMLSlider(CAT, items){
+
+return `
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>${CAT} Slider</title>
+
+<style>
+body{margin:0;padding:0;font-family:Arial;}
+.slider-container{
+  display:flex;overflow-x:auto;scroll-behavior:smooth;
+  gap:18px;padding:20px;
+}
+.slider-container::-webkit-scrollbar{height:8px;}
+.slider-container::-webkit-scrollbar-thumb{
+  background:#ccc;border-radius:4px;
+}
+.item{
+  min-width:150px;text-align:center;
+}
+.item img{
+  width:150px;height:150px;object-fit:contain;
+  border-radius:12px;background:#fff;
+}
+.title{
+  margin-top:8px;font-size:14px;font-weight:700;
+}
+.price{margin-top:4px;font-size:15px;font-weight:800;color:#d30000;}
+.stock{margin-top:4px;font-size:14px;font-weight:700;color:#999;}
+</style>
+
+</head>
+<body>
+
+<div class="slider-container">
+${items.map(p=>`
+  <div class="item">
+    <a href="${p.link}" target="_top"><img src="${p.image}"></a>
+    <div class="title">${p.title}</div>
+    ${p.stock==="VAR" ? `<div class="price">${p.price}</div>` : `<div class="stock">Tükendi</div>`}
+  </div>
+`).join("")}
+</div>
+
+</body>
+</html>
+`;
 }
 
 </script>
