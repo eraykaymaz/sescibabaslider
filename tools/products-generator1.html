@@ -38,15 +38,19 @@ img{width:80px;height:80px;object-fit:contain;}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
 
 /* ============================================================
-      A01 MAP — SADECE TEK KATEGORİ (Sen genişleteceksin)
+      A01 + A02 MAP — SENTAKS HATASIZ
 ============================================================ */
 const CATEGORY_MAP = {
-  "A01": {"related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
-  "A02": {"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]
-}  
+  "A01": {
+    "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
+  },
+  "A02": {
+    "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]
+  }
 };
 
 /* ============================================================
@@ -68,9 +72,9 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
   tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
-    const KAT = rows[i][0];
+    const KAT  = rows[i][0];
     const CODE = rows[i][1];
-    let LINK  = rows[i][2];
+    let LINK   = rows[i][2];
 
     if(!CODE) continue;
 
@@ -115,7 +119,7 @@ async function fetchAPI(url){
 }
 
 /* ============================================================
-      GÜNCELLEME
+      GÜNCELLE
 ============================================================ */
 window.updateLink = async function(i,CODE){
   const newLink = document.getElementById("inp_"+i).value.trim();
@@ -124,7 +128,7 @@ window.updateLink = async function(i,CODE){
   PRODUCTS[CODE] = [newLink];
   const api = await fetchAPI(newLink);
 
-  const row = document.querySelectorAll("#productTable tbody tr")[i-1];
+  const row  = document.querySelectorAll("#productTable tbody tr")[i-1];
   const cell = document.getElementById("cell_"+i);
 
   row.children[0].innerHTML = `<img src="${api.image}">`;
@@ -145,7 +149,7 @@ window.updateLink = async function(i,CODE){
 };
 
 /* ============================================================
-      SLIDER ÜRETME
+      SLIDER ÜRET
 ============================================================ */
 window.makeSlider = async function(CODE){
   const rel = CATEGORY_MAP[CODE]?.related || [];
@@ -168,7 +172,7 @@ window.makeSlider = async function(CODE){
 };
 
 /* ============================================================
-      SLIDER HTML — BUTTER-SMOOTH, OK TUŞLU
+      SLIDER TEMPLATE
 ============================================================ */
 function sliderHTML(CODE, items){
 return `
@@ -180,31 +184,13 @@ return `
 <style>
 body{margin:0;font-family:Arial;}
 .wrap{position:relative;padding:20px;}
-.slider{
-  display:flex;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  gap:20px;
-  padding-bottom:10px;
-}
-.item{
-  flex:0 0 auto;
-  scroll-snap-align:start;
-  text-align:center;
-}
-.item img{
-  width:150px;
-  height:150px;
-  object-fit:contain;
-}
+.slider{display:flex;overflow-x:auto;gap:20px;scroll-behavior:smooth;}
+.item{flex:0 0 auto;text-align:center;}
+.item img{width:150px;height:150px;object-fit:contain;}
 .arrow{
-  position:absolute;
-  top:45%;
-  background:#fff;
-  padding:10px 14px;
-  border-radius:50%;
-  font-size:20px;
-  cursor:pointer;
+  position:absolute;top:45%;
+  background:#fff;padding:10px 14px;border-radius:50%;
+  font-size:22px;cursor:pointer;
   box-shadow:0 2px 6px rgba(0,0,0,.25);
 }
 .left{left:10px;}
@@ -214,8 +200,8 @@ body{margin:0;font-family:Arial;}
 
 <body>
 <div class="wrap">
-  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'smooth'})">❮</div>
-  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:250,behavior:'smooth'})">❯</div>
+  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-300,behavior:'smooth'})">❮</div>
+  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:300,behavior:'smooth'})">❯</div>
 
   <div class="slider">
     ${items.map(x=>`
@@ -228,6 +214,7 @@ body{margin:0;font-family:Arial;}
       </div>
     `).join("")}
   </div>
+
 </div>
 </body>
 </html>
