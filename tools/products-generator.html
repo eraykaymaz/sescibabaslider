@@ -6,13 +6,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 
 <style>
-body { font-family: Arial; margin:20px; }
-table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-td, th { border:1px solid #ccc; padding:8px; text-align:left; }
+body { font-family: Arial; margin:20px; background:#fafafa; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; background:#fff; }
+td, th { border:1px solid #ddd; padding:8px; text-align:left; font-size:14px; }
+th { background:#f2f2f2; }
 img { width:70px; border-radius:6px; }
-button { padding:10px 18px; margin:10px 0; cursor:pointer; }
-.red { color:#c30000; font-weight:bold; }
-.ok-btn { background:#28a745; color:#fff; border:0; padding:6px 12px; border-radius:4px; cursor:pointer; }
+.red { color:#c40000; font-weight:bold; }
+.ok-btn {
+  background:#0069d9;
+  color:#fff;
+  border:0;
+  padding:6px 12px;
+  border-radius:4px;
+  cursor:pointer;
+}
+.ok-btn:hover { background:#004a9f; }
+button { cursor:pointer; }
 </style>
 
 </head>
@@ -21,7 +30,9 @@ button { padding:10px 18px; margin:10px 0; cursor:pointer; }
 <h2>Excel → Ürün Görüntüleme & HIT Üretici</h2>
 
 <input type="file" id="excelFile">
-<button onclick="exportJS()">products.js Olarak Çıkar</button>
+<button onclick="exportJS()" style="padding:10px 18px; background:#28a745; color:#fff; border:0; border-radius:4px;">
+  products.js Olarak Çıkar
+</button>
 
 <table id="table">
 <thead>
@@ -40,21 +51,22 @@ button { padding:10px 18px; margin:10px 0; cursor:pointer; }
 
 <script>
 
-document.getElementById("excelFile").addEventListener("change", handleExcel);
+let ROWS = [];
+let PRODUCTS = {};
 
-let ROWS = [];     // Excel verisi
-let PRODUCTS = {}; // window.PRODUCTS çıktısı için
+document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
+
     reader.onload = async function(evt) {
         const data = evt.target.result;
         const workbook = XLSX.read(data, {type:'binary'});
         const sheet = workbook.SheetNames[0];
         const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {header:1});
 
-        rows.shift(); // en üst başlığı atıyoruz
+        rows.shift(); // En üst başlığı atıyoruz
         ROWS = rows;
 
         const tbody = document.querySelector("#table tbody");
@@ -62,11 +74,14 @@ async function handleExcel(e) {
 
         for (let r of rows) {
             const link = r[0];
+            const cat = r[1] || "";
+            const excelCategory = r[2] || "";
+
             if (!link) continue;
 
             const api = await fetchAPI(link);
-            const cat = r[1] || "";
 
+            // PRODUCTS.js üretimi
             if (!PRODUCTS[cat]) PRODUCTS[cat] = [];
             PRODUCTS[cat].push(link);
 
@@ -76,7 +91,7 @@ async function handleExcel(e) {
                 <td><img src="${api.image}"></td>
                 <td>${api.title}</td>
                 <td>${api.stock === "YOK" ? "<span class='red'>Tükendi</span>" : api.price}</td>
-                <td>${r[2] || ""}</td>
+                <td>${excelCategory}</td>
                 <td>${api.category}</td>
                 <td>${cat}</td>
                 <td>
@@ -85,9 +100,11 @@ async function handleExcel(e) {
                     <button class="ok-btn" onclick="updateRow('${link}')">Güncelle</button>
                 </td>
             `;
+
             tbody.appendChild(tr);
         }
-    }
+    };
+
     reader.readAsBinaryString(file);
 }
 
@@ -103,8 +120,9 @@ function updateRow(url){
 }
 
 function exportJS() {
-    let content = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-    const blob = new Blob([content], {type:'application/javascript'});
+    let text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
+
+    const blob = new Blob([text], {type: "application/javascript"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "products.js";
