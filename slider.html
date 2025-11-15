@@ -127,8 +127,10 @@ body {
 <div class="slider-divider"></div>
 
 <script>
+// GET URL PARAM
 const getParam = (key) => new URLSearchParams(location.search).get(key);
 
+// JSON FETCH HELPER
 async function json(url){
   return await fetch(url).then(r=>r.json());
 }
@@ -136,31 +138,36 @@ async function json(url){
 async function loadSlider() {
   const CAT = getParam("cat") || "CAT001";
 
-  const map = await json("category-map.json");
-  const pro = await json("products.json");
+  // ❗ JSON DOSYALARININ DOĞRU YOLU
+  const map = await json("data/category-map.json");
+  const pro = await json("data/products.json");
 
-  const relatedCats = map[CAT];       // 15 kategori
+  const relatedCats = map[CAT];
   const track = document.getElementById("sliderTrack");
 
   for (let rc of relatedCats) {
-    const productLink = pro[rc][0];   // Her CAT’in 1. ürünü
+    const productLink = pro[rc][0];
     if (!productLink) continue;
 
+    // canli API
     const api = await fetch(
-      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + 
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
       encodeURIComponent(productLink)
     ).then(r=>r.json());
 
     const div = document.createElement("div");
     div.className = "slide-item";
 
+    const titleWords = api.title.split(" ");
+    const line1 = titleWords.slice(0,3).join(" ");
+    const line2 = titleWords.slice(3,6).join(" ");
+
     div.innerHTML = `
       <a href="${productLink}" target="_top">
         <img src="${api.image}">
       </a>
       <div class="product-title">
-        ${api.title.split(" ").slice(0,3).join(" ")}<br>
-        ${api.title.split(" ").slice(3,6).join(" ")}
+        ${line1}<br>${line2}
       </div>
       <div class="product-price">${api.price}</div>
     `;
@@ -171,6 +178,7 @@ async function loadSlider() {
   initSlider();
 }
 
+// SLIDER MOTOR
 function initSlider() {
   const track = document.getElementById("sliderTrack");
   const slides = Array.from(track.children);
