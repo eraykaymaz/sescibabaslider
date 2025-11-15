@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sescibaba Slider</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sescibaba Akıllı Slider</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* === SLIDER === */
+/* SLIDER WRAPPER */
 .slider-wrap {
   overflow: hidden;
   width: 100%;
@@ -22,6 +22,7 @@ body {
   position: relative;
 }
 
+/* TRACK */
 .slider-track {
   display: flex;
   gap: 18px;
@@ -29,42 +30,82 @@ body {
   touch-action: pan-y;
 }
 
-.slide {
+/* ITEM */
+.slide-item {
   flex: 0 0 auto;
   width: 150px;
   text-align: center;
-  padding: 25px 0 20px;
+  padding: 20px 0;
   box-sizing: border-box;
 }
 
-.slide img {
+/* GÖRSEL */
+.slide-item img {
   width: 150px;
   height: 150px;
-  border-radius: 10px;
   object-fit: contain;
-  transition: 0.3s ease;
+  border-radius: 12px;
+  background: #fff;
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
-.slide:hover img {
-  transform: scale(1.08);
+@media (hover:hover) {
+  .slide-item:hover img {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  }
 }
 
-.slide-title {
+/* ÜRÜN ADI */
+.product-title {
   font-size: 14px;
   font-weight: 700;
   color: #000;
-  margin-top: 8px;
-  height: 38px;
-  overflow: hidden;
+  margin-top: 10px;
+  line-height: 16px;
 }
 
-.slide-price {
+/* FİYAT */
+.product-price {
   font-size: 15px;
-  color: #d10000;
-  font-weight: bold;
+  font-weight: 800;
+  color: #d30000;
   margin-top: 4px;
 }
 
+/* OKLAR */
+.slider-arrow {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.9);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 6px rgba(0,0,0,.25);
+  z-index: 20;
+  transition: background .3s, transform .2s;
+}
+
+.slider-arrow:hover {
+  background: rgba(0,0,0,.15);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slider-prev { left: 5px; }
+.slider-next { right: 5px; }
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .slider-arrow{display:none}
+  .slide-item{width:120px;}
+  .slider-track{gap:14px;}
+}
+
+/* ALT 3D AYRAÇ */
 .slider-divider {
   width: 92%;
   height: 2px;
@@ -72,96 +113,122 @@ body {
   margin: 10px auto 40px;
   border-radius: 2px;
 }
-
-.info-text {
-  text-align: center;
-  padding: 30px;
-  font-size: 18px;
-  color: #444;
-}
 </style>
 </head>
 
 <body>
 
-<div class="slider-wrap">
-  <div class="slider-track" id="track"></div>
+<div class="slider-wrap" id="sliderWrap">
+  <button class="slider-arrow slider-prev">❮</button>
+  <div class="slider-track" id="sliderTrack"></div>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
+
 <div class="slider-divider"></div>
 
 <script>
-// =====================================================
-//  KATEGORİYİ URL'DEN AL
-// =====================================================
-const url = new URL(window.location.href);
-const catID = url.searchParams.get("cat");
+const getParam = (key) => new URLSearchParams(location.search).get(key);
 
-if (!catID) {
-  document.getElementById("track").innerHTML =
-    "<div class='info-text'>HATA: slider.html?cat=CAT004 formatında çağırmalısınız.</div>";
-  throw new Error("CAT parametresi yok");
+async function json(url){
+  return await fetch(url).then(r=>r.json());
 }
 
-// =====================================================
-//  ANA ÇALIŞTIRMA FONKSİYONU
-// =====================================================
-(async () => {
-  const map = await fetch("./data/category-map.json").then(r => r.json());
-  const products = await fetch("./data/products.json").then(r => r.json());
+async function loadSlider() {
+  const CAT = getParam("cat") || "CAT001";
 
-  const track = document.getElementById("track");
+  const map = await json("category-map.json");
+  const pro = await json("products.json");
 
-  if (!map[catID]) {
-    track.innerHTML = `<div class='info-text'>Kategori bulunamadı: ${catID}</div>`;
-    return;
-  }
+  const relatedCats = map[CAT];       // 15 kategori
+  const track = document.getElementById("sliderTrack");
 
-  const related = map[catID].related;
+  for (let rc of relatedCats) {
+    const productLink = pro[rc][0];   // Her CAT’in 1. ürünü
+    if (!productLink) continue;
 
-  let list = [];
+    const api = await fetch(
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + 
+      encodeURIComponent(productLink)
+    ).then(r=>r.json());
 
-  // 15 öneri kategorinin ürünlerini topla
-  for (let rc of related) {
-    if (products[rc] && products[rc].length > 0) {
-      list.push(...products[rc]);
-    }
-  }
+    const div = document.createElement("div");
+    div.className = "slide-item";
 
-  // Tekrarsız ürün
-  list = [...new Set(list)];
-
-  if (list.length === 0) {
-    track.innerHTML =
-      `<div class='info-text'>Bu kategori için ürün eklenmemiş.</div>`;
-    return;
-  }
-
-  // =====================================================
-  //  ÜRÜN BİLGİLERİNİ API’DEN ÇEK
-  // =====================================================
-  for (let link of list) {
-    const api =
-      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
-      encodeURIComponent(link);
-
-    let d;
-    try {
-      d = await fetch(api).then(r => r.json());
-    } catch (err) {
-      continue;
-    }
-
-    track.innerHTML += `
-      <div class="slide">
-        <a href="${link}" target="_top">
-          <img src="${d.image}" alt="${d.title}">
-          <div class="slide-title">${d.title}</div>
-          <div class="slide-price">${d.price}</div>
-        </a>
+    div.innerHTML = `
+      <a href="${productLink}" target="_top">
+        <img src="${api.image}">
+      </a>
+      <div class="product-title">
+        ${api.title.split(" ").slice(0,3).join(" ")}<br>
+        ${api.title.split(" ").slice(3,6).join(" ")}
       </div>
+      <div class="product-price">${api.price}</div>
     `;
+
+    track.appendChild(div);
   }
-})();
+
+  initSlider();
+}
+
+function initSlider() {
+  const track = document.getElementById("sliderTrack");
+  const slides = Array.from(track.children);
+  const next = document.querySelector(".slider-next");
+  const prev = document.querySelector(".slider-prev");
+  const totalSlides = slides.length;
+
+  let slideWidth;
+  let visibleCount;
+  let index = 0;
+  let paused = false;
+  let autoPlay;
+  let restartTimer;
+
+  function updateSizes() {
+    slideWidth = slides[0].offsetWidth + 18;
+    visibleCount = window.innerWidth < 768
+      ? Math.floor(window.innerWidth / (slideWidth + 5))
+      : 8;
+  }
+
+  function goTo(i) {
+    track.style.transform = `translateX(-${i * slideWidth}px)`;
+  }
+
+  function start() {
+    autoPlay = setInterval(()=>{
+      if (!paused) {
+        index++;
+        if (index > totalSlides - visibleCount) index = 0;
+        goTo(index);
+      }
+    }, 2800);
+  }
+
+  function pause(temp=false){
+    clearInterval(autoPlay);
+    if (temp){
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(()=>start(), 3000);
+    }
+  }
+
+  updateSizes();
+  start();
+
+  if (window.matchMedia("(hover:hover)").matches) {
+    sliderWrap.addEventListener("mouseenter", ()=>paused=true);
+    sliderWrap.addEventListener("mouseleave", ()=>paused=false);
+  }
+
+  next.onclick = ()=>{ pause(true); index++; if(index > totalSlides-visibleCount) index=0; goTo(index); };
+  prev.onclick = ()=>{ pause(true); index--; if(index < 0) index = totalSlides-visibleCount; goTo(index); };
+
+  window.addEventListener("resize", ()=>{ updateSizes(); goTo(index); });
+}
+
+loadSlider();
 </script>
 
 </body>
