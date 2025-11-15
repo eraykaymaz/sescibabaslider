@@ -13,7 +13,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* SLIDER WRAPPER */
 .slider-wrap {
   overflow: hidden;
   width: 100%;
@@ -22,7 +21,6 @@ body {
   position: relative;
 }
 
-/* TRACK */
 .slider-track {
   display: flex;
   gap: 18px;
@@ -30,7 +28,6 @@ body {
   touch-action: pan-y;
 }
 
-/* ITEM */
 .slide-item {
   flex: 0 0 auto;
   width: 150px;
@@ -39,7 +36,6 @@ body {
   box-sizing: border-box;
 }
 
-/* GÖRSEL */
 .slide-item img {
   width: 150px;
   height: 150px;
@@ -56,7 +52,6 @@ body {
   }
 }
 
-/* ÜRÜN ADI */
 .product-title {
   font-size: 14px;
   font-weight: 700;
@@ -65,7 +60,6 @@ body {
   line-height: 16px;
 }
 
-/* FİYAT */
 .product-price {
   font-size: 15px;
   font-weight: 800;
@@ -73,7 +67,6 @@ body {
   margin-top: 4px;
 }
 
-/* OKLAR */
 .slider-arrow {
   position: absolute;
   top: 45%;
@@ -104,7 +97,6 @@ body {
   .slider-track{gap:14px;}
 }
 
-/* ALT 3D AYRAÇ */
 .slider-divider {
   width: 92%;
   height: 2px;
@@ -126,57 +118,51 @@ body {
 <div class="slider-divider"></div>
 
 <script>
-/* external JS dosyalarını yükleyen fonksiyon */
 function loadScript(src){
-  return new Promise((resolve, reject)=>{
+  return new Promise((resolve,reject)=>{
     const s = document.createElement("script");
-    s.src = src + "?v=" + Date.now(); // cache sorunu olmasın
+    s.src = src + "?v=" + Date.now();
     s.onload = resolve;
     s.onerror = reject;
     document.body.appendChild(s);
   });
 }
 
-// URL param al
 const getParam = (key) => new URLSearchParams(location.search).get(key);
 
 async function loadSlider() {
   const CAT = getParam("cat") || "CAT001";
 
-  /* ❗ ARTIK JSON DEĞİL JS DOSYASI YÜKLENİYOR */
   await loadScript("data/category-map.js");
   await loadScript("data/products.js");
 
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
-  const relatedCats = map[CAT];
+  const related = map[CAT] || [];
   const track = document.getElementById("sliderTrack");
 
-  for (let rc of relatedCats) {
-    const productLink = pro[rc][0];
+  for (let rc of related) {
+    const productLink = pro[rc]?.[0];
     if (!productLink) continue;
 
-    // canlı API
     const api = await fetch(
-      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + 
       encodeURIComponent(productLink)
     ).then(r=>r.json());
 
     const div = document.createElement("div");
     div.className = "slide-item";
 
-    const titleWords = api.title.split(" ");
-    const line1 = titleWords.slice(0,3).join(" ");
-    const line2 = titleWords.slice(3,6).join(" ");
+    const t = api.title.split(" ");
+    const line1 = t.slice(0,3).join(" ");
+    const line2 = t.slice(3,6).join(" ");
 
     div.innerHTML = `
       <a href="${productLink}" target="_top">
         <img src="${api.image}">
       </a>
-      <div class="product-title">
-        ${line1}<br>${line2}
-      </div>
+      <div class="product-title">${line1}<br>${line2}</div>
       <div class="product-price">${api.price}</div>
     `;
 
@@ -188,21 +174,20 @@ async function loadSlider() {
 
 function initSlider() {
   const track = document.getElementById("sliderTrack");
-  const slides = Array.from(track.children);
+  const slides = [...track.children];
   const next = document.querySelector(".slider-next");
   const prev = document.querySelector(".slider-prev");
-  const totalSlides = slides.length;
+
+  if (slides.length === 0) return;
 
   let slideWidth;
   let visibleCount;
   let index = 0;
   let paused = false;
-  let autoPlay;
-  let restartTimer;
 
   function updateSizes() {
     slideWidth = slides[0].offsetWidth + 18;
-    visibleCount = window.innerWidth < 768
+    visibleCount = window.innerWidth < 768 
       ? Math.floor(window.innerWidth / (slideWidth + 5))
       : 8;
   }
@@ -211,34 +196,10 @@ function initSlider() {
     track.style.transform = `translateX(-${i * slideWidth}px)`;
   }
 
-  function start() {
-    autoPlay = setInterval(()=>{
-      if (!paused) {
-        index++;
-        if (index > totalSlides - visibleCount) index = 0;
-        goTo(index);
-      }
-    }, 2800);
-  }
-
-  function pause(temp=false){
-    clearInterval(autoPlay);
-    if (temp){
-      clearTimeout(restartTimer);
-      restartTimer = setTimeout(()=>start(), 3000);
-    }
-  }
-
   updateSizes();
-  start();
 
-  if (window.matchMedia("(hover:hover)").matches) {
-    sliderWrap.addEventListener("mouseenter", ()=>paused=true);
-    sliderWrap.addEventListener("mouseleave", ()=>paused=false);
-  }
-
-  next.onclick = ()=>{ pause(true); index++; if(index > totalSlides-visibleCount) index=0; goTo(index); };
-  prev.onclick = ()=>{ pause(true); index--; if(index < 0) index = totalSlides-visibleCount; goTo(index); };
+  next.onclick = ()=>{ index++; if(index >= slides.length-visibleCount) index=0; goTo(index); };
+  prev.onclick = ()=>{ index--; if(index < 0) index = slides.length-visibleCount; goTo(index); };
 
   window.addEventListener("resize", ()=>{ updateSizes(); goTo(index); });
 }
