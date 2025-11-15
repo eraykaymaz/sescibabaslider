@@ -139,9 +139,7 @@ async function loadSlider() {
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
-  /* 🔥 BURASI ARTIK KESİN DOĞRU */
-  const related = map[CAT]?.related || [];
-
+  const related = map[CAT] || [];
   const track = document.getElementById("sliderTrack");
 
   for (let rc of related) {
@@ -160,12 +158,60 @@ async function loadSlider() {
     const line1 = t.slice(0,3).join(" ");
     const line2 = t.slice(3,6).join(" ");
 
+    /* FİYAT AYIKLAMA */
+    let raw = (api.price || "").trim();
+    let price = raw;
+    let currency = "";
+    const num = raw.replace(/[^0-9.,]/g, "").trim();
+
+    if (raw.includes("TL") || raw.includes("₺") || raw.toUpperCase().includes("TRY")) {
+      price = `₺${num} ₺`;
+    } else if (raw.includes("$") || raw.toUpperCase().includes("USD")) {
+      price = `${num} $`;
+    } else if (raw.includes("€") || raw.toUpperCase().includes("EUR")) {
+      price = `${num} €`;
+    }
+
+    /* STOK KONTROL */
+    let isOut =
+      api.stock === false ||
+      (api.stock && typeof api.stock === "string" && api.stock.toLowerCase().includes("tükendi")) ||
+      raw.toLowerCase().includes("tükendi");
+
+    let stockHTML = isOut
+      ? `<div style="color:#b30000; font-size:14px; font-weight:900; margin-top:8px;">Tükendi</div>`
+      : "";
+
+    let cartButton = isOut
+      ? `<button style="
+            margin-top:6px;
+            padding:6px 14px;
+            background:#ccc;
+            color:#666;
+            border-radius:6px;
+            font-size:14px;
+            border:none;
+            cursor:not-allowed;
+          ">Sepete Ekle</button>`
+      : `<button style="
+            margin-top:6px;
+            padding:6px 14px;
+            background:#0080ff;
+            color:#fff;
+            border-radius:6px;
+            font-size:14px;
+            border:none;
+            cursor:pointer;
+          ">Sepete Ekle</button>`;
+
     div.innerHTML = `
       <a href="${productLink}" target="_top">
         <img src="${api.image}">
       </a>
       <div class="product-title">${line1}<br>${line2}</div>
-      <div class="product-price">${api.price}</div>
+      <div class="product-price">${price}</div>
+      ${stockHTML}
+      ${cartButton}
     `;
 
     track.appendChild(div);
@@ -188,7 +234,7 @@ function initSlider() {
 
   function updateSizes() {
     slideWidth = slides[0].offsetWidth + 18;
-    visibleCount = window.innerWidth < 768 
+    visibleCount = window.innerWidth < 768
       ? Math.floor(window.innerWidth / (slideWidth + 5))
       : 8;
   }
