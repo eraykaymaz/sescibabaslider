@@ -28,9 +28,9 @@ table {
 
 th, td {
   border: 1px solid #ccc;
-  padding: 3px 4px;          /* 🔥 çok dar padding */
-  font-size: 12px;           /* 🔥 daha kompakt */
-  line-height: 14px;         /* 🔥 satırlar dar */
+  padding: 3px 4px; 
+  font-size: 12px;
+  line-height: 14px;
 }
 
 th {
@@ -39,17 +39,16 @@ th {
 }
 
 img.thumb {
-  width: 48px;               /* 🔥 daha küçük resim */
+  width: 48px;
   height: 48px;
-  object-fit: contain;
-  background: #fff;
-  border: 1px solid #bbb;
-  border-radius: 3px;
+  object-fit: contain; 
+  border: none;         /* ÇERÇEVE KALDIRILDI */
+  background: none;     /* ARKA PLAN KALDIRILDI */
 }
 
 .cat-small {
-  color: #666;
-  font-size: 10px;           /* 🔥 daha küçük */
+  color: #555;
+  font-size: 10px;
 }
 
 .stock-ok {
@@ -63,16 +62,16 @@ img.thumb {
 }
 
 input.newLink {
-  width: 130px;
-  padding: 3px;
-  font-size: 11px;
-  margin-top: 2px;
+  width: 110px;
+  padding: 2px;
+  font-size: 10px;
+  margin-top: 3px;
 }
 
 button.smallBtn {
-  padding: 3px 8px;
-  font-size: 11px;
-  margin-top: 2px;
+  padding: 2px 6px;
+  font-size: 10px;
+  margin-top: 3px;
   cursor: pointer;
 }
 
@@ -104,7 +103,8 @@ button.big {
         <th>Ürün</th>
         <th>Fiyat</th>
         <th>Kategoriler</th>
-        <th>Link / Stok / Güncelle</th>
+        <th>Link</th>
+        <th>Stok / Düzenle</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -135,9 +135,7 @@ async function loadExcel() {
     let catName = rows[i][0];
     let catCode = rows[i][1];
     let link = rows[i][2];
-
     if (!catName || !catCode || !link) continue;
-
     excelRows.push({ catName, catCode, link });
   }
 
@@ -185,13 +183,16 @@ async function loadExcel() {
       </td>
 
       <td>
-        <a href="${item.link}" target="_blank">Git</a><br>
+        <a href="${item.link}" target="_blank">Git</a>
+      </td>
+
+      <td style="text-align:center;">
         ${
           d.stock === "VAR"
             ? `<span class="stock-ok">VAR</span>`
             : `<span class="stock-nok">YOK</span><br>
                <input class="newLink" placeholder="Yeni link">
-               <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>`
+               <button class="smallBtn" onclick="updateLink(this)">OK</button>`
         }
       </td>
     `;
@@ -202,42 +203,36 @@ async function loadExcel() {
   document.getElementById("status").innerText = "Tamamlandı.";
 }
 
-// ---------------------------
-// LİNK GÜNCELLEME FONKSİYONU
-// ---------------------------
 async function updateLink(btn) {
   const tr = btn.closest("tr");
   const input = tr.querySelector("input.newLink");
   const newLink = input.value.trim();
   if (!newLink) return alert("Yeni link boş!");
 
-  btn.innerText = "Bekleyin...";
+  btn.innerText = "...";
 
   const api =
     "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(newLink);
 
   let d = await fetch(api).then(r => r.json());
 
-  // tabloyu güncelle
   tr.children[0].querySelector("img").src = d.image;
   tr.children[1].innerHTML = d.title.substring(0,55) + "...";
   tr.children[2].innerText = d.price;
   tr.children[3].children[0].innerText = "API: " + d.category;
+  tr.children[4].querySelector("a").href = newLink;
 
-  tr.children[4].innerHTML = `
-    <a href="${newLink}" target="_blank">Git</a><br>
+  tr.children[5].innerHTML = `
+    <span class="${d.stock === "VAR" ? "stock-ok" : "stock-nok"}">${d.stock}</span>
     ${
-      d.stock === "VAR"
-        ? `<span class="stock-ok">VAR</span>`
-        : `<span class="stock-nok">YOK</span><br>
-           <input class="newLink" placeholder="Yeni link">
-           <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>`
+      d.stock === "YOK"
+        ? `<br><input class="newLink" placeholder="Yeni link">
+           <button class="smallBtn" onclick="updateLink(this)">OK</button>`
+        : ""
     }
   `;
 
-  // json da güncelle
   const index = tr.rowIndex - 1;
-
   productData[index].link = newLink;
   productData[index].title = d.title;
   productData[index].price = d.price;
@@ -245,20 +240,15 @@ async function updateLink(btn) {
   productData[index].stock = d.stock;
   productData[index].apiCategory = d.category;
 
-  btn.innerText = "OK!";
+  btn.innerText = "OK";
 }
 
-// ---------------------------
-// HİTLERİ YÜKLE! (products.json üret)
-// ---------------------------
 function generateProducts() {
   if (productData.length === 0) return alert("Excel yüklemedin!");
 
   let output = {};
-
   for (let i = 1; i <= 111; i++) {
-    let code = "CAT" + String(i).padStart(3, "0");
-    output[code] = [];
+    output["CAT" + String(i).padStart(3, "0")] = [];
   }
 
   for (let p of productData) {
