@@ -2,288 +2,114 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel Ürün Görüntüleyici – Final Doğru Sıralı</title>
+<title>Excel → Ürün Görüntüleme & HIT Üretici</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  padding: 15px;
-  background: #f3f3f3;
-}
-
-.box {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  max-width: 1200px;
-  margin: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 4px 6px;
-  font-size: 12px;
-  line-height: 16px;
-}
-
-th {
-  background: #e9e9e9;
-  font-weight: bold;
-}
-
-img.thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  border: none;
-  background: none;
-}
-
-.row-nok {
-  background: #ffd6d6 !important;
-}
-
-input.newLink {
-  width: 140px;
-  padding: 3px;
-  font-size: 11px;
-  margin-top: 3px;
-}
-
-button.smallBtn {
-  padding: 3px 10px;
-  font-size: 11px;
-  margin-top: 3px;
-  cursor: pointer;
-}
-
-button.big {
-  padding: 8px 15px;
-  font-size: 14px;
-  margin-top: 10px;
-  cursor: pointer;
-}
+body { font-family: Arial; margin:20px; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+td, th { border:1px solid #ccc; padding:8px; text-align:left; }
+img { width:70px; border-radius:6px; }
+button { padding:10px 18px; margin:10px 0; cursor:pointer; }
+.red { color:#c30000; font-weight:bold; }
+.ok-btn { background:#28a745; color:#fff; border:0; padding:6px 12px; border-radius:4px; cursor:pointer; }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="box">
+<h2>Excel → Ürün Görüntüleme & HIT Üretici</h2>
 
-  <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
+<input type="file" id="excelFile">
+<button onclick="exportJS()">products.js Olarak Çıkar</button>
 
-  <input type="file" id="excelFile" accept=".xlsx,.xls">
-  <button onclick="loadExcel()">Yükle ve Göster</button>
-  <button class="big" onclick="generateProducts()">HİTLERİ YÜKLE !</button>
-
-  <div id="status" style="margin-top:8px; font-weight:bold;"></div>
-
-  <table id="productTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Görsel</th>
-        <th>Ürün</th>
-        <th>Fiyat</th>
-        <th>Kategori</th>
-        <th>Kategori (API)</th>
-        <th>CAT</th>
-        <th>Link / Güncelle</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<table id="table">
+<thead>
+<tr>
+  <th>Görsel</th>
+  <th>Ürün</th>
+  <th>Fiyat</th>
+  <th>Kategori (Excel)</th>
+  <th>Kategori (API)</th>
+  <th>CAT</th>
+  <th>Link / Güncelle</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
 <script>
 
-let productData = [];
-let excelRows = [];
+document.getElementById("excelFile").addEventListener("change", handleExcel);
 
-// ===============================
-//     EXCEL YÜKLEME
-// ===============================
-async function loadExcel() {
-  const file = document.getElementById("excelFile").files[0];
-  if (!file) return alert("Excel seçilmedi!");
+let ROWS = [];     // Excel verisi
+let PRODUCTS = {}; // window.PRODUCTS çıktısı için
 
-  document.getElementById("status").innerText = "Excel okunuyor...";
+async function handleExcel(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = async function(evt) {
+        const data = evt.target.result;
+        const workbook = XLSX.read(data, {type:'binary'});
+        const sheet = workbook.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {header:1});
 
-  const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf);
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        rows.shift(); // en üst başlığı atıyoruz
+        ROWS = rows;
 
-  excelRows = [];
+        const tbody = document.querySelector("#table tbody");
+        tbody.innerHTML = "";
 
-  // ❗❗ DÜZELTME: i=0'DAN BAŞLIYOR ❗❗
-  for (let i = 0; i < rows.length; i++) {
-    let catName = rows[i][0];
-    let catCode = rows[i][1];
-    let link = rows[i][2];
-    if (!catName || !catCode || !link) continue;
+        for (let r of rows) {
+            const link = r[0];
+            if (!link) continue;
 
-    excelRows.push({ rowIndex: i, catName, catCode, link });
-  }
+            const api = await fetchAPI(link);
+            const cat = r[1] || "";
 
-  // Sıralamayı EXCEL sırasına göre zorla
-  excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
+            if (!PRODUCTS[cat]) PRODUCTS[cat] = [];
+            PRODUCTS[cat].push(link);
 
-  document.getElementById("status").innerText = "Ürünler alınıyor...";
+            const tr = document.createElement("tr");
 
-  const tbody = document.querySelector("#productTable tbody");
-  tbody.innerHTML = "";
-  document.getElementById("productTable").style.display = "table";
-
-  productData = [];
-
-  for (let item of excelRows) {
-
-    let d;
-    try {
-      d = await fetch(
-        "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
-        encodeURIComponent(item.link)
-      ).then(r => r.json());
-    } catch {
-      d = { title:"Hata", price:"-", stock:"-", image:"", category:"-" };
-    }
-
-    productData.push({
-      excelIndex: item.rowIndex,
-      excelCategoryName: item.catName,
-      catCode: item.catCode,
-      link: item.link,
-      title: d.title,
-      price: d.price,
-      image: d.image,
-      stock: d.stock,
-      apiCategory: d.category
-    });
-
-    let tr = document.createElement("tr");
-    tr.setAttribute("data-index", item.rowIndex);
-
-    if (d.stock === "YOK") tr.classList.add("row-nok");
-
-    tr.innerHTML = `
-      <td><img class="thumb" src="${d.image}"></td>
-
-      <td>${d.title.substring(0,60)}...</td>
-
-      <td>${d.price}</td>
-
-      <td>${item.catName}</td>
-
-      <td>${d.category}</td>
-
-      <td>${item.catCode}</td>
-
-      <td>
-        ${
-          d.stock === "VAR"
-            ? `<a href="${item.link}" target="_blank">Git</a>`
-            : `
-              <input class="newLink" placeholder="Yeni link">
-              <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
-            `
+            tr.innerHTML = `
+                <td><img src="${api.image}"></td>
+                <td>${api.title}</td>
+                <td>${api.stock === "YOK" ? "<span class='red'>Tükendi</span>" : api.price}</td>
+                <td>${r[2] || ""}</td>
+                <td>${api.category}</td>
+                <td>${cat}</td>
+                <td>
+                    <a href="${link}" target="_blank">Git</a>
+                    &nbsp;
+                    <button class="ok-btn" onclick="updateRow('${link}')">Güncelle</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
         }
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-  }
-
-  document.getElementById("status").innerText = "Tamamlandı.";
+    }
+    reader.readAsBinaryString(file);
 }
 
-
-// ===============================
-//     LİNK GÜNCELLEME
-// ===============================
-async function updateLink(btn) {
-
-  const tr = btn.closest("tr");
-  const index = parseInt(tr.dataset.index);
-
-  const input = tr.querySelector(".newLink");
-  const newLink = input.value.trim();
-  if (!newLink) return alert("Yeni link boş!");
-
-  btn.innerText = "Bekleyin...";
-
-  let d = await fetch(
-    "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
-    encodeURIComponent(newLink)
-  ).then(r => r.json());
-
-  tr.children[0].querySelector("img").src = d.image;
-  tr.children[1].innerHTML = d.title.substring(0,60) + "...";
-  tr.children[2].innerText = d.price;
-  tr.children[4].innerText = d.category;
-
-  if (d.stock === "VAR") {
-    tr.classList.remove("row-nok");
-    tr.children[6].innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
-  } else {
-    tr.classList.add("row-nok");
-    tr.children[6].innerHTML = `
-      <input class="newLink" placeholder="Yeni link">
-      <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
-    `;
-  }
-
-  let item = productData.find(p => p.excelIndex === index);
-  item.link = newLink;
-  item.title = d.title;
-  item.price = d.price;
-  item.image = d.image;
-  item.apiCategory = d.category;
-  item.stock = d.stock;
-
-  btn.innerText = "Güncelle";
+async function fetchAPI(url){
+    const res = await fetch(
+        "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(url)
+    );
+    return await res.json();
 }
 
-
-// ===============================
-//     products.json üret
-// ===============================
-function generateProducts() {
-
-  if (productData.length === 0)
-    return alert("Önce Excel yükle!");
-
-  let output = {};
-
-  for (let i = 1; i <= 111; i++) {
-    output["CAT" + String(i).padStart(3, "0")] = [];
-  }
-
-  for (let p of productData) {
-    if (!output[p.catCode]) output[p.catCode] = [];
-    output[p.catCode].push(p.link);
-  }
-
-  const blob = new Blob([JSON.stringify(output, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "products.json";
-  a.click();
+function updateRow(url){
+    alert("Güncellendi: " + url);
 }
 
+function exportJS() {
+    let content = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
+    const blob = new Blob([content], {type:'application/javascript'});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "products.js";
+    a.click();
+}
 </script>
 
 </body>
