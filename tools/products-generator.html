@@ -71,17 +71,23 @@ button.smallBtn {
   font-size: 12px;
   cursor: pointer;
 }
+
+button.big {
+  padding: 10px 20px;
+  font-size: 15px;
+  margin-top: 15px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="box">
-  <h2>Excel → Ürün Görüntüleme & Düzenleme Aracı</h2>
+  <h2>Excel → Ürün Görüntüleme, Düzenleme ve HIT Üretici</h2>
 
   <input type="file" id="excelFile" accept=".xlsx,.xls" />
   <button onclick="loadExcel()">Yükle ve Göster</button>
-  <button onclick="downloadJSON()">ÇIKTI AL (JSON)</button>
+  <button class="big" onclick="generateProducts()">HİTLERİ YÜKLE !</button>
 
   <div id="status" style="margin-top:10px; font-weight:bold;"></div>
 
@@ -94,7 +100,7 @@ button.smallBtn {
         <th>Stok</th>
         <th>Kategoriler</th>
         <th>Link</th>
-        <th>Düzenle (Stok YOK)</th>
+        <th>Düzenle (Stok yoksa)</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -104,8 +110,12 @@ button.smallBtn {
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
-let productData = []; // JSON çıktı buraya kaydolacak
+let productData = []; // tablo + json
+let excelRows = [];   // CAT + link veri kaynağı (sıfır hata)
 
+// ------------------------
+// EXCEL YÜKLE
+// ------------------------
 async function loadExcel() {
   const file = document.getElementById("excelFile").files[0];
   if (!file) return alert("Excel seçilmedi!");
@@ -117,7 +127,7 @@ async function loadExcel() {
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-  let list = [];
+  excelRows = [];
 
   for (let i = 1; i < rows.length; i++) {
     let catName = rows[i][0];
@@ -126,10 +136,10 @@ async function loadExcel() {
 
     if (!catName || !catCode || !link) continue;
 
-    list.push({ catName, catCode, link });
+    excelRows.push({ catName, catCode, link });
   }
 
-  document.getElementById("status").innerText = "Ürün bilgileri çekiliyor...";
+  document.getElementById("status").innerText = "Ürün bilgileri alınıyor...";
 
   const tbody = document.querySelector("#productTable tbody");
   tbody.innerHTML = "";
@@ -137,7 +147,7 @@ async function loadExcel() {
 
   productData = [];
 
-  for (let item of list) {
+  for (let item of excelRows) {
     let d;
 
     try {
@@ -148,16 +158,16 @@ async function loadExcel() {
       d = { title:"Hata", price:"-", stock:"-", image:"", category:"-" };
     }
 
-    // Kayıt
+    // JSON kaydı
     productData.push({
-      catName: item.catName,
+      excelCategoryName: item.catName,
       catCode: item.catCode,
       link: item.link,
       title: d.title,
       price: d.price,
       image: d.image,
       stock: d.stock,
-      category_api: d.category
+      apiCategory: d.category
     });
 
     let tr = document.createElement("tr");
@@ -165,15 +175,11 @@ async function loadExcel() {
     tr.innerHTML = `
       <td><img class="thumb" src="${d.image}"></td>
 
-      <td>
-        ${d.title.substring(0,50)}...
-      </td>
+      <td>${d.title.substring(0,50)}...</td>
 
       <td>${d.price}</td>
 
-      <td class="${d.stock === 'VAR' ? 'stock-ok' : 'stock-nok'}">
-        ${d.stock}
-      </td>
+      <td class="${d.stock === 'VAR' ? 'stock-ok' : 'stock-nok'}">${d.stock}</td>
 
       <td>
         <div class="cat-small">API: ${d.category}</div>
@@ -185,7 +191,7 @@ async function loadExcel() {
       <td>
         ${
           d.stock === "YOK"
-            ? `<input class="newLink" placeholder="Yeni link gir">
+            ? `<input class="newLink" placeholder="Yeni ürün linki">
                <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>`
             : "-"
         }
@@ -195,24 +201,27 @@ async function loadExcel() {
     tbody.appendChild(tr);
   }
 
-  document.getElementById("status").innerText = "Tamamlandı.";
+  document.getElementById("status").innerText = "Tablo hazır.";
 }
 
-// Ürün linki güncelle
+// ---------------------------
+// LİNK GÜNCELLE
+// ---------------------------
 async function updateLink(btn) {
   const tr = btn.closest("tr");
   const input = tr.querySelector("input.newLink");
   const newLink = input.value.trim();
-  if (!newLink) return alert("Yeni ürün linki girilmedi!");
+  if (!newLink) return alert("Yeni ürün linki boş!");
 
   btn.innerText = "Yükleniyor...";
 
-  // API'den yeni veriyi çek
-  let d = await fetch(
-    "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(newLink)
-  ).then(r => r.json());
+  const api =
+    "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+    encodeURIComponent(newLink);
 
-  // Tabloyu güncelle
+  let d = await fetch(api).then(r => r.json());
+
+  // tabloyu güncelle
   tr.children[0].querySelector("img").src = d.image;
   tr.children[1].innerHTML = d.title.substring(0,50) + "...";
   tr.children[2].innerText = d.price;
@@ -221,28 +230,50 @@ async function updateLink(btn) {
   tr.children[4].children[0].innerText = "API: " + d.category;
   tr.children[5].querySelector("a").href = newLink;
 
-  btn.innerText = "Güncellendi";
-
-  // JSON çıktısını da güncelle
-  const index = tr.rowIndex - 1;
+  // JSON’a işle
+  let index = tr.rowIndex - 1;
   productData[index].link = newLink;
   productData[index].title = d.title;
   productData[index].price = d.price;
   productData[index].image = d.image;
   productData[index].stock = d.stock;
-  productData[index].category_api = d.category;
+  productData[index].apiCategory = d.category;
+
+  btn.innerText = "Güncellendi";
 }
 
-// JSON çıktısı indir
-function downloadJSON() {
-  const blob = new Blob([JSON.stringify(productData, null, 2)], {
+// ---------------------------
+// HITLERİ YÜKLE → products.json üret
+// ---------------------------
+function generateProducts() {
+
+  if (productData.length === 0)
+    return alert("Önce Excel yükleyin!");
+
+  // products.json yapısı
+  let output = {};
+
+  // tüm CAT kodlarını oluştur
+  for (let i = 1; i <= 111; i++) {
+    let code = "CAT" + String(i).padStart(3, "0");
+    output[code] = [];
+  }
+
+  // her ürünü CAT alanına otomatik yerleştir
+  for (let p of productData) {
+    if (!output[p.catCode]) output[p.catCode] = [];
+    output[p.catCode].push(p.link);
+  }
+
+  // dosya indir
+  const blob = new Blob([JSON.stringify(output, null, 2)], {
     type: "application/json"
   });
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "urun-listesi.json";
+  a.download = "products.json";
   a.click();
 }
 </script>
