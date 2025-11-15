@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel Ürün Görüntüleyici PRO – Ultra Kompakt</title>
+<title>Excel Ürün Görüntüleyici – Ultra Kompakt Final</title>
 
 <style>
 body {
@@ -30,7 +30,7 @@ th, td {
   border: 1px solid #ccc;
   padding: 3px 4px;
   font-size: 12px;
-  line-height: 14px;
+  line-height: 16px;
 }
 
 th {
@@ -46,44 +46,22 @@ img.thumb {
   background: none;
 }
 
-.cat-small {
-  color: #555;
-  font-size: 10px;
-}
-
-.stock-ok {
-  color: green;
-  font-weight: bold;
-}
-
-.stock-nok {
-  color: #b00000;
-  font-weight: bold;
-}
-
 .row-nok {
-  background: #ffd6d6 !important;   /* 🔥 stok olmayan ürünün arka planı kırmızı */
+  background: #ffd6d6 !important; /* stok YOK */
 }
 
 input.newLink {
-  width: 120px;
-  padding: 2px;
-  font-size: 10px;
+  width: 130px;
+  padding: 3px;
+  font-size: 11px;
   margin-top: 3px;
 }
 
 button.smallBtn {
-  padding: 2px 6px;
-  font-size: 10px;
-  margin-top: 3px;
+  padding: 3px 8px;
+  font-size: 11px;
   cursor: pointer;
-}
-
-.oldlink {
-  font-size: 10px;
-  color: #444;
-  display: block;
-  margin-bottom: 3px;
+  margin-top: 3px;
 }
 
 button.big {
@@ -92,6 +70,7 @@ button.big {
   margin-top: 10px;
   cursor: pointer;
 }
+
 </style>
 </head>
 
@@ -99,7 +78,7 @@ button.big {
 
 <div class="box">
 
-  <h3>Excel → Ürün Görüntüleme & HIT Üretici (Ultra Kompakt)</h3>
+  <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
 
   <input type="file" id="excelFile" accept=".xlsx,.xls">
   <button onclick="loadExcel()">Yükle ve Göster</button>
@@ -114,7 +93,7 @@ button.big {
         <th>Ürün</th>
         <th>Fiyat</th>
         <th>Kategoriler</th>
-        <th>Link / Güncelleme</th>
+        <th>Link / Güncelle</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -125,6 +104,7 @@ button.big {
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
+
 let productData = [];
 let excelRows = [];
 
@@ -146,6 +126,7 @@ async function loadExcel() {
     let catCode = rows[i][1];
     let link = rows[i][2];
     if (!catName || !catCode || !link) continue;
+
     excelRows.push({ catName, catCode, link });
   }
 
@@ -158,6 +139,7 @@ async function loadExcel() {
   productData = [];
 
   for (let item of excelRows) {
+
     let d;
     try {
       d = await fetch(
@@ -186,23 +168,20 @@ async function loadExcel() {
     tr.innerHTML = `
       <td><img class="thumb" src="${d.image}"></td>
 
-      <td>${d.title.substring(0,55)}...</td>
+      <td>${d.title.substring(0,60)}...</td>
 
       <td>${d.price}</td>
 
       <td>
-        <div class="cat-small">API: ${d.category}</div>
-        <div class="cat-small">Excel: ${item.catName}</div>
+        Excel: ${item.catName}<br>
+        API: ${d.category}
       </td>
 
-      <td style="text-align:left;">
-        <span class="oldlink">${item.link}</span>
-
+      <td>
         ${
           d.stock === "VAR"
-            ? `<span class="stock-ok">VAR</span>`
+            ? `<a href="${item.link}" target="_blank">Git</a>`
             : `
-              <span class="stock-nok">YOK</span><br>
               <input class="newLink" placeholder="Yeni link">
               <button class="smallBtn" onclick="updateLink(this)">OK</button>
             `
@@ -216,11 +195,16 @@ async function loadExcel() {
   document.getElementById("status").innerText = "Tamamlandı.";
 }
 
+
+// ---------------------------
+// LİNK GÜNCELLEME — SATIRI CANLI GÜNCELLER
+// ---------------------------
 async function updateLink(btn) {
+
   const tr = btn.closest("tr");
-  const input = tr.querySelector("input.newLink");
+  const input = tr.querySelector(".newLink");
   const newLink = input.value.trim();
-  if (!newLink) return alert("Yeni link boş!");
+  if (!newLink) return alert("Yeni link boş olamaz!");
 
   btn.innerText = "...";
 
@@ -229,48 +213,50 @@ async function updateLink(btn) {
     encodeURIComponent(newLink)
   ).then(r => r.json());
 
-  // tablo güncellemesi
+  // satır güncelle
   tr.children[0].querySelector("img").src = d.image;
-  tr.children[1].innerHTML = d.title.substring(0,55) + "...";
+  tr.children[1].innerHTML = d.title.substring(0,60) + "...";
   tr.children[2].innerText = d.price;
-  tr.children[3].children[0].innerText = "API: " + d.category;
 
-  tr.children[4].innerHTML = `
-    <span class="oldlink">${newLink}</span>
-    <span class="${d.stock === "VAR" ? "stock-ok" : "stock-nok"}">${d.stock}</span>
-    ${
-      d.stock === "YOK"
-        ? `<br><input class="newLink" placeholder="Yeni link">
-           <button class="smallBtn" onclick="updateLink(this)">OK</button>`
-        : ""
-    }
-  `;
+  tr.children[3].innerHTML =
+    `Excel: ${productData[tr.rowIndex-1].excelCategoryName}<br>
+     API: ${d.category}`;
 
-  // stok durumuna göre satır rengi
   if (d.stock === "VAR") {
     tr.classList.remove("row-nok");
+    tr.children[4].innerHTML =
+      `<a href="${newLink}" target="_blank">Git</a>`;
   } else {
     tr.classList.add("row-nok");
+    tr.children[4].innerHTML = `
+      <input class="newLink" placeholder="Yeni link">
+      <button class="smallBtn" onclick="updateLink(this)">OK</button>
+    `;
   }
 
-  // json güncelle
+  // JSON güncellemesi
   const index = tr.rowIndex - 1;
-
   productData[index].link = newLink;
   productData[index].title = d.title;
   productData[index].price = d.price;
   productData[index].image = d.image;
-  productData[index].stock = d.stock;
   productData[index].apiCategory = d.category;
+  productData[index].stock = d.stock;
 
   btn.innerText = "OK";
 }
 
+
+// ---------------------------
+// HİTLERİ YÜKLE → products.json üret
+// ---------------------------
 function generateProducts() {
+
   if (productData.length === 0)
-    return alert("Excel yüklenmedi!");
+    return alert("Önce Excel yükle!");
 
   let output = {};
+
   for (let i = 1; i <= 111; i++) {
     output["CAT" + String(i).padStart(3, "0")] = [];
   }
@@ -290,6 +276,7 @@ function generateProducts() {
   a.download = "products.json";
   a.click();
 }
+
 </script>
 
 </body>
