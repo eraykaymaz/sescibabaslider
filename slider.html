@@ -139,7 +139,9 @@ async function loadSlider() {
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
+  /* 🔥 BURASI ARTIK DOĞRU */
   const related = map[CAT]?.related || [];
+
   const track = document.getElementById("sliderTrack");
 
   for (let rc of related) {
@@ -183,7 +185,6 @@ function initSlider() {
   let slideWidth;
   let visibleCount;
   let index = 0;
-  let paused = false;
 
   function updateSizes() {
     slideWidth = slides[0].offsetWidth + 18;
