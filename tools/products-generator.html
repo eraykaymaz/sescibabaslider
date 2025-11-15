@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<title>Excel Ürün Görüntüleyici – Ultra Kompakt Final</title>
 <title>Excel Ürün Görüntüleyici – Final Düzgün Sıralı</title>
-<title>Excel Ürün Görüntüleyici – Final Doğru Sıralı</title>
 
 <style>
 body {
@@ -110,9 +110,6 @@ cursor: pointer;
 let productData = [];
 let excelRows = [];
 
-// ===============================
-//     EXCEL YÜKLEME
-// ===============================
 async function loadExcel() {
 const file = document.getElementById("excelFile").files[0];
 if (!file) return alert("Excel seçilmedi!");
@@ -127,20 +124,18 @@ const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 excelRows = [];
 
   // EXCEL'DEN GERÇEK SATIR SIRASINI KAYDET — *** PATCH ***
-  for (let i = 1; i < rows.length; i++) {
-  // ❗❗ DÜZELTME: i=0'DAN BAŞLIYOR ❗❗
-  for (let i = 0; i < rows.length; i++) {
+for (let i = 1; i < rows.length; i++) {
 let catName = rows[i][0];
 let catCode = rows[i][1];
 let link = rows[i][2];
 if (!catName || !catCode || !link) continue;
 
-excelRows.push({ rowIndex: i, catName, catCode, link });
+    excelRows.push({ catName, catCode, link });
+    excelRows.push({ rowIndex: i, catName, catCode, link });
 }
 
   // SIRAYI EXCEL SIRASINA GÖRE ZORUNLU YAP — *** PATCH ***
-  // Sıralamayı EXCEL sırasına göre zorla
-excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
+  excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
 
 document.getElementById("status").innerText = "Ürünler alınıyor...";
 
@@ -164,7 +159,6 @@ d = { title:"Hata", price:"-", stock:"-", image:"", category:"-" };
 
 productData.push({
       excelIndex: item.rowIndex,     // *** PATCH ***
-      excelIndex: item.rowIndex,
 excelCategoryName: item.catName,
 catCode: item.catCode,
 link: item.link,
@@ -176,36 +170,35 @@ apiCategory: d.category
 });
 
 let tr = document.createElement("tr");
-    tr.setAttribute("data-index", item.rowIndex);
 
 if (d.stock === "YOK") tr.classList.add("row-nok");
 
     tr.setAttribute("data-index", item.rowIndex);   // *** PATCH ***
 
 tr.innerHTML = `
-     <td><img class="thumb" src="${d.image}"></td>
+<td><img class="thumb" src="${d.image}"></td>
 
-     <td>${d.title.substring(0,60)}...</td>
+<td>${d.title.substring(0,60)}...</td>
 
-     <td>${d.price}</td>
+<td>${d.price}</td>
 
-     <td>${item.catName}</td>
+<td>${item.catName}</td>
 
-     <td>${d.category}</td>
+<td>${d.category}</td>
 
-     <td>${item.catCode}</td>
+<td>${item.catCode}</td>
 
-     <td>
-       ${
-         d.stock === "VAR"
-           ? `<a href="${item.link}" target="_blank">Git</a>`
-           : `
-             <input class="newLink" placeholder="Yeni link">
-             <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
-           `
-       }
-     </td>
-   `;
+<td>
+${
+d.stock === "VAR"
+? `<a href="${item.link}" target="_blank">Git</a>`
+: `
+<input class="newLink" placeholder="Yeni link">
+<button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
+`
+}
+</td>
+`;
 
 tbody.appendChild(tr);
 }
@@ -217,19 +210,13 @@ document.getElementById("status").innerText = "Tamamlandı.";
 // ------------------------------------------
 //     GÜNCELLEME — PATCH UYUMLU
 // ------------------------------------------
-// ===============================
-//     LİNK GÜNCELLEME
-// ===============================
 async function updateLink(btn) {
 
 const tr = btn.closest("tr");
   const index = parseInt(tr.dataset.index); // *** PATCH ***
-  const index = parseInt(tr.dataset.index);
-
 const input = tr.querySelector(".newLink");
 const newLink = input.value.trim();
-  if (!newLink) return alert("Yeni link boş olamaz!");
-  if (!newLink) return alert("Yeni link boş!");
+if (!newLink) return alert("Yeni link boş olamaz!");
 
 btn.innerText = "Bekleyin...";
 
@@ -238,6 +225,7 @@ let d = await fetch(
 encodeURIComponent(newLink)
 ).then(r => r.json());
 
+  // güncelle
 tr.children[0].querySelector("img").src = d.image;
 tr.children[1].innerHTML = d.title.substring(0,60) + "...";
 tr.children[2].innerText = d.price;
@@ -245,15 +233,25 @@ tr.children[4].innerText = d.category;
 
 if (d.stock === "VAR") {
 tr.classList.remove("row-nok");
-tr.children[6].innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
+    tr.children[6].innerHTML =
+      `<a href="${newLink}" target="_blank">Git</a>`;
+    tr.children[6].innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
 } else {
 tr.classList.add("row-nok");
 tr.children[6].innerHTML = `
-     <input class="newLink" placeholder="Yeni link">
-     <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
-   `;
+<input class="newLink" placeholder="Yeni link">
+<button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
+`;
 }
 
+  // json güncelle
+  const index = tr.rowIndex - 1;
+  productData[index].link = newLink;
+  productData[index].title = d.title;
+  productData[index].price = d.price;
+  productData[index].image = d.image;
+  productData[index].apiCategory = d.category;
+  productData[index].stock = d.stock;
   // JSON GÜNCELLEME — EXCEL SIRALAMALI — *** PATCH ***
   let real = productData.find(p => p.excelIndex === index);
   real.link = newLink;
@@ -262,28 +260,22 @@ tr.children[6].innerHTML = `
   real.image = d.image;
   real.apiCategory = d.category;
   real.stock = d.stock;
-  let item = productData.find(p => p.excelIndex === index);
-  item.link = newLink;
-  item.title = d.title;
-  item.price = d.price;
-  item.image = d.image;
-  item.apiCategory = d.category;
-  item.stock = d.stock;
 
 btn.innerText = "Güncelle";
 }
 
+// -----------------------------------------------
+// products.json üret
+// -----------------------------------------------
 
 // ------------------------------------------
 //            products.json üret
 // ------------------------------------------
-// ===============================
-//     products.json üret
-// ===============================
 function generateProducts() {
 
 if (productData.length === 0)
-return alert("Önce Excel yükle!");
+    return alert("Excel yüklenmedi!");
+    return alert("Önce Excel yükle!");
 
 let output = {};
 
@@ -296,7 +288,6 @@ if (!output[p.catCode]) output[p.catCode] = [];
 output[p.catCode].push(p.link);
 }
 
-  const blob = new Blob([JSON.s]()
   const blob = new Blob([JSON.stringify(output, null, 2)], {
     type: "application/json"
   });
@@ -312,3 +303,4 @@ output[p.catCode].push(p.link);
 
 </body>
 </html>
+  const blob = new Blob([JSON.s]()
