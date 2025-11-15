@@ -2,10 +2,10 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Slider Üretici – A01 MAP</title>
+<title>Kategori Bazlı Slider Üretici – Final</title>
 
 <style>
-body{font-family:Arial;padding:10px;background:#f5f5f5;}
+body{font-family:Arial;padding:10px;background:#f5f5f5;margin:0;}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;margin-top:10px;}
 th,td{border:1px solid #ccc;padding:3px;}
 img{width:80px;height:80px;object-fit:contain;}
@@ -18,7 +18,7 @@ img{width:80px;height:80px;object-fit:contain;}
 
 <body>
 
-<h3>Kategori Bazlı Slider Üretici</h3>
+<h3>Kategori Bazlı Slider Üretici – FINAL</h3>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -38,19 +38,15 @@ img{width:80px;height:80px;object-fit:contain;}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
 
 /* ============================================================
-      A01 + A02 MAP — SENTAKS HATASIZ
+      A01–A02–A03 MAP → SENİN YAPIŞTIRMAN İÇİN YER
 ============================================================ */
 const CATEGORY_MAP = {
-  "A01": {
-    "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
-  },
-  "A02": {
-    "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]
-  }
+"A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
+"A02":{"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]},
+"A03":{"related":["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]}
 };
 
 /* ============================================================
@@ -72,9 +68,9 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
   tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
-    const KAT  = rows[i][0];
+    const KAT = rows[i][0];
     const CODE = rows[i][1];
-    let LINK   = rows[i][2];
+    let LINK  = rows[i][2];
 
     if(!CODE) continue;
 
@@ -89,7 +85,7 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
     tr.innerHTML = `
       <td><img src="${api.image}"></td>
       <td>${api.title}</td>
-      <td>${api.price}</td>
+      <td>${api.price} ₺</td>
       <td>${KAT}<br><b>${api.category}</b></td>
       <td>${CODE}</td>
       <td id="cell_${i}">
@@ -119,7 +115,7 @@ async function fetchAPI(url){
 }
 
 /* ============================================================
-      GÜNCELLE
+      GÜNCELLEME
 ============================================================ */
 window.updateLink = async function(i,CODE){
   const newLink = document.getElementById("inp_"+i).value.trim();
@@ -128,12 +124,12 @@ window.updateLink = async function(i,CODE){
   PRODUCTS[CODE] = [newLink];
   const api = await fetchAPI(newLink);
 
-  const row  = document.querySelectorAll("#productTable tbody tr")[i-1];
+  const row = document.querySelectorAll("#productTable tbody tr")[i-1];
   const cell = document.getElementById("cell_"+i);
 
   row.children[0].innerHTML = `<img src="${api.image}">`;
   row.children[1].innerHTML = api.title;
-  row.children[2].innerHTML = api.price;
+  row.children[2].innerHTML = api.price + " ₺";
   row.children[3].children[1].innerHTML = api.category;
 
   if(api.stock==="VAR"){
@@ -149,7 +145,7 @@ window.updateLink = async function(i,CODE){
 };
 
 /* ============================================================
-      SLIDER ÜRET
+      SLIDER ÜRETME
 ============================================================ */
 window.makeSlider = async function(CODE){
   const rel = CATEGORY_MAP[CODE]?.related || [];
@@ -172,7 +168,7 @@ window.makeSlider = async function(CODE){
 };
 
 /* ============================================================
-      SLIDER TEMPLATE
+      SLIDER HTML — RESPONSIVE + AUTO + HOVER ZOOM
 ============================================================ */
 function sliderHTML(CODE, items){
 return `
@@ -183,39 +179,92 @@ return `
 <title>${CODE} Slider</title>
 <style>
 body{margin:0;font-family:Arial;}
-.wrap{position:relative;padding:20px;}
-.slider{display:flex;overflow-x:auto;gap:20px;scroll-behavior:smooth;}
-.item{flex:0 0 auto;text-align:center;}
-.item img{width:150px;height:150px;object-fit:contain;}
+.wrap{position:relative;padding:20px;overflow:hidden;}
+.slider{
+  display:flex;
+  overflow-x:auto;
+  gap:20px;
+  padding-bottom:10px;
+  scroll-behavior:smooth;
+}
+.item{
+  flex:0 0 auto;
+  width:150px;
+  text-align:center;
+  transition:.25s;
+}
+.item img{
+  width:150px;
+  height:150px;
+  object-fit:contain;
+  transition:.25s;
+}
+.item:hover img{transform:scale(1.08);}
+.title{font-size:14px;font-weight:700;margin-top:6px;}
+.price{color:#c00;font-weight:700;margin-top:4px;}
+.stock{color:#d88;font-weight:700;margin-top:4px;font-size:13px;}
+.btn{
+  width:130px;
+  padding:8px;
+  margin-top:8px;
+  background:#d54c5a;
+  color:#fff;
+  border-radius:8px;
+  border:0;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn:hover{background:#b33946;}
 .arrow{
-  position:absolute;top:45%;
-  background:#fff;padding:10px 14px;border-radius:50%;
-  font-size:22px;cursor:pointer;
+  position:absolute;
+  top:45%;
+  background:#fff;
+  padding:10px 14px;
+  border-radius:50%;
+  font-size:20px;
+  cursor:pointer;
   box-shadow:0 2px 6px rgba(0,0,0,.25);
+  z-index:3;
 }
 .left{left:10px;}
 .right{right:10px;}
+@media(max-width:600px){
+  .arrow{display:none;}
+}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-300,behavior:'smooth'})">❮</div>
-  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:300,behavior:'smooth'})">❯</div>
+  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'smooth'})">❮</div>
+  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:250,behavior:'smooth'})">❯</div>
 
-  <div class="slider">
+  <div class="slider" id="sld">
     ${items.map(x=>`
       <div class="item">
         <a href="${x.link}" target="_top">
           <img src="${x.image}">
+          <div class="title">${x.title}</div>
         </a>
-        <div>${x.title}</div>
-        <div>${x.stock==="VAR"?x.price:"Tükendi"}</div>
+        ${x.stock==="VAR"
+          ? `<div class="price">${x.price} ₺</div>
+             <button class="btn" onclick="parent.location.href='${x.link}?add-to-cart=1'">🛒 Sepete Ekle</button>`
+          : `<div class="stock">Tükendi</div>`}
       </div>
     `).join("")}
   </div>
-
 </div>
+
+<script>
+// Her 1 saniyede otomatik kaydır
+setInterval(()=>{
+  const el = document.getElementById("sld");
+  el.scrollBy({left:180,behavior:"smooth"});
+  if(el.scrollLeft + el.clientWidth >= el.scrollWidth) el.scrollLeft=0;
+},1000);
+</script>
+
 </body>
 </html>
 `;
