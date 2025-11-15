@@ -158,11 +158,10 @@ async function loadSlider() {
     const line1 = t.slice(0,3).join(" ");
     const line2 = t.slice(3,6).join(" ");
 
-    /* FİYAT AYIKLAMA */
+    /* ---- PARA BİRİMİ AYIKLAMA ---- */
     let raw = (api.price || "").trim();
     let price = raw;
-    let currency = "";
-    const num = raw.replace(/[^0-9.,]/g, "").trim();
+    let num = raw.replace(/[^0-9.,]/g, "").trim();
 
     if (raw.includes("TL") || raw.includes("₺") || raw.toUpperCase().includes("TRY")) {
       price = `₺${num} ₺`;
@@ -172,14 +171,14 @@ async function loadSlider() {
       price = `${num} €`;
     }
 
-    /* STOK KONTROL */
+    /* ---- STOK KONTROL ---- */
     let isOut =
       api.stock === false ||
       (api.stock && typeof api.stock === "string" && api.stock.toLowerCase().includes("tükendi")) ||
       raw.toLowerCase().includes("tükendi");
 
     let stockHTML = isOut
-      ? `<div style="color:#b30000; font-size:14px; font-weight:900; margin-top:8px;">Tükendi</div>`
+      ? `<div style="color:#b30000; font-size:14px; font-weight:900; margin-top:6px;">Tükendi</div>`
       : "";
 
     let cartButton = isOut
@@ -234,7 +233,7 @@ function initSlider() {
 
   function updateSizes() {
     slideWidth = slides[0].offsetWidth + 18;
-    visibleCount = window.innerWidth < 768
+    visibleCount = window.innerWidth < 768 
       ? Math.floor(window.innerWidth / (slideWidth + 5))
       : 8;
   }
