@@ -2,79 +2,27 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel → Ürün Görüntüleme & HIT + SLIDER Üretici</title>
+<title>Excel → Ürün Görüntüleme + SLIDER Üretici</title>
 
 <style>
 body{font-family:Arial;padding:15px;background:#f2f2f2;}
-
 table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
 th,td{border:1px solid #ccc;padding:4px 6px;}
-
-.red-row{
-  background:#ffe3e3!important;
-  transition: background 0.6s ease;
-}
-
+.red-row{background:#ffe3e3!important;transition:background .6s ease;}
 img{width:65px;height:65px;object-fit:contain;}
-
-.flex-row{
-  display:flex;
-  gap:4px;
-  align-items:center;
-  justify-content:flex-start;
-}
-
-.link-input{
-  width:160px;
-  padding:3px;
-  font-size:12px;
-  border:1px solid #aaa;
-  border-radius:4px;
-}
-
-.button-small{
-  padding:4px 7px;
-  font-size:12px;
-  border:0;
-  border-radius:4px;
-  cursor:pointer;
-}
-
+.flex-row{display:flex;gap:4px;align-items:center;}
+.link-input{width:160px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
+.button-small{padding:4px 7px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
 .btn-update{background:#1976d2;color:#fff;}
-
-.btn-generate{
-  margin-top:10px;
-  background:#2e7d32;
-  color:#fff;
-  padding:8px 14px;
-  font-size:14px;
-  border:0;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.git-link{
-  color:#0d47a1;
-  font-weight:bold;
-  font-size:12px;
-}
-
-.slider-btn{
-  margin-top:4px;
-  background:#d54c5a;
-  color:#fff;
-  border:0;
-  padding:4px 7px;
-  border-radius:4px;
-  cursor:pointer;
-  font-size:12px;
-}
+.btn-generate{margin-top:10px;background:#2e7d32;color:#fff;padding:8px 14px;font-size:14px;border:0;border-radius:6px;cursor:pointer;}
+.slider-btn{margin-top:4px;background:#d54c5a;color:#fff;border:0;padding:4px 7px;border-radius:4px;cursor:pointer;font-size:12px;}
+.git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
 </style>
 
 </head>
 <body>
 
-<h2>Excel → Ürün Görüntüleme & HIT + SLIDER Üretici</h2>
+<h2>Excel → Ürün Görüntüleme + SLIDER Üretici</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
 <button class="btn-generate" onclick="generateProductsJS()">products.js ÜRET</button>
@@ -88,7 +36,7 @@ img{width:65px;height:65px;object-fit:contain;}
   <th>Kategori</th>
   <th>(API) Kategori</th>
   <th>CAT</th>
-  <th>Link / Güncelle / Slider</th>
+  <th>İşlem</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -97,11 +45,10 @@ img{width:65px;height:65px;object-fit:contain;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-
 let PRODUCTS = {};
 let CATEGORY_MAP = null;
 
-/* ---------------- EXCEL LOAD ---------------- */
+/* ---------------- EXCEL ---------------- */
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
@@ -109,16 +56,15 @@ async function handleExcel(e){
     const data = await file.arrayBuffer();
     const excel = XLSX.read(data);
     const sheet = excel.Sheets[excel.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-    const tbody = document.querySelector("#productTable tbody");
-    tbody.innerHTML = "";
+    const tbody=document.querySelector("#productTable tbody");
+    tbody.innerHTML="";
 
-    for(let i=1;i<json.length;i++){
-        const row = json[i];
-        const categoryName = row[0];
-        const CAT = row[1];
-        let link = row[2];
+    for(let i=1;i<rows.length;i++){
+        const categoryName = rows[i][0];
+        const CAT = rows[i][1];
+        const link = rows[i][2];
 
         if(!CAT) continue;
 
@@ -126,121 +72,89 @@ async function handleExcel(e){
 
         let api = link ? await fetchAPI(link) : blankAPI();
 
-        renderRow(i, row, api, CAT);
+        renderRow(i, categoryName, CAT, link, api);
     }
 }
 
 /* ---------------- RENDER ROW ---------------- */
-function renderRow(i, row, api, CAT){
-    const tbody = document.querySelector("#productTable tbody");
-    const tr = document.createElement("tr");
-    tr.id = "row_"+i;
+function renderRow(i, categoryName, CAT, link, api){
+    let tbody=document.querySelector("#productTable tbody");
 
-    const categoryName = row[0];
-    const link = row[2];
+    let tr=document.createElement("tr");
+    tr.id="row_"+i;
 
-    if(api.stock === "YOK") tr.classList.add("red-row");
+    if(api.stock==="YOK") tr.classList.add("red-row");
 
     tr.innerHTML = `
-      <td id="img_${i}"><img src="${api.image||""}"></td>
-      <td id="title_${i}">${api.title}</td>
-      <td id="price_${i}">${api.price}</td>
-      <td>${categoryName}</td>
-      <td id="catapi_${i}">${api.category||"-"}</td>
-      <td>${CAT}</td>
+        <td><img src="${api.image}"></td>
+        <td>${api.title}</td>
+        <td>${api.price}</td>
+        <td>${categoryName}</td>
+        <td>${api.category}</td>
+        <td>${CAT}</td>
+        <td>
+            ${link && api.stock==="VAR"
+              ? `<a class="git-link" href="${link}" target="_blank">Git</a>`
+              : `
+                <div class="flex-row">
+                    <input class="link-input" id="inp_${i}" placeholder="Yeni link">
+                    <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+                </div>
+              `
+            }
 
-      <td id="cell_${i}">
-        ${getLinkHTML(i, CAT, link, api.stock)}
-
-        <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>
-      </td>
+            <button class="slider-btn" onclick="generateSlider('${CAT}')">
+                Slider Üret
+            </button>
+        </td>
     `;
 
     tbody.appendChild(tr);
 }
 
-/* ---------------- LINK HTML ---------------- */
-function getLinkHTML(i, CAT, link, stock){
-    if(stock === "VAR" && link){
-        return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
-    }
-
-    return `
-      <div class="flex-row">
-        <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-        <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-      </div>
-    `;
-}
-
 /* ---------------- UPDATE LINK ---------------- */
 async function updateLink(i, CAT){
-    const newLink = document.getElementById("inp_"+i).value.trim();
+    const newLink=document.getElementById("inp_"+i).value.trim();
     if(!newLink) return;
 
-    PRODUCTS[CAT] = newLink;
+    PRODUCTS[CAT]=newLink;
 
-    const api = await fetchAPI(newLink);
+    const api=await fetchAPI(newLink);
 
-    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
-    document.getElementById("title_"+i).innerHTML = api.title;
-    document.getElementById("price_"+i).innerHTML = api.price;
-    document.getElementById("catapi_"+i).innerHTML = api.category;
-
-    const cell = document.getElementById("cell_"+i);
-    const row = document.getElementById("row_"+i);
-
-    if(api.stock === "VAR"){
-        row.classList.remove("red-row");
-        cell.innerHTML =
-          `<a class="git-link" href="${newLink}" target="_blank">Git</a>
-           <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>`;
-    } else {
-        row.classList.add("red-row");
-        cell.innerHTML = `
-            <div class="flex-row">
-              <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-              <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-            </div>
-            <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>
-        `;
-    }
+    document.getElementById("row_"+i).outerHTML="";
+    renderRow(i, "-", CAT, newLink, api);
 }
 
 /* ---------------- API ---------------- */
 async function fetchAPI(url){
     try{
-        const r = await fetch(
-          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
+        const r=await fetch(
+            "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
         );
         return await r.json();
-    }catch(e){
+    }catch{
         return blankAPI();
     }
 }
 
 function blankAPI(){
-    return {title:"-", image:"", price:"-", category:"-", stock:"YOK"};
+    return {title:"-",image:"",price:"-",category:"-",stock:"YOK"};
 }
 
 /* ---------------- PRODUCTS EXPORT ---------------- */
 function generateProductsJS(){
-    const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-    const blob = new Blob([text], {type:"application/javascript"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "products.js";
-    a.click();
+    const text="window.PRODUCTS="+JSON.stringify(PRODUCTS,null,2)+";";
+    download(text,"products.js","application/javascript");
 }
 
-/* ---------------- LOAD CATEGORY MAP ---------------- */
+/* ---------------- CATEGORY MAP LOAD ---------------- */
 async function loadCategoryMap(){
     if(CATEGORY_MAP) return;
 
-    await new Promise((resolve, reject)=>{
+    await new Promise((resolve,reject)=>{
         const s=document.createElement("script");
         s.src="data/category-map.js?v="+Date.now();
-        s.onload=()=>{ CATEGORY_MAP = window.CATEGORY_MAP; resolve(); }
+        s.onload=()=>{ CATEGORY_MAP=window.CATEGORY_MAP; resolve(); }
         s.onerror=reject;
         document.body.appendChild(s);
     });
@@ -248,7 +162,6 @@ async function loadCategoryMap(){
 
 /* ---------------- SLIDER BUILD ---------------- */
 async function generateSlider(mainCAT){
-
     await loadCategoryMap();
 
     let related = CATEGORY_MAP[mainCAT]?.related || [];
@@ -265,28 +178,24 @@ async function generateSlider(mainCAT){
             ? `<div class="out-stock">Tükendi</div>`
             : `<div class="product-price">${api.price}</div>
                <button class="add-cart-btn"
-               onclick="window.top.location.href='${link}?add-to-cart=1'">Sepete Ekle</button>`;
+                 onclick="window.top.location.href='${link}?add-to-cart=1'">Sepete Ekle</button>`;
 
         slideHTML += `
         <div class="slide-item">
-            <a href="${link}" target="_top">
-              <img src="${api.image}">
-            </a>
+            <a href="${link}" target="_top"><img src="${api.image}"></a>
             <div class="product-title">${api.title}</div>
             ${priceHTML}
         </div>`;
     }
 
     const finalHTML = sliderTemplate(slideHTML);
-
     download(finalHTML, `${mainCAT}-slider.html`, "text/html");
 }
 
 /* ---------------- SLIDER TEMPLATE ---------------- */
 function sliderTemplate(slideHTML){
 
-return `
-<!DOCTYPE html>
+return `<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
@@ -294,14 +203,14 @@ return `
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;padding:0;font-family:Arial;background:#fff;}
+body{margin:0;padding:0;font-family:Arial;}
 .slider-wrap{overflow:hidden;width:100%;max-width:1850px;margin:auto;position:relative;}
 .slider-track{display:flex;gap:18px;transition:transform .5s ease-in-out;}
-.slide-item{text-align:center;width:150px;padding:20px 0;}
+.slide-item{width:150px;text-align:center;padding:20px 0;}
 .slide-item img{width:150px;height:150px;object-fit:contain;border-radius:12px;transition:.3s;}
 .slide-item:hover img{transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.25);}
 .product-title{font-size:14px;font-weight:700;margin-top:10px;}
-.product-price{font-size:15px;font-weight:700;margin-top:4px;color:#d30000;}
+.product-price{font-size:15px;font-weight:800;color:#d30000;margin-top:4px;}
 .out-stock{color:#999;font-size:14px;font-weight:700;margin-top:6px;}
 .add-cart-btn{margin-top:8px;width:130px;background:#d54c5a;color:white;border:0;padding:8px 0;border-radius:8px;cursor:pointer;}
 .slider-arrow{position:absolute;top:45%;width:40px;height:40px;border-radius:50%;background:#fff;border:0;font-size:22px;cursor:pointer;}
@@ -316,13 +225,13 @@ window.onload=()=>{
   const w=168;
 
   document.querySelector(".slider-next").onclick=()=>{
-      index++; if(index>=s.length-8) index=0;
-      t.style.transform="translateX(-"+index*w+"px)";
+    index++; if(index>=s.length-8) index=0;
+    t.style.transform="translateX(-"+(index*w)+"px)";
   };
 
   document.querySelector(".slider-prev").onclick=()=>{
-      index--; if(index<0) index=s.length-8;
-      t.style.transform="translateX(-"+index*w+"px)";
+    index--; if(index<0) index=s.length-8;
+    t.style.transform="translateX(-"+(index*w)+"px)";
   };
 }
 </script>
@@ -331,13 +240,13 @@ window.onload=()=>{
 <body>
 
 <div class="slider-wrap">
- <button class="slider-arrow slider-prev">❮</button>
+  <button class="slider-arrow slider-prev">❮</button>
 
- <div class="slider-track" id="sliderTrack">
-   ${slideHTML}
- </div>
+  <div class="slider-track" id="sliderTrack">
+    ${slideHTML}
+  </div>
 
- <button class="slider-arrow slider-next">❯</button>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
 
 </body>
@@ -345,14 +254,13 @@ window.onload=()=>{
 }
 
 /* ---------------- DOWNLOAD ---------------- */
-function download(content, filename, type){
-    const blob = new Blob([content], {type});
-    const a = document.createElement("a");
+function download(content,filename,type){
+    const blob=new Blob([content],{type});
+    const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
     a.download=filename;
     a.click();
 }
-
 </script>
 
 </body>
