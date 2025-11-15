@@ -11,23 +11,14 @@
 body { font-family: Arial; padding:20px; background:#fafafa; }
 h1 { font-size:22px; margin-bottom:10px; }
 table { border-collapse: collapse; width:100%; background:white; margin-top:20px; }
-table th, table td {
-    border:1px solid #ddd; padding:8px; font-size:14px;
-}
-input[type=text] {
-    width:100%; padding:6px; font-size:14px;
-}
+table th, table td { border:1px solid #ddd; padding:8px; font-size:14px; }
+input[type=text] { width:100%; padding:6px; font-size:14px; }
 button {
     background:#007bff; color:white; padding:10px 18px;
     border:none; border-radius:6px; cursor:pointer;
     margin-top:10px; font-size:15px;
 }
 button:hover { background:#005fcc; }
-.output-box {
-    margin-top:20px; background:white; padding:15px;
-    border:1px solid #ddd; border-radius:6px; 
-    white-space:pre-wrap;
-}
 </style>
 </head>
 <body>
@@ -51,8 +42,6 @@ button:hover { background:#005fcc; }
 <button id="addRowBtn" style="display:none;" onclick="addRow()">Yeni Satır Ekle</button>
 
 <button id="generateBtn" style="display:none;" onclick="generateHTML()">111in1 HTML Oluştur</button>
-
-<div id="output" class="output-box" style="display:none;"></div>
 
 <script>
 let tableBody = document.querySelector("#dataTable tbody");
@@ -95,7 +84,7 @@ function addRow(cat="", link="") {
     tableBody.appendChild(tr);
 }
 
-// HTML üret
+// HTML üret ve indir
 function generateHTML() {
     let rows = document.querySelectorAll("#dataTable tbody tr");
 
@@ -145,7 +134,6 @@ window.onload=function(){
             html += `
                 <div class="item">
                     <a href="${link}" target="_blank">
-                        <img src="${link}/image1.jpg" width="150">
                         <div class="title">Ürün Başlığı</div>
                         <div class="price">Fiyat</div>
                     </a>
@@ -157,11 +145,15 @@ window.onload=function(){
 
     html += `</body></html>`;
 
-    let box = document.getElementById("output");
-    box.innerText = html;
-    box.style.display = "block";
+    // DOSYA İNDİRME
+    const blob = new Blob([html], {type: "text/html"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "111in1slider.html";
+    a.click();
 }
 </script>
 
 </body>
 </html>
+
