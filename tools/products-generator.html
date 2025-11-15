@@ -8,8 +8,11 @@
 body { font-family: Arial; padding: 20px; background: #f5f5f5; }
 
 table {
-  width: 100%; border-collapse: collapse; margin-top: 20px;
-  background: white; font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  margin-top: 20px;
+  font-size: 14px;
 }
 
 th, td {
@@ -29,6 +32,7 @@ button {
   color:white;
   border:none;
   border-radius:4px;
+  margin-left:5px;
 }
 
 .generate-btn {
@@ -39,6 +43,7 @@ button {
   border:0;
   margin-top:15px;
 }
+
 .link-input {
   width: 95%;
   padding: 6px;
@@ -63,7 +68,6 @@ button {
   <th>Fiyat</th>
   <th>Kategori</th>
   <th>Kategori (API)</th>
-  <th>Stok</th>
   <th>CAT</th>
   <th>Link / Güncelle</th>
 </tr>
@@ -75,7 +79,7 @@ button {
 
 <script>
 
-let PRODUCTS = {};  // products.js üretimi için
+let PRODUCTS = {};
 
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
@@ -91,9 +95,9 @@ async function handleExcel(e){
 
     for (let i = 1; i < json.length; i++){
         const row = json[i];
-        const categoryName = row[0];   // Excel A sütunu
-        const CAT = row[1];            // Excel B sütunu
-        let link = row[2];             // Excel C sütunu (TABLOYA GİREN LİNK)
+        const categoryName = row[0];
+        const CAT = row[1];
+        let link = row[2];
 
         if (!CAT) continue;
 
@@ -101,33 +105,24 @@ async function handleExcel(e){
         if (link) PRODUCTS[CAT].push(link);
 
         let api = {};
-        if (link){
+        if (link) {
             api = await fetchAPI(link);
         } else {
-            api = { title:"-", image:"", price:"-", category:"-", stock:"-" };
+            api = { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
         }
 
         const tr = document.createElement("tr");
         if (api.stock === "YOK") tr.classList.add("red-row");
 
-        const safeLink = link || "";
-
         tr.innerHTML = `
           <td><img src="${api.image || ""}" width="80"></td>
-          <td>${api.title || "-"}</td>
-          <td>${api.price || "-"}</td>
+          <td>${api.title}</td>
+          <td>${api.price}</td>
           <td>${categoryName}</td>
           <td>${api.category || "-"}</td>
-          <td><b>${api.stock || "-"}</b></td>
           <td>${CAT}</td>
-          <td>
-            ${safeLink
-              ? `<a href="${safeLink}" target="_blank">${safeLink}</a>`
-              : `
-                 <input class="link-input" id="linkInput_${i}" placeholder="Ürün linki gir">
-                 <button class="update-btn" onclick="saveLink(${i}, '${CAT}')">Kaydet</button>
-                `
-            }
+          <td id="cell_${i}">
+            ${getLinkCellHTML(i, CAT, link)}
           </td>
         `;
 
@@ -135,20 +130,36 @@ async function handleExcel(e){
     }
 }
 
-function saveLink(rowIndex, CAT){
-    const val = document.getElementById("linkInput_"+rowIndex).value.trim();
-    if (!val) return alert("Lütfen link girin!");
+/* Link hücresini oluşturan fonksiyon */
+function getLinkCellHTML(i, CAT, link){
+    if (!link){
+        return `
+          <input class="link-input" id="linkInput_${i}" placeholder="Ürün linki gir">
+          <button class="update-btn" onclick="updateLink(${i}, '${CAT}')">Kaydet</button>
+        `;
+    }
 
-    if (!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
-    PRODUCTS[CAT].push(val);
-
-    alert("Link kaydedildi! Yeniden 'products.js ÜRET' yapabilirsin.");
+    return `
+      <a href="${link}" target="_blank">${link}</a><br>
+      <input class="link-input" id="linkInput_${i}" value="${link}">
+      <button class="update-btn" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+    `;
 }
 
-function openLink(link){
-    if (link) window.open(link, "_blank");
+/* Link güncelleme */
+function updateLink(rowIndex, CAT){
+    const newLink = document.getElementById("linkInput_"+rowIndex).value.trim();
+    if (!newLink) return alert("Lütfen link girin.");
+
+    PRODUCTS[CAT] = [ newLink ];
+
+    document.getElementById("cell_"+rowIndex).innerHTML =
+        getLinkCellHTML(rowIndex, CAT, newLink);
+
+    alert("Link güncellendi!");
 }
 
+/* API çekme */
 async function fetchAPI(url){
     try{
         const r = await fetch(
@@ -156,14 +167,13 @@ async function fetchAPI(url){
         );
         return await r.json();
     }catch(e){
-        return { stock:"-" };
+        return { title:"-", price:"-", image:"", category:"-", stock:"YOK" };
     }
 }
 
 /* products.js üret */
 function generateProductsJS(){
-    let text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-
+    const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
     const blob = new Blob([text], { type: "application/javascript" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -175,4 +185,3 @@ function generateProductsJS(){
 
 </body>
 </html>
-
