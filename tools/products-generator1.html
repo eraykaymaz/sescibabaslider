@@ -47,6 +47,8 @@ img{width:65px;height:65px;object-fit:contain;}
 
 <script>
 
+async function main(){
+
 let PRODUCTS = {};
 let CATEGORY_MAP = {};
 let dataReady = { products:false, map:false };
@@ -93,7 +95,6 @@ async function handleExcel(e){
 
     for(let i=1;i<json.length;i++){
         const row = json[i];
-        const categoryName = row[0];
         const CAT = row[1];
         let link = row[2];
 
@@ -102,40 +103,30 @@ async function handleExcel(e){
         if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
         if(link) PRODUCTS[CAT].push(link);
 
-        let api = link ? await fetchAPI(link) : {
-          title:"-", image:"", price:"-", category:"-", stock:"YOK"
-        };
+        let api = link ? await fetchAPI(link) : { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
 
         renderRow(i, row, api, CAT);
     }
 }
 
 /* ------------------------------------ */
-/* SATIR OLUŞTUR                         */
+/* TABLO SATIRI                         */
 /* ------------------------------------ */
 function renderRow(i, row, api, CAT){
     const tbody = document.querySelector("#productTable tbody");
     const tr = document.createElement("tr");
-    tr.id = "row_"+i;
-
-    const categoryName = row[0];
-    const link = row[2];
 
     if(api.stock === "YOK") tr.classList.add("red-row");
 
     tr.innerHTML = `
-      <td id="img_${i}"><img src="${api.image||""}"></td>
-      <td id="title_${i}">${api.title}</td>
-      <td id="price_${i}">${api.price}</td>
-      <td>${categoryName}</td>
-      <td id="catapi_${i}">${api.category||"-"}</td>
+      <td><img src="${api.image||""}"></td>
+      <td>${api.title}</td>
+      <td>${api.price}</td>
+      <td>${row[0]}</td>
+      <td>${api.category||"-"}</td>
       <td>${CAT}</td>
-      <td id="cell_${i}">
-        ${getLinkHTML(i, CAT, link, api.stock)}
-      </td>
-      <td>
-        <button class="slider-btn" onclick="createSlider('${CAT}')">Slider Üret</button>
-      </td>
+      <td>${getLinkHTML(i, CAT, row[2], api.stock)}</td>
+      <td><button class="slider-btn" onclick="createSlider('${CAT}')">Slider Üret</button></td>
     `;
 
     tbody.appendChild(tr);
@@ -145,7 +136,6 @@ function getLinkHTML(i, CAT, link, stock){
     if(stock === "VAR" && link){
         return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
     }
-
     return `
       <div class="flex-row">
         <input class="link-input" id="inp_${i}" placeholder="Yeni link">
@@ -181,9 +171,8 @@ function generateProductsJS(){
 /* ------------------------------------ */
 /* SLIDER ÜRET (HTML + CSS)              */
 /* ------------------------------------ */
-async function createSlider(CAT){
+window.createSlider = async function(CAT){
     const related = CATEGORY_MAP[CAT]?.related || [];
-
     let items = [];
 
     for(const rc of related){
@@ -195,7 +184,6 @@ async function createSlider(CAT){
     }
 
     const html = buildCSSHTMLSlider(CAT, items);
-
     const blob = new Blob([html], {type:"text/html"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -204,7 +192,7 @@ async function createSlider(CAT){
 }
 
 /* ------------------------------------ */
-/* PURE HTML CSS SLIDER GENERATOR       */
+/* SAF HTML + CSS SLIDER               */
 /* ------------------------------------ */
 function buildCSSHTMLSlider(CAT, items){
 return `
@@ -217,14 +205,10 @@ return `
 <style>
 body{margin:0;padding:0;font-family:Arial;}
 .slider-container{
-  display:flex;overflow-x:auto;gap:18px;padding:20px;
-  scroll-behavior:smooth;
+  display:flex;overflow-x:auto;gap:18px;padding:20px;scroll-behavior:smooth;
 }
 .item{min-width:150px;text-align:center;}
-.item img{
-  width:150px;height:150px;object-fit:contain;
-  border-radius:12px;background:#fff;
-}
+.item img{width:150px;height:150px;object-fit:contain;border-radius:12px;background:#fff;}
 .title{margin-top:8px;font-size:14px;font-weight:700;}
 .price{margin-top:4px;font-size:15px;font-weight:800;color:#d30000;}
 .stock{margin-top:4px;font-size:14px;font-weight:700;color:#777;}
@@ -248,6 +232,10 @@ ${items.map(p=>`
 </body>
 </html>`;
 }
+
+}
+
+main();
 
 </script>
 
