@@ -1,8 +1,4 @@
-window.PRODUCTS =
-{
-  "CAT001": [
-    "https://www.sescibaba.com/boom-dahili-dsp-2x2-usb-c-ses-karti-171594783311308"
-  ],
+window.PRODUCTS = {
   "CAT002": [
     "https://www.sescibaba.com/spirit-kondenser-mikrofon-paketi-siyah"
   ],
@@ -333,4 +329,4 @@ window.PRODUCTS =
   "CAT111": [
     "https://www.sescibaba.com/spirit-kondenser-mikrofon-paketi-siyah"
   ]
-}
+};
