@@ -18,35 +18,36 @@ body {
 .slider-track { display:flex; gap:18px; transition:transform .5s ease-in-out; }
 .slide-item { width:150px; text-align:center; padding:20px 0; }
 
-/* IMAGES */
+/* IMAGE */
 .slide-item img {
   width:150px; height:150px; object-fit:contain;
-  border-radius:12px; background:#fff;
-  transition:.3s;
+  border-radius:12px; background:#fff; transition:.3s;
 }
-.slide-item:hover img { transform:scale(1.08); box-shadow:0 4px 14px rgba(0,0,0,.25); }
+.slide-item:hover img {
+  transform:scale(1.08);
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
 
 /* TITLE */
 .product-title { font-size:14px; font-weight:700; color:#000; margin-top:10px; line-height:16px; }
 
-/* FİYAT */
-.product-price { 
-  font-size:15px; 
-  font-weight:800; 
-  color:#d30000; 
-  margin-top:4px; 
+/* PRICE */
+.product-price {
+  font-size:15px;
+  font-weight:800;
+  color:#d30000;
+  margin-top:4px;
 }
 
 /* TÜKENDİ */
 .out-stock {
   margin-top:6px;
-  font-size:15px;
-  font-weight:900;
-  color:#ff4d4d;
-  opacity:0.85;
+  font-size:14px;   /* 1 punto küçültüldü */
+  font-weight:700;
+  color:#999;       /* gri */
 }
 
-/* SEPETE EKLE BUTON */
+/* SEPETE EKLE BUTTON */
 .add-cart-btn {
   margin-top:8px;
   width:130px;
@@ -74,9 +75,15 @@ body {
 .slider-next { right:5px; }
 
 /* DIVIDER */
-.slider-divider { width:92%; height:2px; background:rgba(0,0,0,.15); margin:10px auto 40px; }
+.slider-divider {
+  width:92%; height:2px;
+  background:linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
+  margin:10px auto 40px;
+  border-radius:2px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="slider-wrap">
@@ -88,8 +95,7 @@ body {
 <div class="slider-divider"></div>
 
 <script>
-
-/* ------------------ JS HELPERS ------------------ */
+/* SCRIPT LOADING */
 function loadScript(src){
   return new Promise((resolve,reject)=>{
     const s=document.createElement("script");
@@ -99,46 +105,52 @@ function loadScript(src){
   });
 }
 
-const getParam = (key)=> new URLSearchParams(location.search).get(key);
+const getParam = key => new URLSearchParams(location.search).get(key);
 
-/* FİYAT FORMATLAYICI */
+/* FİYAT FORMATLAYICI — TL HER ZAMAN SAĞDA */
 function formatPrice(price){
   if (!price) return "";
-  if (price.includes(".")) return price + " €";   // EURO
-  if (price.includes(",")) return price + " $";   // USD
-  return price + " ₺";                            // TL → SAĞA ALINDI
+
+  // sadece rakamdan oluşuyorsa TL
+  if (/^[0-9.]+$/.test(price)) return price + " ₺";
+
+  // US Dollar formatı (virgüllü fiyat)
+  if (price.includes(",")) return price + " $";
+
+  // EURO
+  return price + " €";
 }
 
-/* ------------------ SLIDER ------------------ */
+/* SLIDER DATA LOAD */
 async function loadSlider(){
   const CAT = getParam("cat") || "CAT001";
 
   await loadScript("data/category-map.js");
   await loadScript("data/products.js");
 
-  const map = window.CATEGORY_MAP;
-  const pro = window.PRODUCTS;
-  const related = map[CAT].related;
+  const map  = window.CATEGORY_MAP;
+  const pro  = window.PRODUCTS;
+  const list = map[CAT].related;
+
   const track = document.getElementById("sliderTrack");
 
-  for (let rc of related){
+  for (let rc of list){
     const link = pro[rc]?.[0];
     if (!link) continue;
 
-    /* ÜRÜN API VERİSİ */
     const api = await fetch(
       "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(link)
     ).then(r=>r.json());
 
-    /* HTML OLUŞTUR */
     const div = document.createElement("div");
     div.className = "slide-item";
 
-    const priceHTML = api.stock === "YOK"
-      ? `<div class='out-stock'>Tükendi</div>`
+    const priceHTML = 
+      api.stock === "YOK"
+      ? `<div class="out-stock">Tükendi</div>`
       : `
          <div class="product-price">${formatPrice(api.price)}</div>
-         <button class="add-cart-btn" onclick="addToCart('${link}')">🛒 Sepete Ekle</button>
+         <button class="add-cart-btn" onclick="addToCart('${link}')">Sepete Ekle</button>
         `;
 
     div.innerHTML = `
@@ -153,31 +165,31 @@ async function loadSlider(){
   initSlider();
 }
 
-/* SEPETE EKLE */
+/* ADD TO CART */
 function addToCart(link){
   window.top.location.href = link + "?add-to-cart=1";
 }
 
 /* SLIDER MOTORU */
 function initSlider(){
-  const track=document.getElementById("sliderTrack");
-  const slides=[...track.children];
-
-  let index=0;
-  const slideWidth=168;
+  const track  = document.getElementById("sliderTrack");
+  const slides = [...track.children];
+  let index = 0;
+  const slideWidth = 168;
 
   function go(i){
-    track.style.transform="translateX(-"+(i*slideWidth)+"px)";
+    track.style.transform = "translateX(-" + (i*slideWidth) + "px)";
   }
 
-  document.querySelector(".slider-next").onclick=()=>{
+  document.querySelector(".slider-next").onclick = ()=>{
     index++;
-    if(index>=slides.length-8) index=0;
+    if(index >= slides.length - 8) index = 0;
     go(index);
   };
-  document.querySelector(".slider-prev").onclick=()=>{
+
+  document.querySelector(".slider-prev").onclick = ()=>{
     index--;
-    if(index<0) index=slides.length-8;
+    if(index < 0) index = slides.length - 8;
     go(index);
   };
 }
