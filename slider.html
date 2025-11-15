@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sescibaba Slider</title>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* === SLIDER === */
+.slider-wrap {
+  overflow: hidden;
+  width: 100%;
+  max-width: 1850px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.slider-track {
+  display: flex;
+  gap: 18px;
+  transition: transform 0.5s ease-in-out;
+  touch-action: pan-y;
+}
+
+.slide {
+  flex: 0 0 auto;
+  width: 150px;
+  text-align: center;
+  padding: 25px 0 20px;
+  box-sizing: border-box;
+}
+
+.slide img {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: contain;
+  transition: 0.3s ease;
+}
+
+.slide:hover img {
+  transform: scale(1.08);
+}
+
+.slide p {
+  font-size: 15px;
+  color: #000;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* Alt ayraç (3D çizgi) */
+.slider-divider {
+  width: 92%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
+  margin: 10px auto 40px;
+  border-radius: 2px;
+}
+
+.info-text {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  color: #444;
+}
+</style>
+</head>
+
+<body>
+
+<div class="slider-wrap">
+  <div class="slider-track" id="track"></div>
+</div>
+<div class="slider-divider"></div>
+
+<script>
+// ===============================
+//  URL’den kategori alıyoruz
+// ===============================
+const url = new URL(window.location.href);
+const category = url.searchParams.get("cat");
+
+if (!category) {
+  document.getElementById("track").innerHTML =
+    "<div class='info-text'>Kategori belirtilmedi: ?cat=Kulaklık</div>";
+}
+
+// ===============================
+//  Ana Çalıştırma Fonksiyonu
+// ===============================
+(async () => {
+  const map = await fetch("./data/category-map.json").then(r => r.json());
+  const products = await fetch("./data/products.json").then(r => r.json());
+  const track = document.getElementById("track");
+
+  // Kategori yoksa
+  if (!map[category]) {
+    track.innerHTML = `<div class='info-text'>Kategori bulunamadı: ${category}</div>`;
+    return;
+  }
+
+  const related = map[category]; // 15 öneri kategori
+
+  let productList = [];
+
+  // Her öneri kategorinin ürünlerini alıyoruz
+  for (let cat of related) {
+    if (products[cat] && products[cat].length > 0) {
+      productList.push(...products[cat]);
+    }
+  }
+
+  // Ürünler yoksa
+  if (productList.length === 0) {
+    track.innerHTML =
+      `<div class='info-text'>${category} kategorisi için ürün eklenmemiş.</div>`;
+    return;
+  }
+
+  // Tekrarsız yap
+  productList = [...new Set(productList)];
+
+  // ===============================
+  //  Ürün bilgilerini API'den çek
+  // ===============================
+  for (let link of productList) {
+    const api =
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+      encodeURIComponent(link);
+
+    let d;
+    try {
+      d = await fetch(api).then(r => r.json());
+    } catch (err) {
+      continue;
+    }
+
+    track.innerHTML += `
+      <div class="slide">
+        <a href="${link}" target="_top">
+          <img src="${d.image}" alt="${d.title}">
+          <p>${d.title}</p>
+        </a>
+      </div>
+    `;
+  }
+})();
+</script>
+
+</body>
+</html>
