@@ -67,6 +67,30 @@ body {
   margin-top: 4px;
 }
 
+.out-of-stock {
+  color:#d30000;
+  font-size:15px;
+  font-weight:900;
+  margin-top:6px;
+}
+
+.add-to-cart {
+  display:inline-block;
+  margin-top:8px;
+  padding:6px 14px;
+  background:#2d7df4;
+  color:#fff;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  transition:.2s;
+}
+
+.add-to-cart:hover {
+  background:#1b5fcc;
+}
+
 .slider-arrow {
   position: absolute;
   top: 45%;
@@ -139,11 +163,11 @@ async function loadSlider() {
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
-  const related = map[CAT]?.related || [];   // ✅ DOĞRU RELATED
-
+  const related = map[CAT] || [];
   const track = document.getElementById("sliderTrack");
 
   for (let rc of related) {
+
     const productLink = pro[rc]?.[0];
     if (!productLink) continue;
 
@@ -155,16 +179,33 @@ async function loadSlider() {
     const div = document.createElement("div");
     div.className = "slide-item";
 
+    // Başlık 2 satır
     const t = api.title.split(" ");
     const line1 = t.slice(0,3).join(" ");
     const line2 = t.slice(3,6).join(" ");
+
+    // Para birimi düzenleme
+    let p = api.price || "";
+    if (p.includes("₺")) p = "₺" + p.replace("₺","").trim() + " ₺";
+    else if (p.includes("$")) p = p.replace("$","").trim() + " $";
+    else if (p.includes("€")) p = p.replace("€","").trim() + " €";
+
+    // Stok
+    const inStock = api.stock !== false;
 
     div.innerHTML = `
       <a href="${productLink}" target="_top">
         <img src="${api.image}">
       </a>
+
       <div class="product-title">${line1}<br>${line2}</div>
-      <div class="product-price">${api.price}</div>
+
+      ${
+        inStock
+        ? `<div class="product-price">${p}</div>
+           <a href="${productLink}" class="add-to-cart" target="_top">Sepete Ekle</a>`
+        : `<div class="out-of-stock">Tükendi</div>`
+      }
     `;
 
     track.appendChild(div);
