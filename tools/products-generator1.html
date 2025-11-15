@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Excel → Ürün Görüntüleme & HIT Üretici</title>
+
+<style>
+body{font-family:Arial;padding:15px;background:#f2f2f2;}
+table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
+th,td{border:1px solid #ccc;padding:4px 6px;}
+.red-row{background:#ffe3e3!important;transition:background .6s ease;}
+img{width:65px;height:65px;object-fit:contain;}
+.flex-row{display:flex;gap:4px;align-items:center;}
+.link-input{width:160px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
+.button-small{padding:4px 7px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
+.btn-update{background:#1976d2;color:#fff;}
+.btn-generate{margin-top:10px;background:#2e7d32;color:#fff;padding:8px 14px;font-size:14px;border:0;border-radius:6px;cursor:pointer;}
+.git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
+.slider-btn{background:#ff8c00;color:#fff;border:0;padding:4px 6px;font-size:12px;border-radius:4px;cursor:pointer;margin-left:4px;}
+</style>
+
+</head>
+<body>
+
+<h2>Excel → Ürün Görüntüleme & HIT Üretici</h2>
+
+<input type="file" id="excelFile" accept=".xlsx">
+<button class="btn-generate" onclick="generateProductsJS()">products.js ÜRET</button>
+
+<table id="productTable">
+<thead>
+<tr>
+  <th>Görsel</th>
+  <th>Ürün</th>
+  <th>Fiyat</th>
+  <th>Kategori</th>
+  <th>(API) Kategori</th>
+  <th>CAT</th>
+  <th>Link / Güncelle</th>
+  <th>Slider</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+
+let PRODUCTS = {};
+
+document.getElementById("excelFile").addEventListener("change", handleExcel);
+
+async function handleExcel(e){
+    const file = e.target.files[0];
+    const data = await file.arrayBuffer();
+    const excel = XLSX.read(data);
+    const sheet = excel.Sheets[excel.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    const tbody = document.querySelector("#productTable tbody");
+    tbody.innerHTML = "";
+
+    for(let i=1;i<json.length;i++){
+        const row = json[i];
+        const categoryName = row[0];
+        const CAT = row[1];
+        let link = row[2];
+
+        if(!CAT) continue;
+
+        if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
+        if(link) PRODUCTS[CAT].push(link);
+
+        let api = link ? await fetchAPI(link) : {
+          title:"-", image:"", price:"-", category:"-", stock:"YOK"
+        };
+
+        renderRow(i, row, api, CAT);
+    }
+}
+
+function renderRow(i, row, api, CAT){
+    const tbody = document.querySelector("#productTable tbody");
+    const tr = document.createElement("tr");
+    tr.id = "row_"+i;
+
+    const categoryName = row[0];
+    const link = row[2];
+
+    if(api.stock === "YOK") tr.classList.add("red-row");
+
+    tr.innerHTML = `
+      <td id="img_${i}"><img src="${api.image||""}"></td>
+      <td id="title_${i}">${api.title}</td>
+      <td id="price_${i}">${api.price}</td>
+      <td>${categoryName}</td>
+      <td id="catapi_${i}">${api.category||"-"}</td>
+      <td>${CAT}</td>
+      <td id="cell_${i}">
+        ${getLinkHTML(i, CAT, link, api.stock)}
+      </td>
+      <td>
+        <button class="slider-btn" onclick="createSlider('${CAT}')">Slider Üret</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+}
+
+function getLinkHTML(i, CAT, link, stock){
+    if(stock === "VAR" && link){
+        return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
+    }
+
+    return `
+      <div class="flex-row">
+        <input class="link-input" id="inp_${i}" placeholder="Yeni link">
+        <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+      </div>
+    `;
+}
+
+async function updateLink(i, CAT){
+    const newLink = document.getElementById("inp_"+i).value.trim();
+    if(!newLink) return;
+
+    PRODUCTS[CAT] = [newLink];
+
+    const api = await fetchAPI(newLink);
+
+    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
+    document.getElementById("title_"+i).innerHTML = api.title;
+    document.getElementById("price_"+i).innerHTML = api.price;
+    document.getElementById("catapi_"+i).innerHTML = api.category;
+
+    const cell = document.getElementById("cell_"+i);
+    const row = document.getElementById("row_"+i);
+
+    if(api.stock === "VAR"){
+        row.classList.remove("red-row");
+        cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
+    } else {
+        row.classList.add("red-row");
+        cell.innerHTML = `
+            <div class="flex-row">
+              <input class="link-input" id="inp_${i}" placeholder="Yeni link">
+              <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+            </div>
+        `;
+    }
+}
+
+async function fetchAPI(url){
+    try{
+        const r = await fetch(
+          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
+        );
+        return await r.json();
+    }catch(e){
+        return {title:"-", price:"-", image:"", category:"-", stock:"YOK"};
+    }
+}
+
+function generateProductsJS(){
+    const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
+    const blob = new Blob([text], {type:"application/javascript"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "products.js";
+    a.click();
+}
+
+/* ---------------------------- */
+/* SLIDER ÜRET — (HTML/CSS)     */
+/* ----------------------------*/
+async function createSlider(CAT){
+    alert("Slider üretme aşaması başladı! Bir sonraki adımda HTML/CSS sliderı tamamlıyoruz.\nCAT: " + CAT);
+
+    // Bir sonraki adımda:
+    // - category-map.js yüklenecek
+    // - related liste alınacak
+    // - API’den ürünler çekilecek
+    // - tamamen HTML/CSS slider dosyası üretilecek
+}
+
+</script>
+
+</body>
+</html>
