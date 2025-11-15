@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel → Ürün Görüntüleme & HIT + SLIDER Üretici</title>
+<title>Excel → Ürün Görüntüleme + SLIDER Üretici</title>
 
 <style>
 body{font-family:Arial;padding:15px;background:#f2f2f2;}
@@ -10,70 +10,32 @@ body{font-family:Arial;padding:15px;background:#f2f2f2;}
 table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
 th,td{border:1px solid #ccc;padding:4px 6px;}
 
-.red-row{
-  background:#ffe3e3!important;
-  transition: background 0.6s ease;
-}
+.red-row{background:#ffe3e3!important;transition: background 0.6s ease;}
 
 img{width:65px;height:65px;object-fit:contain;}
 
-.flex-row{
-  display:flex;
-  gap:4px;
-  align-items:center;
-  justify-content:flex-start;
-}
+.flex-row{display:flex;gap:4px;align-items:center;justify-content:flex-start;}
 
-.link-input{
-  width:160px;
-  padding:3px;
-  font-size:12px;
-  border:1px solid #aaa;
-  border-radius:4px;
-}
+.link-input{width:160px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
 
-.button-small{
-  padding:4px 7px;
-  font-size:12px;
-  border:0;
-  border-radius:4px;
-  cursor:pointer;
-}
+.button-small{padding:4px 7px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
 
 .btn-update{background:#1976d2;color:#fff;}
+.btn-generate{margin-top:10px;background:#2e7d32;color:#fff;padding:8px 14px;font-size:14px;border:0;border-radius:6px;cursor:pointer;}
 
-.btn-generate{
-  margin-top:10px;
-  background:#2e7d32;
-  color:#fff;
-  padding:8px 14px;
-  font-size:14px;
-  border:0;
-  border-radius:6px;
-  cursor:pointer;
-}
+.git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
 
-#sliderBtn{
-  margin-left:10px;
-  background:#d54c5a;
-}
-
-.git-link{
-  color:#0d47a1;
-  font-weight:bold;
-  font-size:12px;
-}
+.slider-btn{background:#d54c5a!important;color:white;margin-left:5px;}
 </style>
 
 </head>
 <body>
 
-<h2>Excel → Ürün Görüntüleme & HIT + SLIDER Üretici</h2>
+<h2>Excel → Ürün Görüntüleme + SLIDER Üretici</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
 <button class="btn-generate" onclick="generateProductsJS()">products.js ÜRET</button>
-<button class="btn-generate" id="sliderBtn" onclick="generateSliderHTML()">Slider Oluştur</button>
 
 <table id="productTable">
 <thead>
@@ -84,7 +46,7 @@ img{width:65px;height:65px;object-fit:contain;}
   <th>Kategori</th>
   <th>(API) Kategori</th>
   <th>CAT</th>
-  <th>Link / Güncelle</th>
+  <th>İşlem</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -94,14 +56,15 @@ img{width:65px;height:65px;object-fit:contain;}
 
 <script>
 
-// ========================
-// GLOBAL
-// ========================
-let PRODUCTS = {};
+// ===================
+// GLOBAL STORAGE
+// ===================
+let PRODUCTS = {};        // CAT → ürün linki
+let CATEGORY_MAP = null;  // Harici map dosyası (load edilecek)
 
-// ========================
-// EXCEL YÜKLEME
-// ========================
+// ===================
+// EXCEL YÜKLE
+// ===================
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
@@ -114,16 +77,15 @@ async function handleExcel(e){
     const tbody = document.querySelector("#productTable tbody");
     tbody.innerHTML = "";
 
-    for(let i=1;i<json.length;i++){
+    for(let i=1; i<json.length; i++){
         const row = json[i];
-        const categoryName = row[0];
         const CAT = row[1];
-        let link = row[2];
+        const link = row[2];
 
         if(!CAT) continue;
 
-        if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
-        if(link) PRODUCTS[CAT] = [link];
+        if(!PRODUCTS[CAT]) PRODUCTS[CAT] = null;
+        if(link) PRODUCTS[CAT] = link;
 
         let api = link ? await fetchAPI(link) : blankAPI();
 
@@ -131,9 +93,9 @@ async function handleExcel(e){
     }
 }
 
-// ========================
-// TABLO SATIRI RENDER
-// ========================
+// ===================
+// TABLO RENDER
+// ===================
 function renderRow(i, row, api, CAT){
     const tbody = document.querySelector("#productTable tbody");
     const tr = document.createElement("tr");
@@ -142,69 +104,25 @@ function renderRow(i, row, api, CAT){
     if(api.stock === "YOK") tr.classList.add("red-row");
 
     tr.innerHTML = `
-      <td id="img_${i}"><img src="${api.image||""}"></td>
-      <td id="title_${i}">${api.title}</td>
-      <td id="price_${i}">${api.price}</td>
+      <td><img src="${api.image}"></td>
+      <td>${api.title}</td>
+      <td>${api.price}</td>
       <td>${row[0]}</td>
-      <td id="catapi_${i}">${api.category||"-"}</td>
+      <td>${api.category}</td>
       <td>${CAT}</td>
-      <td id="cell_${i}">
-        ${getLinkHTML(i, CAT, row[2], api.stock)}
+      <td>
+        <button class="button-small slider-btn" onclick="generateSliderForCAT('${CAT}')">
+          Slider Üret
+        </button>
       </td>
     `;
 
     tbody.appendChild(tr);
 }
 
-function getLinkHTML(i, CAT, link, stock){
-    if(stock === "VAR" && link){
-        return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
-    }
-
-    return `
-      <div class="flex-row">
-        <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-        <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-      </div>
-    `;
-}
-
-// ========================
-// LİNK GÜNCELLEME
-// ========================
-async function updateLink(i, CAT){
-    const newLink = document.getElementById("inp_"+i).value.trim();
-    if(!newLink) return;
-
-    PRODUCTS[CAT] = [newLink];
-
-    const api = await fetchAPI(newLink);
-
-    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
-    document.getElementById("title_"+i).innerHTML = api.title;
-    document.getElementById("price_"+i).innerHTML = api.price;
-    document.getElementById("catapi_"+i).innerHTML = api.category;
-
-    const cell = document.getElementById("cell_"+i);
-    const row = document.getElementById("row_"+i);
-
-    if(api.stock === "VAR"){
-        row.classList.remove("red-row");
-        cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
-    } else {
-        row.classList.add("red-row");
-        cell.innerHTML = `
-            <div class="flex-row">
-              <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-              <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-            </div>
-        `;
-    }
-}
-
-// ========================
-// API ÇEKME
-// ========================
+// ===================
+// API ÇEK
+// ===================
 async function fetchAPI(url){
     try{
         const r = await fetch(
@@ -220,50 +138,79 @@ function blankAPI(){
     return {title:"-", image:"", price:"-", category:"-", stock:"YOK"};
 }
 
-// ========================
+// ===================
 // PRODUCTS.JS EXPORT
-// ========================
+// ===================
 function generateProductsJS(){
     const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
     download(text, "products.js", "application/javascript");
 }
 
-// ===============================
-// SLIDER.HTML OLUŞTUR
-// ===============================
-async function generateSliderHTML(){
+// ===================
+// SLIDER ÜRET — ANA FONKSİYON
+// ===================
+async function generateSliderForCAT(mainCAT){
+
+    // 1) category-map.js dosyasını yükle
+    await loadScript("./data/category-map.js");
+
+    if(!CATEGORY_MAP){
+        alert("CATEGORY_MAP yüklenemedi!");
+        return;
+    }
+
+    const related = CATEGORY_MAP[mainCAT]?.related || [];
+    if(related.length === 0){
+        alert("Bu CAT için related kategori yok");
+        return;
+    }
 
     let slideHTML = "";
 
-    // Excel’deki TÜM linkleri slider’a ekle
-    for(let cat in PRODUCTS){
-        const link = PRODUCTS[cat]?.[0];
+    // 2) Related içindeki her CAT için Excel'deki ürünü bul + API'den çek
+    for(let cat of related){
+        const link = PRODUCTS[cat];
         if(!link) continue;
 
         const api = await fetchAPI(link);
 
-        let priceHTML = api.stock === "YOK"
+        let priceHTML =
+          api.stock === "YOK"
             ? `<div class="out-stock">Tükendi</div>`
-            : `<div class="product-price">${api.price}</div>
-               <button class="add-cart-btn" onclick="addToCart('${link}')">Sepete Ekle</button>`;
+            : `
+              <div class="product-price">${api.price}</div>
+              <button class="add-cart-btn"
+                onclick="window.top.location.href='${link}?add-to-cart=1'">
+                Sepete Ekle
+              </button>`;
 
         slideHTML += `
         <div class="slide-item">
-          <a href="${link}" target="_top"><img src="${api.image}"></a>
-          <div class="product-title">${api.title}</div>
-          ${priceHTML}
-        </div>
-        `;
+            <a href="${link}" target="_top"><img src="${api.image}"></a>
+            <div class="product-title">${api.title}</div>
+            ${priceHTML}
+        </div>`;
     }
 
-    // Slider full HTML çıkışı
-    const sliderHTML = `
+    // 3) slider.html oluştur
+    const sliderHTML = makeSliderHTML(slideHTML);
+
+    download(sliderHTML, `${mainCAT}-slider.html`, "text/html");
+}
+
+// ===================
+// SLIDER HTML ŞABLONU
+// ===================
+function makeSliderHTML(slideHTML){
+
+return `
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <title>Sescibaba Slider</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{margin:0;padding:0;background:#fff;font-family:Arial;}
 .slider-wrap{overflow:hidden;width:100%;max-width:1850px;margin:0 auto;position:relative;}
@@ -280,9 +227,6 @@ body{margin:0;padding:0;background:#fff;font-family:Arial;}
 </style>
 
 <script>
-function addToCart(link){
-    window.top.location.href = link + "?add-to-cart=1";
-}
 let index=0;
 window.onload=function(){
   const track=document.getElementById("sliderTrack");
@@ -305,25 +249,39 @@ window.onload=function(){
 <body>
 
 <div class="slider-wrap">
-<button class="slider-arrow slider-prev">❮</button>
+  <button class="slider-arrow slider-prev">❮</button>
 
-<div class="slider-track" id="sliderTrack">
-${slideHTML}
-</div>
+  <div class="slider-track" id="sliderTrack">
+    ${slideHTML}
+  </div>
 
-<button class="slider-arrow slider-next">❯</button>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
 
 </body>
 </html>
 `;
-
-    download(sliderHTML, "slider.html", "text/html");
 }
 
-// ===============================
+// ===================
+// HELPER: JS DOSYA YÜKLE
+// ===================
+function loadScript(src){
+    return new Promise((resolve, reject)=>{
+        const s=document.createElement("script");
+        s.src = src + "?v=" + Date.now();
+        s.onload = ()=>{ 
+            CATEGORY_MAP = window.CATEGORY_MAP; 
+            resolve(); 
+        };
+        s.onerror = reject;
+        document.body.appendChild(s);
+    });
+}
+
+// ===================
 // DOSYA İNDİRME
-// ===============================
+// ===================
 function download(content, filename, type){
     const blob = new Blob([content], {type});
     const a = document.createElement("a");
