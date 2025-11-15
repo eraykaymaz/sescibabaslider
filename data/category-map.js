@@ -1,3 +1,6 @@
+window.CATEGORY_MAP = {
+   ...
+};
 {
   "CAT001": {
     "name": "Stüdyo Paket Sistemler",
