@@ -1,204 +1,161 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Products.json Generator</title>
+<meta charset="UTF-8" />
+<title>Excel Ürün Görüntüleyici</title>
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   padding: 20px;
-  background: #f2f2f2;
+  background: #f3f3f3;
 }
+
 .box {
-  background: white;
+  background: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 600px;
+  max-width: 900px;
   margin: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-input, button {
-  margin-top: 15px;
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
 }
-button {
-  padding: 10px 20px;
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 14px;
+}
+
+th {
+  background: #f0f0f0;
+  font-weight: bold;
+}
+
+img.thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+.loading {
   font-size: 16px;
-  cursor:pointer;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #444;
 }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <h2>Excel → products.json Dönüştürücü</h2>
-  <p><b>Excel formatı şöyle olmalı:</b></p>
-
-  <table border="1" cellpadding="5" style="margin-bottom:10px;">
-    <tr><th>kategori</th><th>link</th></tr>
-    <tr><td>Kulaklık</td><td>https://www.sescibaba.com/xxx</td></tr>
+  <h2>Excel → Ürün Görüntüleyici</h2>
+  <p><b>Excel Formatı:</b></p>
+  
+  <table border="1" cellpadding="5" style="width:300px;">
+    <tr><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td>Kategori Adı</td><td>CAT Kod</td><td>Link</td></tr>
   </table>
 
+  <br>
+
   <input type="file" id="excelFile" accept=".xlsx,.xls" />
+  <button onclick="loadExcel()">Yükle ve Göster</button>
 
-  <button onclick="convertExcel()">Dönüştür ve JSON İndir</button>
+  <div id="status" class="loading"></div>
 
-  <p id="status" style="margin-top:15px; font-weight:bold;"></p>
+  <table id="productTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Görsel</th>
+        <th>Kategori</th>
+        <th>CAT</th>
+        <th>Ürün Adı</th>
+        <th>Fiyat</th>
+        <th>Stok</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <!-- SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
-async function convertExcel() {
+async function loadExcel() {
   const file = document.getElementById("excelFile").files[0];
   if (!file) {
-    alert("Excel dosyası seçmedin.");
+    alert("Excel seçilmedi!");
     return;
   }
 
-  document.getElementById("status").innerText = "Dönüştürülüyor...";
-
+  document.getElementById("status").innerText = "Excel okunuyor...";
+  
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data);
-
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet);
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-  // Boş JSON yapısı (111 kategori)
-  let output = {
-    "Stüdyo Paket Sistemler": [],
-    "Ses Kartları": [],
-    "Mikrofon": [],
-    "Kulaklık": [],
-    "Referans Monitörleri": [],
-    "Klavyeler & Midi Klavyeler": [],
-    "Synthesizer": [],
-    "Mikser": [],
-    "Midi & Daw Kontrol Üniteleri": [],
-    "Prodüksiyon Yazılımları ve Plug-in": [],
-    "Ses Yalıtım Malzemeleri": [],
-    "Stüdyo Efekt Cihazları": [],
-    "Ekolayzer": [],
-    "Mobil Kayıt Üniteleri": [],
-    "Elektro Davul": [],
-    "Stand & Kablo": [],
-    "Hoparlörler": [],
-    "Ses Mikserleri": [],
-    "Amfi": [],
-    "Preamplifikatör": [],
-    "Sahne Ses Sistemleri": [],
-    "Konferans Ses Sistemleri": [],
-    "Anons & Yayın Sistemleri": [],
-    "Megafon": [],
-    "Line Array Hoparlör": [],
-    "Column Hoparlör - Setler": [],
-    "Portatif PA Hoparlör": [],
-    "Prosesör": [],
-    "Enstrüman Amplifikatör": [],
-    "Aksesuar - Yedek Parça": [],
-    "Mobil Uyumlu Mikrofonlar": [],
-    "Dinamik Mikrofon": [],
-    "Condenser Mikrofon": [],
-    "Vokal Mikrofonları": [],
-    "Telsiz Mikrofonlar": [],
-    "Konferans & Acil Anons Mikrofonları": [],
-    "Stüdyo Mikrofonları": [],
-    "Boundary Mikrofon": [],
-    "Ribon Mikrofon": [],
-    "USB Mikrofon": [],
-    "Kamera Mikrofonu": [],
-    "Yayıncı Mikrofonları": [],
-    "Mikrofon Preamplifikatör": [],
-    "Enstrüman Mikrofonları": [],
-    "Ölçüm Mikrofonları": [],
-    "Mikrofon Setleri": [],
-    "Stand & Aksesuar": [],
-    "True Wireless Kulaklık": [],
-    "Noise Canceling Kulaklık": [],
-    "Stüdyo Tipi Kulaklık": [],
-    "DJ Tipi Kulaklık": [],
-    "Kulak içi Kulaklık": [],
-    "HiFi Kulaklık": [],
-    "Kablosuz & Bluetooth Kulaklık": [],
-    "Oyuncu Kulaklığı": [],
-    "Sporcu Tipi Kulaklık": [],
-    "In-Ear Monitör": [],
-    "Mikrofonlu Kulaklık": [],
-    "Kulaklık Preamfi": [],
-    "Çocuk Kulaklıkları": [],
-    "Aksesuar": [],
-    "DJ Setup": [],
-    "DJ Kontrol Üniteleri": [],
-    "DJ Hoparlörleri ve Referans Monitörleri": [],
-    "Player": [],
-    "DJ Kulaklık": [],
-    "DJ Mikser": [],
-    "CD Player": [],
-    "Turntable": [],
-    "DJ Ses Kartları": [],
-    "DJ Yazılımları": [],
-    "DJ Aksesuarları": [],
-    "Ses Sistemleri": [],
-    "Stereo Amplifikatör": [],
-    "Receiver & Ana Üniteler": [],
-    "Hi-Fi Sistemler": [],
-    "Pikap": [],
-    "Bluetooth & Wireless Ses Sistemleri": [],
-    "Görüntü": [],
-    "Aksesuar (Home Audio)": [],
-    "Projeksiyon": [],
-    "Canlı Yayın Kameraları": [],
-    "Modüler Videowall Ekranlar": [],
-    "Switcher & Streamer": [],
-    "LED Ekran": [],
-    "Encoder Kartlar": [],
-    "Motorlu - Sabit Perdeler": [],
-    "Ses": [],
-    "Işık": [],
-    "Yayın Mikserleri": [],
-    "Görüntü (Broadcast)": [],
-    "Stant ve Aksesuarlar": [],
-    "Standlar": [],
-    "Kablolar": [],
-    "Konnektörler": [],
-    "Bilgisayar Aksesuarları": [],
-    "Case": [],
-    "Fan ve Termal Kontrol": [],
-    "Dijital Multicore Sistemler": [],
-    "Stage Box": [],
-    "Güç Üniteleri": [],
-    "Mağaza Paketleri": [],
-    "Düğün Sistemleri": [],
-    "Mobil Eğlence Sistemleri": [],
-    "Club - Bar Sistemleri": [],
-    "Restaurant Paketleri": [],
-    "Sinema Sistemleri": [],
-    "Merkezi Müzik Yayın ve Acil Anons": [],
-    "Cami Sistemleri": [],
-    "Okul Sistemleri": []
-  };
+  // A = kategori adı
+  // B = CAT kodu
+  // C = link
+  let list = [];
 
-  // Excel verilerini doldurma
-  rows.forEach(row => {
-    const cat = row.kategori?.trim();
-    const link = row.link?.trim();
+  for (let i = 1; i < rows.length; i++) {
+    const catName = rows[i][0];
+    const catCode = rows[i][1];
+    const link    = rows[i][2];
 
-    if (output[cat] && link) {
-      output[cat].push(link);
+    if (!catName || !catCode || !link) continue;
+
+    list.push({ catName, catCode, link });
+  }
+
+  document.getElementById("status").innerText = "Ürün bilgileri çekiliyor...";
+
+  const tbody = document.querySelector("#productTable tbody");
+  tbody.innerHTML = "";
+  document.getElementById("productTable").style.display = "table";
+
+  for (let item of list) {
+    const api =
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+      encodeURIComponent(item.link);
+
+    let d;
+    try {
+      d = await fetch(api).then(r => r.json());
+    } catch {
+      d = { title:"Hata", price:"-", stock:"-", image:"" };
     }
-  });
 
-  // JSON indirme
-  const blob = new Blob([JSON.stringify(output, null, 2)], {
-    type: "application/json",
-  });
-  const urlBlob = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = urlBlob;
-  a.download = "products.json";
-  a.click();
+    const tr = document.createElement("tr");
 
-  document.getElementById("status").innerText = "Tamamlandı → products.json indirildi!";
+    tr.innerHTML = `
+      <td><img class="thumb" src="${d.image}"></td>
+      <td>${item.catName}</td>
+      <td>${item.catCode}</td>
+      <td>${d.title}</td>
+      <td>${d.price}</td>
+      <td style="color:${d.stock === 'VAR' ? 'green' : 'red'}; font-weight:bold;">
+        ${d.stock}
+      </td>
+      <td><a href="${item.link}" target="_blank">Git</a></td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById("status").innerText = "Tamamlandı.";
 }
 </script>
 
