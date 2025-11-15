@@ -2,26 +2,23 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>M4 – Kategori Bazlı Slider Üretici</title>
+<title>Slider Üretici – A01 MAP</title>
 
 <style>
-body{font-family:Arial;padding:10px;background:#f5f5f5;margin:0;}
-table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;font-size:13px;}
-th,td{border:1px solid #ccc;padding:2px 3px;} /* en dar hali */
-img{width:80px;height:80px;object-fit:contain;} /* 8x8 */
+body{font-family:Arial;padding:10px;background:#f5f5f5;}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;margin-top:10px;}
+th,td{border:1px solid #ccc;padding:3px;}
+img{width:80px;height:80px;object-fit:contain;}
 .red{background:#ffe3e3;}
-
-.link-input{width:150px;padding:3px;font-size:12px;}
-.btn{padding:3px 6px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
-.btn-update{background:#1976d2;color:#fff;margin-left:4px;}
-.btn-slider{background:#ff8c00;color:#fff;}
-.git{color:#0a47c2;font-weight:bold;font-size:12px;}
+.link-input{width:150px;font-size:12px;padding:3px;}
+.update-btn{padding:3px 6px;background:#1976d2;color:#fff;border:0;border-radius:4px;font-size:12px;cursor:pointer;}
+.btn-slider{padding:3px 6px;background:#ff8c00;color:#fff;border:0;border-radius:4px;font-size:12px;cursor:pointer;}
 </style>
 </head>
 
 <body>
 
-<h3>Kategori Bazlı HTML Slider Üretici – M4</h3>
+<h3>Kategori Bazlı Slider Üretici</h3>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -31,8 +28,7 @@ img{width:80px;height:80px;object-fit:contain;} /* 8x8 */
   <th>Görsel</th>
   <th>Ürün</th>
   <th>Fiyat</th>
-  <th>Kategori</th>
-  <th>(API) Kategori</th>
+  <th>Kategori<br>(API)</th>
   <th>A-KODU</th>
   <th>Link / Güncelle</th>
   <th>Slider Üret</th>
@@ -42,272 +38,200 @@ img{width:80px;height:80px;object-fit:contain;} /* 8x8 */
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
 
-/* -------------------------- CATEGORY MAP -------------------------- */
+/* ============================================================
+      A01 MAP — SADECE TEK KATEGORİ (Sen genişleteceksin)
+============================================================ */
 const CATEGORY_MAP = {
-"A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
-"A02":{"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]},
-"A03":{"related":["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]},
-"A04":{"related":["A50","A51","A48","A49","A52","A53","A54","A55","A57","A58","A59","A60","A16","A61","A89"]},
-"A05":{"related":["A02","A09","A16","A11","A12","A74","A17","A75","A89","A95","A29","A28","A20","A21","A89"]},
-"A06":{"related":["A07","A09","A02","A10","A11","A50","A74","A16","A55","A71","A89","A95","A97","A93","A47"]},
-"A07":{"related":["A06","A09","A02","A10","A11","A74","A16","A28","A20","A47","A89","A93","A95","A29","A37"]},
-"A08":{"related":["A02","A17","A74","A20","A28","A89","A90","A91","A95","A16","A37","A40","A32","A71","A44"]},
-"A09":{"related":["A06","A07","A10","A02","A11","A50","A74","A97","A95","A16","A89","A37","A40","A55","A93"]},
-"A10":{"related":["A02","A06","A07","A09","A11","A50","A37","A40","A89","A16","A95","A97","A74","A93","A91"]},
-"A11":{"related":["A01","A02","A03","A05","A09","A10","A37","A40","A50","A74","A89","A95","A97","A16","A93"]},
-"A12":{"related":["A02","A05","A17","A28","A20","A29","A74","A89","A91","A71","A93","A16","A40","A32","A37"]},
-"A13":{"related":["A05","A17","A20","A28","A29","A74","A89","A71","A91","A93","A16","A95","A97","A12","A08"]},
-"A14":{"related":["A02","A03","A40","A57","A58","A12","A11","A50","A37","A16","A89","A90","A91","A93","A95"]},
-"A15":{"related":["A02","A50","A55","A06","A07","A09","A71","A74","A89","A95","A16","A90","A93","A47","A28"]},
-"A16":{"related":["A03","A04","A05","A02","A17","A20","A28","A74","A89","A95","A97","A47","A12","A09","A40"]},
-"A17":{"related":["A74","A75","A20","A28","A29","A89","A17","A91","A93","A95","A12","A16","A26","A27","A25"]},
-"A18":{"related":["A17","A20","A28","A29","A74","A89","A91","A93","A16","A71","A95","A08","A37","A12","A13"]},
-"A19":{"related":["A17","A74","A28","A29","A20","A89","A93","A91","A95","A75","A12","A16","A26","A27","A25"]},
-"A20":{"related":["A17","A18","A19","A28","A29","A74","A89","A91","A93","A16","A95","A12","A13","A37","A40"]},
-"A21":{"related":["A17","A18","A19","A20","A28","A27","A26","A25","A89","A91","A93","A16","A95","A12","A13"]},
-"A22":{"related":["A36","A31","A40","A17","A18","A89","A93","A91","A16","A95","A92","A83","A84","A85","A88"]},
-"A23":{"related":["A21","A22","A17","A18","A89","A93","A91","A24","A25","A26","A27","A16","A95","A58","A36"]},
-"A24":{"related":["A23","A17","A27","A26","A25","A89","A93","A91","A16","A95","A58","A31","A36","A40","A03"]},
-"A25":{"related":["A17","A21","A22","A23","A28","A20","A89","A93","A91","A16","A95","A26","A27","A18","A19"]},
-"A26":{"related":["A17","A21","A22","A23","A27","A28","A89","A91","A93","A16","A95","A25","A18","A20","A19"]},
-"A27":{"related":["A17","A21","A23","A26","A25","A28","A89","A91","A93","A16","A95","A24","A18","A19","A20"]},
-"A28":{"related":["A17","A18","A19","A20","A21","A25","A26","A27","A74","A89","A93","A91","A16","A95","A12"]},
-"A29":{"related":["A17","A18","A19","A20","A28","A06","A07","A50","A55","A89","A93","A91","A16","A95","A12"]},
-"A30":{"related":["A17","A18","A19","A20","A28","A29","A16","A95","A93","A89","A12","A61","A71","A07","A06"]},
-"A31":{"related":["A32","A33","A40","A58","A57","A14","A37","A03","A36","A22","A92","A89","A95","A93","A16"]},
-"A32":{"related":["A03","A34","A35","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]},
-"A33":{"related":["A03","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95","A14"]},
-"A34":{"related":["A32","A33","A03","A37","A40","A44","A47","A16","A22","A89","A90","A91","A93","A95","A14"]},
-"A35":{"related":["A34","A32","A33","A03","A22","A92","A89","A90","A91","A93","A57","A58","A16","A95","A14"]},
-"A36":{"related":["A22","A23","A24","A31","A40","A58","A92","A89","A93","A91","A16","A95","A03","A32","A33"]},
-"A37":{"related":["A33","A32","A34","A03","A02","A11","A10","A44","A47","A40","A89","A93","A91","A95","A16"]},
-"A38":{"related":["A36","A22","A92","A89","A93","A91","A58","A31","A40","A03","A32","A33","A16","A95","A57"]},
-"A39":{"related":["A37","A33","A32","A03","A02","A44","A47","A11","A10","A89","A93","A91","A95","A16","A40"]},
-"A40":{"related":["A37","A33","A32","A34","A03","A31","A58","A57","A14","A02","A11","A89","A93","A91","A16"]},
-"A41":{"related":["A31","A36","A58","A57","A40","A03","A32","A33","A89","A93","A91","A92","A83","A85","A16"]},
-"A42":{"related":["A37","A40","A33","A32","A03","A02","A11","A58","A16","A89","A91","A93","A95","A14","A57"]},
-"A43":{"related":["A37","A33","A32","A34","A03","A02","A11","A10","A89","A93","A91","A95","A16","A12","A20"]},
-"A44":{"related":["A32","A33","A37","A03","A07","A06","A29","A02","A11","A16","A89","A93","A91","A95","A14"]},
-"A45":{"related":["A17","A21","A18","A25","A26","A27","A28","A89","A93","A91","A16","A95","A37","A03","A02"]},
-"A46":{"related":["A32","A33","A34","A35","A03","A36","A58","A37","A40","A16","A89","A93","A91","A95","A14"]},
-"A47":{"related":["A03","A32","A33","A34","A37","A40","A44","A16","A95","A89","A93","A91","A02","A11","A12"]},
-"A48":{"related":["A49","A52","A54","A55","A56","A57","A58","A04","A60","A16","A89","A93","A95","A61","A53"]},
-"A49":{"related":["A48","A54","A52","A50","A53","A04","A55","A56","A57","A58","A16","A61","A89","A93","A95"]},
-"A50":{"related":["A04","A48","A49","A52","A53","A54","A58","A55","A56","A59","A16","A89","A93","A95","A02"]},
-"A51":{"related":["A04","A50","A66","A62","A55","A67","A68","A69","A54","A52","A58","A16","A89","A93","A95"]},
-"A52":{"related":["A48","A49","A50","A54","A53","A56","A57","A58","A60","A04","A16","A61","A89","A93","A95"]},
-"A53":{"related":["A48","A49","A50","A54","A52","A04","A59","A61","A16","A89","A93","A95","A78","A77","A75"]},
-"A54":{"related":["A48","A49","A52","A50","A04","A55","A56","A57","A58","A61","A16","A89","A93","A95","A53"]},
-"A55":{"related":["A48","A49","A52","A50","A54","A56","A57","A58","A61","A04","A89","A93","A95","A97","A09"]},
-"A56":{"related":["A48","A49","A52","A54","A55","A57","A58","A60","A04","A61","A16","A89","A93","A95","A53"]},
-"A57":{"related":["A48","A52","A54","A55","A56","A04","A58","A59","A60","A16","A89","A93","A95","A33","A03"]},
-"A58":{"related":["A48","A49","A52","A54","A55","A57","A04","A50","A61","A16","A89","A93","A95","A40","A31"]},
-"A59":{"related":["A48","A49","A50","A53","A57","A04","A17","A20","A28","A74","A89","A93","A95","A16","A43"]},
-"A60":{"related":["A48","A52","A54","A56","A57","A04","A61","A16","A89","A93","A95","A55","A58","A49","A53"]},
-"A61":{"related":["A48","A49","A50","A52","A53","A54","A55","A57","A58","A60","A04","A59","A16","A89","A93"]},
-"A62":{"related":["A63","A64","A65","A66","A67","A68","A69","A70","A71","A72","A73","A51","A54","A17","A74"]},
-"A63":{"related":["A62","A67","A68","A69","A70","A71","A72","A73","A51","A54","A17","A74","A89","A93","A95"]},
-"A64":{"related":["A51","A54","A62","A63","A67","A68","A17","A74","A75","A89","A93","A95","A05","A28","A20"]},
-"A65":{"related":["A62","A63","A66","A51","A54","A68","A69","A17","A74","A89","A93","A95","A73","A71","A70"]},
-"A66":{"related":["A51","A50","A54","A55","A48","A62","A63","A67","A68","A69","A65","A74","A93","A89","A95"]},
-"A67":{"related":["A62","A63","A64","A65","A68","A51","A54","A71","A89","A93","A95","A17","A74","A28","A20"]},
-"A68":{"related":["A62","A63","A65","A67","A51","A54","A66","A69","A70","A17","A74","A89","A93","A95","A73"]},
-"A69":{"related":["A62","A63","A65","A67","A68","A51","A54","A66","A17","A74","A89","A93","A95","A70","A73"]},
-"A70":{"related":["A62","A63","A65","A67","A68","A69","A51","A54","A66","A71","A17","A74","A89","A93","A95"]},
-"A71":{"related":["A62","A63","A67","A70","A51","A54","A66","A74","A89","A93","A95","A09","A06","A07","A28"]},
-"A72":{"related":["A62","A63","A65","A67","A68","A71","A73","A51","A54","A74","A89","A93","A95","A09","A06"]},
-"A73":{"related":["A62","A63","A65","A67","A68","A51","A54","A66","A61","A59","A16","A17","A74","A89","A93"]},
-"A74":{"related":["A17","A18","A19","A20","A28","A75","A76","A77","A78","A79","A89","A91","A93","A16","A95"]},
-"A75":{"related":["A74","A17","A19","A20","A78","A79","A76","A77","A89","A93","A95","A16","A28","A29","A53"]},
-"A76":{"related":["A74","A17","A18","A79","A78","A75","A77","A89","A93","A95","A16","A27","A26","A25","A20"]},
-"A77":{"related":["A75","A76","A74","A78","A79","A17","A29","A53","A89","A93","A95","A16","A20","A05","A28"]},
-"A78":{"related":["A75","A76","A77","A74","A79","A17","A66","A53","A89","A93","A95","A16","A20","A71","A73"]},
-"A79":{"related":["A74","A75","A76","A77","A78","A17","A79","A54","A48","A49","A89","A93","A95","A16","A20"]},
-"A80":{"related":["A81","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A90","A91"]},
-"A81":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
-"A82":{"related":["A80","A81","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
-"A83":{"related":["A80","A82","A84","A85","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A36"]},
-"A84":{"related":["A80","A82","A83","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
-"A85":{"related":["A80","A82","A83","A84","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A72"]},
-"A86":{"related":["A80","A82","A83","A84","A85","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
-"A87":{"related":["A80","A82","A83","A84","A85","A86","A88","A92","A93","A89","A16","A95","A97","A72","A41"]},
-"A88":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97"]},
-"A89":{"related":["A17","A18","A19","A20","A02","A03","A37","A40","A50","A72","A62","A74","A89","A93","A91"]},
-"A90":{"related":["A89","A91","A92","A93","A21","A22","A83","A85","A16","A95","A97","A98","A26","A27","A25"]},
-"A91":{"related":["A89","A90","A92","A83","A85","A81","A80","A82","A95","A16","A02","A03","A40","A72","A41"]},
-"A92":{"related":["A80","A81","A82","A83","A84","A85","A86","A87","A88","A91","A89","A93","A16","A95","A97"]},
-"A93":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A91","A89","A16","A95","A97","A98"]},
-"A94":{"related":["A16","A47","A95","A93","A89","A03","A32","A33","A34","A37","A40","A61","A30","A71","A97"]},
-"A95":{"related":["A16","A94","A47","A93","A89","A02","A03","A37","A40","A17","A20","A28","A74","A71","A97"]},
-"A96":{"related":["A95","A16","A94","A93","A89","A17","A20","A28","A02","A03","A40","A37","A74","A71","A97"]},
-"A97":{"related":["A09","A10","A71","A62","A63","A54","A55","A79","A81","A82","A93","A98","A95","A16","A89"]},
-"A98":{"related":["A97","A93","A94","A95","A61","A73","A71","A62","A63","A17","A89","A16","A20","A28","A30"]},
-"A99":{"related":["A97","A98","A81","A80","A82","A93","A95","A16","A89","A90","A92","A91","A83","A85","A84"]},
-"B01":{"related":["A17","A18","A19","A20","A28","A89","A93","A16","A95","A22","A23","A25","A26","A27","A21"]},
-"B02":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A16","A95","A25","A26","A27","A21","A23"]},
-"B03":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A90","A16","A95","A22","A23","A21"]},
-"B04":{"related":["B01","A17","A18","A19","A20","A28","A89","A91","A93","A16","A95","A22","A23","A21","A25"]},
-"B05":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A24","A23","A21","A25"]},
-"B06":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
-"B07":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
-"B08":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22"]},
-"B09":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A22","A23","A24"]},
-"B10":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A23","A22","A25"]},
-"B11":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]},
-"B12":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]}
+  "A01": {
+    "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
+  }
 };
 
-/* -------------------------- DATA -------------------------- */
-
+/* ============================================================
+      GLOBAL
+============================================================ */
 let PRODUCTS = {};
 
-/* -------------------------- EXCEL OKUMA -------------------------- */
-document.getElementById("excelFile").addEventListener("change", handleExcel);
-
-async function handleExcel(e){
+/* ============================================================
+      EXCEL OKUMA
+============================================================ */
+document.getElementById("excelFile").addEventListener("change", async (e)=>{
   const file = e.target.files[0];
-  const wb = XLSX.read(await file.arrayBuffer());
-  const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 });
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf);
+  const sh = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sh,{header:1});
 
   const tbody = document.querySelector("#productTable tbody");
   tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
-      const KAT = rows[i][0];
-      const CODE = rows[i][1];
-      const LINK = rows[i][2];
+    const KAT = rows[i][0];
+    const CODE = rows[i][1];
+    let LINK  = rows[i][2];
 
-      if(!CODE) continue;
+    if(!CODE) continue;
 
-      if(!PRODUCTS[CODE]) PRODUCTS[CODE] = [];
-      if(LINK) PRODUCTS[CODE][0] = LINK;
+    if(!PRODUCTS[CODE]) PRODUCTS[CODE] = [];
+    if(LINK) PRODUCTS[CODE][0] = LINK;
 
-      const api = LINK ? await fetchAPI(LINK) : {title:"-",price:"-",image:"",category:"-",stock:"YOK"};
+    const api = LINK ? await fetchAPI(LINK) : {title:"-",image:"",price:"-",category:"-",stock:"YOK"};
 
-      const tr = document.createElement("tr");
-      tr.id = "row"+i;
-      if(api.stock==="YOK") tr.classList.add("red");
+    const tr = document.createElement("tr");
+    if(api.stock==="YOK") tr.classList.add("red");
 
-      tr.innerHTML = `
-        <td><img id="img${i}" src="${api.image}"></td>
-        <td id="t${i}">${api.title}</td>
-        <td id="p${i}">${api.price}</td>
-        <td>${KAT}</td>
-        <td id="ac${i}">${api.category}</td>
-        <td>${CODE}</td>
-
-        <td id="cell${i}">
-          ${api.stock==="VAR" && LINK
-            ? `<a class="git" href="${LINK}" target="_blank">Git</a>`
-            : `
-              <input id="in${i}" class="link-input" placeholder="Yeni link">
-              <button class="btn btn-update" onclick="updateLink(${i}, '${CODE}')">Güncelle</button>
-            `}
-        </td>
-
-        <td>
-          <button class="btn btn-slider" onclick="makeSlider('${CODE}')">Slider Üret</button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
+    tr.innerHTML = `
+      <td><img src="${api.image}"></td>
+      <td>${api.title}</td>
+      <td>${api.price}</td>
+      <td>${KAT}<br><b>${api.category}</b></td>
+      <td>${CODE}</td>
+      <td id="cell_${i}">
+        ${api.stock==="VAR" && LINK ? `
+          <a href="${LINK}" target="_blank">Git</a>
+        `:`
+          <input id="inp_${i}" class="link-input" value="${LINK||""}">
+          <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
+        `}
+      </td>
+      <td><button class="btn-slider" onclick="makeSlider('${CODE}')">Slider Üret</button></td>
+    `;
+    tbody.appendChild(tr);
   }
-}
+});
 
-/* -------------------------- API -------------------------- */
+/* ============================================================
+      API
+============================================================ */
 async function fetchAPI(url){
   try{
-    return await (await fetch(
-      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
-    )).json();
-  }catch{
-    return {title:"-",price:"-",image:"",category:"-",stock:"YOK"};
+    const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
+    return await r.json();
+  }catch(e){
+    return {title:"-",image:"",price:"-",category:"-",stock:"YOK"};
   }
 }
 
-/* -------------------------- LINK GÜNCELLE -------------------------- */
-async function updateLink(i, CODE){
-  const newLink = document.getElementById("in"+i).value.trim();
+/* ============================================================
+      GÜNCELLEME
+============================================================ */
+window.updateLink = async function(i,CODE){
+  const newLink = document.getElementById("inp_"+i).value.trim();
   if(!newLink) return;
 
   PRODUCTS[CODE] = [newLink];
   const api = await fetchAPI(newLink);
 
-  document.getElementById("img"+i).src = api.image;
-  document.getElementById("t"+i).innerHTML = api.title;
-  document.getElementById("p"+i).innerHTML = api.price;
-  document.getElementById("ac"+i).innerHTML = api.category;
+  const row = document.querySelectorAll("#productTable tbody tr")[i-1];
+  const cell = document.getElementById("cell_"+i);
 
-  const cell=document.getElementById("cell"+i);
-  const row=document.getElementById("row"+i);
+  row.children[0].innerHTML = `<img src="${api.image}">`;
+  row.children[1].innerHTML = api.title;
+  row.children[2].innerHTML = api.price;
+  row.children[3].children[1].innerHTML = api.category;
 
   if(api.stock==="VAR"){
     row.classList.remove("red");
-    cell.innerHTML = `<a class="git" href="${newLink}" target="_blank">Git</a>`;
-  } else {
+    cell.innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
+  }else{
     row.classList.add("red");
     cell.innerHTML = `
-      <input id="in${i}" class="link-input" placeholder="Yeni link">
-      <button class="btn btn-update" onclick="updateLink(${i}, '${CODE}')">Güncelle</button>
+      <input id="inp_${i}" class="link-input" value="${newLink}">
+      <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
     `;
   }
-}
+};
 
-/* -------------------------- SLIDER ÜRET -------------------------- */
-async function makeSlider(CODE){
+/* ============================================================
+      SLIDER ÜRETME
+============================================================ */
+window.makeSlider = async function(CODE){
   const rel = CATEGORY_MAP[CODE]?.related || [];
   let items = [];
 
-  for(const rc of rel){
-    const link = PRODUCTS[rc]?.[0];
+  for(const r of rel){
+    const link = PRODUCTS[r]?.[0];
     if(!link) continue;
-
     const api = await fetchAPI(link);
     items.push({link,...api});
   }
 
   const html = sliderHTML(CODE, items);
-  const blob = new Blob([html], {type:"text/html"});
+
+  const blob = new Blob([html],{type:"text/html"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = CODE + ".html";
+  a.download = CODE+".html";
   a.click();
-}
+};
 
-/* -------------------------- SLIDER ŞABLONU -------------------------- */
+/* ============================================================
+      SLIDER HTML — BUTTER-SMOOTH, OK TUŞLU
+============================================================ */
 function sliderHTML(CODE, items){
 return `
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <title>${CODE} Slider</title>
 <style>
 body{margin:0;font-family:Arial;}
-.wrap{padding:15px;display:flex;overflow-x:auto;gap:20px;}
-.item{text-align:center;}
-img{width:150px;height:150px;object-fit:contain;border-radius:10px;}
-.title{font-size:14px;font-weight:bold;margin-top:6px;}
-.price{color:#d30000;font-weight:bold;margin-top:4px;}
-.stock{color:#888;font-weight:bold;margin-top:4px;}
+.wrap{position:relative;padding:20px;}
+.slider{
+  display:flex;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  gap:20px;
+  padding-bottom:10px;
+}
+.item{
+  flex:0 0 auto;
+  scroll-snap-align:start;
+  text-align:center;
+}
+.item img{
+  width:150px;
+  height:150px;
+  object-fit:contain;
+}
+.arrow{
+  position:absolute;
+  top:45%;
+  background:#fff;
+  padding:10px 14px;
+  border-radius:50%;
+  font-size:20px;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.left{left:10px;}
+.right{right:10px;}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-${items.map(x=>`
-<div class="item">
-  <a href="${x.link}" target="_top"><img src="${x.image}"></a>
-  <div class="title">${x.title}</div>
-  <div class="${x.stock==="VAR"?"price":"stock"}">${x.stock==="VAR"?x.price:"Tükendi"}</div>
-</div>
-`).join("")}
+  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'smooth'})">❮</div>
+  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:250,behavior:'smooth'})">❯</div>
+
+  <div class="slider">
+    ${items.map(x=>`
+      <div class="item">
+        <a href="${x.link}" target="_top">
+          <img src="${x.image}">
+        </a>
+        <div>${x.title}</div>
+        <div>${x.stock==="VAR"?x.price:"Tükendi"}</div>
+      </div>
+    `).join("")}
+  </div>
 </div>
 </body>
-</html>`;
+</html>
+`;
 }
 
 </script>
