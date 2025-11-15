@@ -6,12 +6,7 @@
 <title>Sescibaba Akıllı Slider</title>
 
 <style>
-body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  font-family: Arial, sans-serif;
-}
+body { margin:0; padding:0; background:#fff; font-family:Arial; }
 
 .slider-wrap { overflow:hidden; width:100%; max-width:1850px; margin:0 auto; position:relative; }
 .slider-track { display:flex; gap:18px; transition:transform .5s; }
@@ -20,8 +15,16 @@ body {
 .slide-item img { width:150px; height:150px; object-fit:contain; border-radius:12px; }
 
 .product-title { font-size:14px; font-weight:700; margin-top:10px; }
+
 .product-price { font-size:15px; font-weight:800; color:#d30000; margin-top:4px; }
-.out-stock { color:#cc0000; font-weight:900; margin-top:4px; }
+
+.out-stock {
+  font-size:12px;
+  color:#cc5555;
+  font-weight:600;
+  margin-top:6px;
+  opacity:0.85;
+}
 
 .add-cart-btn {
   margin-top:6px;
@@ -39,10 +42,14 @@ body {
   box-shadow:0 0 6px rgba(0,0,0,.25);
   cursor:pointer; font-size:22px;
 }
+
 .slider-prev { left:5px; }
 .slider-next { right:5px; }
 
-.slider-divider { width:92%; height:2px; background:rgba(0,0,0,.15); margin:10px auto 40px; }
+.slider-divider {
+  width:92%; height:2px; background:rgba(0,0,0,.15);
+  margin:10px auto 40px;
+}
 </style>
 
 </head>
@@ -70,10 +77,13 @@ function loadScript(src){
 
 const getParam = key => new URLSearchParams(location.search).get(key);
 
-function formatPrice(price){
-    if (!price) return "";
-    if (price.includes(".")) return price + " €";
-    if (price.includes(",")) return price + " $";
+// ✔ TL – USD – EUR fiyat düzeltme fonksiyonu
+function formatPrice(p){
+    if (!p) return "";
+
+    const price = p.replace(/[^0-9.,]/g,"").trim();
+
+    // TRY (siteden gelen default)
     return "₺" + price;
 }
 
@@ -83,14 +93,12 @@ async function loadSlider(){
     await loadScript("data/category-map.js");
     await loadScript("data/products.js");
 
-    const map = window.CATEGORY_MAP;
-    const pro = window.PRODUCTS;
-
-    const related = map[CAT].related;
+    const related = window.CATEGORY_MAP[CAT].related;
+    const products = window.PRODUCTS;
     const track = document.getElementById("sliderTrack");
 
     for (let rc of related) {
-        const link = pro[rc]?.[0];
+        const link = products[rc]?.[0];
         if (!link) continue;
 
         const api = await fetch(
@@ -100,15 +108,21 @@ async function loadSlider(){
         const div = document.createElement("div");
         div.className = "slide-item";
 
-        const priceHTML = api.stock === "YOK"
-            ? `<div class='out-stock'>TÜKENDİ</div>`
-            : `<div class="product-price">${formatPrice(api.price)}</div>
-               <button class='add-cart-btn' onclick="addToCart('${link}')">Sepete Ekle</button>`;
+        let bottomHTML = "";
+
+        if (api.stock === "YOK") {
+            bottomHTML = `<div class='out-stock'>Tükendi</div>`;
+        } else {
+            bottomHTML = `
+                <div class="product-price">${formatPrice(api.price)}</div>
+                <button class='add-cart-btn' onclick="addToCart('${link}')">Sepete Ekle</button>
+            `;
+        }
 
         div.innerHTML = `
             <a href="${link}" target="_top"><img src="${api.image}"></a>
             <div class="product-title">${api.title}</div>
-            ${priceHTML}
+            ${bottomHTML}
         `;
 
         track.appendChild(div);
@@ -117,6 +131,7 @@ async function loadSlider(){
     initSlider();
 }
 
+// Sepete ekle → iframe içinde çalışır
 function addToCart(link){
     window.top.location.href = link + "?add-to-cart=1";
 }
