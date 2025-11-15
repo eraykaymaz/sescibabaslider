@@ -2,14 +2,14 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Kategori Bazlı Slider Üretici - FULL WORKING</title>
+<title>Kategori Bazlı Slider Üretici – FINAL (A01 Kodlu)</title>
 
 <style>
 body{font-family:Arial;padding:15px;background:#f5f5f5;}
 table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
 th,td{border:1px solid #ccc;padding:6px;}
 img{width:65px;height:65px;object-fit:contain;}
-.red-row{background:#ffe3e3;transition:.3s;}
+.red-row{background:#ffe3e3;}
 .slider-btn{background:#ff8c00;color:#fff;border:0;padding:5px 8px;font-size:12px;border-radius:4px;cursor:pointer;}
 .update-btn{background:#1976d2;color:#fff;border:0;padding:4px 6px;font-size:12px;border-radius:4px;cursor:pointer;margin-left:4px;}
 .link-input{width:150px;padding:4px;font-size:12px;}
@@ -18,7 +18,7 @@ img{width:65px;height:65px;object-fit:contain;}
 </head>
 <body>
 
-<h2>Kategori Bazlı HTML Slider Üretici</h2>
+<h2>Kategori Bazlı HTML Slider Üretici (A01 – Kısaltılmış CAT Sistemi)</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -29,7 +29,7 @@ img{width:65px;height:65px;object-fit:contain;}
   <th>Başlık</th>
   <th>Fiyat</th>
   <th>Kategori / API Kategori</th>
-  <th>CAT</th>
+  <th>Kısa Kod</th>
   <th>Link</th>
   <th>Üret</th>
 </tr>
@@ -38,22 +38,15 @@ img{width:65px;height:65px;object-fit:contain;}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="./mapping.js?v=1"></script>
+
 <script>
+// mapping.js içinde:
+// CAT_INDEX = { "A01": "CAT001", ... };
+// CATEGORY_MAP = { "CAT001": { related:[...] }, ... };
 
-/*************************************************
- * TAM CATEGORY MAP (111 kategori)
- * (SENİN GÖNDERDİĞİN TAM HARİTA GÖMÜLDÜ)
- *************************************************/
-const CATEGORY_MAP = { /* ... Tüm CAT001–CAT111 ... */ };
+let PRODUCTS = {};
 
-/*************************************************
- * GLOBAL VERİ
- *************************************************/
-let PRODUCTS = {}; // excel + api sonrası güncel link haritası
-
-/*************************************************
- * EXCEL YÜKLEME
- *************************************************/
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
@@ -62,33 +55,35 @@ async function handleExcel(e){
   const wb = XLSX.read(data);
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
   const tbody = document.querySelector('#productTable tbody');
-  tbody.innerHTML = '';
+  tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
+
     const categoryText = rows[i][0];
-    const CAT = rows[i][1];
+    const SHORT = rows[i][1];  // A01, A02, ...
     const link = rows[i][2]?.trim();
 
-    if(!CAT) continue;
+    if(!SHORT) continue;
 
-    // PRODUCTS kaydı tut
+    const CAT = CAT_INDEX[SHORT]; // gerçek CAT kodu
+
     if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
     if(link) PRODUCTS[CAT][0] = link;
 
-    const api = link ? await fetchAPI(link) : { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
+    const api = link ? await fetchAPI(link) : {
+      title:"-", image:"", price:"-", category:"-", stock:"YOK"
+    };
 
-    renderRow(i, categoryText, CAT, link, api);
+    renderRow(i, categoryText, CAT, SHORT, link, api);
   }
 }
 
-/*************************************************
- * TABLO SATIRI
- *************************************************/
-function renderRow(i, categoryText, CAT, link, api){
-  const tbody = document.querySelector('#productTable tbody');
-  const tr = document.createElement('tr');
+function renderRow(i, categoryText, CAT, SHORT, link, api){
 
+  const tbody = document.querySelector('#productTable tbody');
+  const tr = document.createElement("tr");
   if(api.stock === "YOK") tr.classList.add("red-row");
 
   tr.id = "row_"+i;
@@ -97,11 +92,8 @@ function renderRow(i, categoryText, CAT, link, api){
     <td id="img_${i}"><img src="${api.image}"></td>
     <td id="title_${i}">${api.title}</td>
     <td id="price_${i}">${api.price}</td>
-    <td>
-      ${categoryText}<br>
-      <b id="catapi_${i}" style="color:#555">${api.category}</b>
-    </td>
-    <td>${CAT}</td>
+    <td>${categoryText}<br><b id="catapi_${i}">${api.category}</b></td>
+    <td>${SHORT}</td>
     <td id="cell_${i}">${linkHTML(i, CAT, link, api.stock)}</td>
     <td><button class="slider-btn" onclick="createSlider('${CAT}')">Üret</button></td>
   `;
@@ -113,16 +105,12 @@ function linkHTML(i, CAT, link, stock){
   if(stock === "VAR" && link){
     return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
   }
-
   return `
-    <input class="link-input" id="inp_${i}" placeholder="Yeni link" value="${link||''}">
+    <input class="link-input" id="inp_${i}" value="${link||''}">
     <button class="update-btn" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
   `;
 }
 
-/*************************************************
- * API ÇEKME
- *************************************************/
 async function fetchAPI(url){
   try{
     const r = await fetch(
@@ -134,19 +122,14 @@ async function fetchAPI(url){
   }
 }
 
-/*************************************************
- * LİNK GÜNCELLEME
- *************************************************/
 window.updateLink = async function(i, CAT){
-  const row = document.getElementById('row_'+i);
-  const newLink = document.getElementById('inp_'+i).value.trim();
-  if(!newLink) return;
+  const row = document.getElementById("row_"+i);
+  const newLink = document.getElementById("inp_"+i).value;
 
-  PRODUCTS[CAT] = [ newLink ]; // kaydı güncelle
+  PRODUCTS[CAT] = [ newLink ];
 
   const api = await fetchAPI(newLink);
 
-  // satırı güncelle
   document.getElementById('img_'+i).innerHTML = `<img src="${api.image}">`;
   document.getElementById('title_'+i).innerHTML = api.title;
   document.getElementById('price_'+i).innerHTML = api.price;
@@ -156,60 +139,70 @@ window.updateLink = async function(i, CAT){
 
   if(api.stock === "VAR"){
     row.classList.remove("red-row");
-    cell.innerHTML = `<a class='git-link' href='${newLink}' target='_blank'>Git</a>`;
+    cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
   } else {
     row.classList.add("red-row");
     cell.innerHTML = linkHTML(i, CAT, newLink, "YOK");
   }
 };
 
-/*************************************************
- * SLIDER ÜRET
- *************************************************/
 window.createSlider = async function(CAT){
-  const related = CATEGORY_MAP[CAT]?.related || [];
+
+  const list = CATEGORY_MAP[CAT]?.related || [];
   let items = [];
 
-  for(const rc of related){
+  for(const rc of list){
     const link = PRODUCTS[rc]?.[0];
     if(!link) continue;
 
     const api = await fetchAPI(link);
-    items.push({ link, ...api });
+    items.push({link, ...api});
   }
 
-  const html = generateSliderHTML(CAT, items);
+  const html = sliderHTML(CAT, items);
 
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a');
+  const blob = new Blob([html],{type:"text/html"});
+  const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `${CAT}.html`;
+  a.download = CAT + ".html";
   a.click();
 };
 
-/*************************************************
- * HTML SLIDER TEMPLATE (CSS ONLY)
- *************************************************/
-function generateSliderHTML(CAT, items){
-return `<!DOCTYPE html>
-<html lang='tr'>
-<head>
-<meta charset='UTF-8'>
-<title>${CAT} Slider</title>
+function sliderHTML(CAT, items){
+return `
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${CAT}</title>
 <style>
 body{margin:0;padding:0;font-family:Arial;}
 .wrap{position:relative;padding:20px;}
-.slider{display:flex;overflow-x:auto;gap:20px;scroll-behavior:smooth;}
+.slider{display:flex;overflow-x:auto;gap:20px;}
 .item{min-width:150px;text-align:center;}
 img{width:150px;height:150px;object-fit:contain;border-radius:10px;}
-.title{font-size:14px;font-weight:700;margin-top:6px;}
 .price{color:#c00;font-weight:700;margin-top:4px;}
 .stock{color:#888;font-weight:700;margin-top:4px;}
 .arrow{position:absolute;top:45%;background:#fff;padding:8px;border-radius:50%;cursor:pointer;
- box-shadow:0 2px 6px rgba(0,0,0,.25);user-select:none;}
-.left{left:10px;} .right{right:10px;}
+box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.left{left:10px;}
+.right{right:10px;}
 </style>
 </head>
 <body>
-<div class='wrap'>
- <div class='arrow left' onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'
+<div class="wrap">
+ <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'smooth'})">❮</div>
+ <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:250,behavior:'smooth'})">❯</div>
+ <div class="slider">
+   ${items.map(p=>`
+     <div class="item">
+       <a href="${p.link}" target="_top"><img src="${p.image}"></a>
+       <div>${p.title}</div>
+       ${p.stock==="VAR" ? `<div class="price">${p.price}</div>` : `<div class="stock">Tükendi</div>`}
+     </div>
+   `).join('')}
+ </div>
+</div>
+</body></html>`;
+}
+</script>
+
+</body>
+</html>
