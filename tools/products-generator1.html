@@ -40,7 +40,7 @@ img{width:80px;height:80px;object-fit:contain;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 
-/* ----------------- SADELEŞTİRİLMİŞ A01–A03 MAP ----------------- */
+/* ----------------- A01–A03 MAP ----------------- */
 const CATEGORY_MAP = {
   "A01": { "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"] },
   "A02": { "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"] },
@@ -53,7 +53,11 @@ let PRODUCTS = {};
 /* ----------------- EXCEL YÜKLE ----------------- */
 document.getElementById("excelFile").addEventListener("change", async (e)=>{
   const buf = await e.target.files[0].arrayBuffer();
-  const rows = XLSX.utils.sheet_to_json(XLSX.read(buf).Sheets["Sayfa1"],{header:1});
+  const wb = XLSX.read(buf);
+
+  // SAYFA ADINI OTOMATİK AL
+  const sheetName = wb.SheetNames[0];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header:1 });
 
   const tbody = document.querySelector("#productTable tbody");
   tbody.innerHTML = "";
@@ -188,7 +192,6 @@ body{margin:0;font-family:Arial;}
 </div>
 
 <script>
-// 1 saniyede otomatik kaydırma
 setInterval(()=>{
   const s=document.getElementById("sld");
   s.scrollBy({left:180,behavior:"smooth"});
