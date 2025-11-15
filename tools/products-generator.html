@@ -14,7 +14,20 @@ th,td{border:1px solid #ccc;padding:4px 6px;}
 
 img{width:65px;height:65px;object-fit:contain;}
 
-.link-input{width:95%;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
+.flex-row{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+.link-input{
+  width:160px;
+  padding:3px;
+  font-size:12px;
+  border:1px solid #aaa;
+  border-radius:4px;
+}
 
 .button-small{
   padding:4px 7px;
@@ -23,8 +36,8 @@ img{width:65px;height:65px;object-fit:contain;}
   border-radius:4px;
   cursor:pointer;
 }
-
 .btn-update{background:#1976d2;color:#fff;}
+
 .btn-generate{
   margin-top:10px;
   background:#2e7d32;
@@ -34,6 +47,7 @@ img{width:65px;height:65px;object-fit:contain;}
   border:0;
   border-radius:6px;
 }
+
 .git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
 </style>
 
@@ -89,54 +103,82 @@ async function handleExcel(e){
         if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
         if(link) PRODUCTS[CAT].push(link);
 
-        let api = {};
-        if(link){
-            api = await fetchAPI(link);
-        } else {
-            api = {title:"-", image:"", price:"-", category:"-", stock:"YOK"};
-        }
+        let api = link ? await fetchAPI(link) : {
+          title:"-", image:"", price:"-", category:"-", stock:"YOK"
+        };
 
-        const tr = document.createElement("tr");
-        if(api.stock === "YOK") tr.classList.add("red-row");
-
-        tr.innerHTML = `
-          <td><img src="${api.image||""}"></td>
-          <td>${api.title}</td>
-          <td>${api.price}</td>
-          <td>${categoryName}</td>
-          <td>${api.category||"-"}</td>
-          <td>${CAT}</td>
-          <td id="cell_${i}">${getLinkHTML(i, CAT, link, api.stock)}</td>
-        `;
-        tbody.appendChild(tr);
+        renderRow(i, row, api, CAT);
     }
+}
+
+function renderRow(i, row, api, CAT){
+    const tbody = document.querySelector("#productTable tbody");
+    const tr = document.createElement("tr");
+
+    const categoryName = row[0];
+    const link = row[2];
+
+    if(api.stock === "YOK") tr.classList.add("red-row");
+
+    tr.innerHTML = `
+      <td id="img_${i}"><img src="${api.image||""}"></td>
+      <td id="title_${i}">${api.title}</td>
+      <td id="price_${i}">${api.price}</td>
+      <td>${categoryName}</td>
+      <td id="catapi_${i}">${api.category||"-"}</td>
+      <td>${CAT}</td>
+      <td id="cell_${i}">
+        ${getLinkHTML(i, CAT, link, api.stock)}
+      </td>
+    `;
+
+    tbody.appendChild(tr);
 }
 
 function getLinkHTML(i, CAT, link, stock){
 
-    // ❗ STOK VAR → SADECE “Git”
     if(stock === "VAR" && link){
         return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
     }
 
-    // ❗ STOK YOK → input + Güncelle
     return `
+      <div class="flex-row">
         <input class="link-input" id="inp_${i}" placeholder="Yeni link">
         <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+      </div>
     `;
 }
 
-function updateLink(i, CAT){
+async function updateLink(i, CAT){
     const newLink = document.getElementById("inp_"+i).value.trim();
     if(!newLink) return alert("Lütfen link gir.");
 
     PRODUCTS[CAT] = [newLink];
 
-    // HÜCREYİ ANINDA GÜNCELLE → SADECE “Git” gözüksün
-    document.getElementById("cell_"+i).innerHTML =
-        `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
+    // API'den yeni verileri çek
+    const api = await fetchAPI(newLink);
 
-    alert("Link güncellendi!");
+    // Satırın tamamını güncelle
+    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
+    document.getElementById("title_"+i).innerHTML = api.title;
+    document.getElementById("price_"+i).innerHTML = api.price;
+    document.getElementById("catapi_"+i).innerHTML = api.category;
+
+    const cell = document.getElementById("cell_"+i);
+
+    if(api.stock === "VAR"){
+        cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
+        document.getElementById("row_"+i)?.classList.remove("red-row");
+    } else {
+        cell.innerHTML = `
+            <div class="flex-row">
+              <input class="link-input" id="inp_${i}" placeholder="Yeni link">
+              <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+            </div>
+        `;
+    }
+
+    alert("Bağlantı güncellendi ve satır yenilendi!");
 }
 
 async function fetchAPI(url){
