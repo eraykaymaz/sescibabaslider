@@ -5,49 +5,45 @@
 <title>Excel → Ürün Görüntüleme & HIT Üretici</title>
 
 <style>
-body {
-  font-family: Arial;
-  padding: 20px;
-  background: #f5f5f5;
-}
+body { font-family: Arial; padding: 20px; background: #f5f5f5; }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: white;
-  font-size: 14px;
+  width: 100%; border-collapse: collapse; margin-top: 20px;
+  background: white; font-size: 14px;
 }
 
 th, td {
   border: 1px solid #ddd;
   padding: 8px;
-  text-align: left;
 }
 
-.red-row {
-  background: #ffb3b3 !important;
-}
+.red-row { background: #ffe1e1 !important; }
 
 button {
   padding: 6px 10px;
   font-size: 13px;
   cursor: pointer;
 }
-
-button.update-btn {
+.update-btn {
   background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
-button.generate-btn {
-  background: #28a745;
   color:white;
   border:none;
+  border-radius:4px;
+}
+
+.generate-btn {
+  background:#28a745;
+  color:white;
   padding:10px 16px;
-  margin-top:15px;
   border-radius:6px;
+  border:0;
+  margin-top:15px;
+}
+.link-input {
+  width: 95%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 </style>
 </head>
@@ -61,15 +57,16 @@ button.generate-btn {
 
 <table id="productTable">
 <thead>
-  <tr>
-    <th>Görsel</th>
-    <th>Ürün</th>
-    <th>Fiyat</th>
-    <th>Kategori</th>
-    <th>Kategori (API)</th>
-    <th>CAT</th>
-    <th>Link / Güncelle</th>
-  </tr>
+<tr>
+  <th>Görsel</th>
+  <th>Ürün</th>
+  <th>Fiyat</th>
+  <th>Kategori</th>
+  <th>Kategori (API)</th>
+  <th>Stok</th>
+  <th>CAT</th>
+  <th>Link / Güncelle</th>
+</tr>
 </thead>
 <tbody></tbody>
 </table>
@@ -78,7 +75,7 @@ button.generate-btn {
 
 <script>
 
-let PRODUCTS = {}; // products.js üretimi için
+let PRODUCTS = {};  // products.js üretimi için
 
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
@@ -94,63 +91,77 @@ async function handleExcel(e){
 
     for (let i = 1; i < json.length; i++){
         const row = json[i];
-        const categoryName = json[i][0];       // Excel A sütunu kategori adı
-        const CAT = json[i][1];                // Excel B sütunu CAT kodu
-        const link = json[i][2];               // Excel C sütunu ürün linki
+        const categoryName = row[0];   // Excel A sütunu
+        const CAT = row[1];            // Excel B sütunu
+        let link = row[2];             // Excel C sütunu (TABLOYA GİREN LİNK)
 
         if (!CAT) continue;
 
-        // PRODUCTS.js dizisine ekle
         if (!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
         if (link) PRODUCTS[CAT].push(link);
 
-        // API'den veri çek
         let api = {};
         if (link){
             api = await fetchAPI(link);
+        } else {
+            api = { title:"-", image:"", price:"-", category:"-", stock:"-" };
         }
 
         const tr = document.createElement("tr");
-
         if (api.stock === "YOK") tr.classList.add("red-row");
 
+        const safeLink = link || "";
+
         tr.innerHTML = `
-            <td><img src="${api.image || ""}" width="80"></td>
-            <td>${api.title || "-"}</td>
-            <td>${api.price || "-"}</td>
-            <td>${categoryName}</td>
-            <td>${api.category || "-"}</td>
-            <td>${CAT}</td>
-            <td>
-                ${api.stock === "YOK" || !link 
-                    ? `<button class="update-btn" onclick="openLink('${link}')">Güncelle</button>`
-                    : `<a href="${link}" target="_blank">${link}</a>`
-                }
-            </td>
+          <td><img src="${api.image || ""}" width="80"></td>
+          <td>${api.title || "-"}</td>
+          <td>${api.price || "-"}</td>
+          <td>${categoryName}</td>
+          <td>${api.category || "-"}</td>
+          <td><b>${api.stock || "-"}</b></td>
+          <td>${CAT}</td>
+          <td>
+            ${safeLink
+              ? `<a href="${safeLink}" target="_blank">${safeLink}</a>`
+              : `
+                 <input class="link-input" id="linkInput_${i}" placeholder="Ürün linki gir">
+                 <button class="update-btn" onclick="saveLink(${i}, '${CAT}')">Kaydet</button>
+                `
+            }
+          </td>
         `;
 
         tbody.appendChild(tr);
     }
 }
 
+function saveLink(rowIndex, CAT){
+    const val = document.getElementById("linkInput_"+rowIndex).value.trim();
+    if (!val) return alert("Lütfen link girin!");
+
+    if (!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
+    PRODUCTS[CAT].push(val);
+
+    alert("Link kaydedildi! Yeniden 'products.js ÜRET' yapabilirsin.");
+}
+
 function openLink(link){
     if (link) window.open(link, "_blank");
 }
 
-/* WORKER API */
 async function fetchAPI(url){
     try{
         const r = await fetch(
           "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(url)
         );
         return await r.json();
-    } catch(e){
-        return {};
+    }catch(e){
+        return { stock:"-" };
     }
 }
 
-/* products.js üreticisi */
-function generateProductsJS() {
+/* products.js üret */
+function generateProductsJS(){
     let text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
 
     const blob = new Blob([text], { type: "application/javascript" });
@@ -164,3 +175,4 @@ function generateProductsJS() {
 
 </body>
 </html>
+
