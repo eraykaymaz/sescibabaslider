@@ -42,9 +42,9 @@ body {
 /* TÜKENDİ */
 .out-stock {
   margin-top:6px;
-  font-size:14px;   /* 1 punto küçültüldü */
+  font-size:14px;
   font-weight:700;
-  color:#999;       /* gri */
+  color:#999;
 }
 
 /* SEPETE EKLE BUTTON */
@@ -60,9 +60,7 @@ body {
   cursor:pointer;
   transition:.25s;
 }
-.add-cart-btn:hover {
-  background:#c43745;
-}
+.add-cart-btn:hover { background:#c43745; }
 
 /* ARROWS */
 .slider-arrow {
@@ -100,24 +98,19 @@ function loadScript(src){
   return new Promise((resolve,reject)=>{
     const s=document.createElement("script");
     s.src = src+"?v="+Date.now();
-    s.onload=resolve; s.onerror=reject;
+    s.onload=resolve; 
+    s.onerror=reject;
     document.body.appendChild(s);
   });
 }
 
 const getParam = key => new URLSearchParams(location.search).get(key);
 
-/* FİYAT FORMATLAYICI — TL HER ZAMAN SAĞDA */
+/* FİYAT FORMATLAYICI */
 function formatPrice(price){
   if (!price) return "";
-
-  // sadece rakamdan oluşuyorsa TL
   if (/^[0-9.]+$/.test(price)) return price + " ₺";
-
-  // US Dollar formatı (virgüllü fiyat)
   if (price.includes(",")) return price + " $";
-
-  // EURO
   return price + " €";
 }
 
@@ -125,8 +118,8 @@ function formatPrice(price){
 async function loadSlider(){
   const CAT = getParam("cat") || "CAT001";
 
-  await loadScript("data/category-map.js");
-  await loadScript("data/products.js");
+  await loadScript("./data/category-map.js");
+  await loadScript("./data/products.js");
 
   const map  = window.CATEGORY_MAP;
   const pro  = window.PRODUCTS;
@@ -170,7 +163,7 @@ function addToCart(link){
   window.top.location.href = link + "?add-to-cart=1";
 }
 
-/* SLIDER MOTORU */
+/* SLIDER */
 function initSlider(){
   const track  = document.getElementById("sliderTrack");
   const slides = [...track.children];
