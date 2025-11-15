@@ -1,243 +1,56 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>Excel → Ürün Görüntüleme + SLIDER Üretici</title>
-
-<style>
-body{font-family:Arial;padding:15px;background:#f2f2f2;}
-table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
-th,td{border:1px solid #ccc;padding:4px 6px;}
-.red-row{background:#ffe3e3!important;transition:background .6s;}
-img{width:65px;height:65px;object-fit:contain;}
-.flex-row{display:flex;gap:4px;align-items:center;}
-.link-input{width:160px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
-.button-small{padding:4px 7px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
-.btn-update{background:#1976d2;color:#fff;}
-.btn-generate{margin-top:10px;background:#2e7d32;color:#fff;padding:8px 14px;font-size:14px;border:0;border-radius:6px;cursor:pointer;}
-.git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
-.slider-btn{background:#d54c5a;color:#fff;border:0;padding:4px 7px;border-radius:4px;cursor:pointer;margin-top:4px;}
-</style>
-
-</head>
-<body>
-
-<h2>Excel → Ürün Görüntüleme + SLIDER Üretici</h2>
-
-<input type="file" id="excelFile" accept=".xlsx">
-<button class="btn-generate" onclick="generateProductsFull()">products-full.js ÜRET</button>
-
-<table id="productTable">
-<thead>
-<tr>
-  <th>Görsel</th>
-  <th>Ürün</th>
-  <th>Fiyat</th>
-  <th>Kategori</th>
-  <th>(API) Kategori</th>
-  <th>CAT</th>
-  <th>İşlem</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<script>
-
-let PRODUCTS = {};
-let CATEGORY_MAP = null;
-
-/* ---------------- EXCEL LOAD ---------------- */
-document.getElementById("excelFile").addEventListener("change", handleExcel);
-
-async function handleExcel(e){
-    try{
-        const file = e.target.files[0];
-        const data = await file.arrayBuffer();
-        const excel = XLSX.read(data);
-        const sheet = excel.Sheets[excel.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-        const tbody = document.querySelector("#productTable tbody");
-        tbody.innerHTML = "";
-
-        for(let i=1;i<json.length;i++){
-            const row = json[i];
-            const catName = row[0];
-            const CAT = row[1];
-            const link = row[2];
-
-            if(!CAT) continue;
-
-            // boş obje
-            PRODUCTS[CAT] = { cat: CAT, link: link, title:"-", image:"", price:"-", stock:"YOK", category:"-" };
-
-            let api = await fetchAPI(link);
-
-            PRODUCTS[CAT] = {
-                cat: CAT,
-                link: link,
-                title: api.title,
-                image: api.image,
-                price: api.price,
-                stock: api.stock,
-                category: api.category
-            };
-
-            renderRow(i, catName, CAT, api);
-        }
-    }catch(err){
-        alert("Excel yüklenirken hata oluştu: " + err);
-    }
-}
-
-/* ---------------- RENDER ---------------- */
-function renderRow(i, catName, CAT, api){
-    const tbody = document.querySelector("#productTable tbody");
-    const tr = document.createElement("tr");
-
-    if(api.stock === "YOK") tr.classList.add("red-row");
-
-    tr.innerHTML = `
-      <td><img src="${api.image}"></td>
-      <td>${api.title}</td>
-      <td>${api.price}</td>
-      <td>${catName}</td>
-      <td>${api.category}</td>
-      <td>${CAT}</td>
-      <td>
-        <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-}
-
-/* ---------------- API SAFE ---------------- */
-async function fetchAPI(url){
-    if(!url) return blankAPI();
-    try{
-        const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
-        const js = await r.json();
-        return js;
-    }catch(e){
-        console.warn("API ERROR:", e);
-        return blankAPI();
-    }
-}
-
-function blankAPI(){
-    return {title:"-", image:"", price:"-", category:"-", stock:"YOK"};
-}
-
-/* ---------------- products-full.js EXPORT ---------------- */
-function generateProductsFull(){
-    const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-    download(text, "products-full.js", "application/javascript");
-}
-
-/* ---------------- CATEGORY MAP LOAD ---------------- */
-async function loadCategoryMap(){
-    if(CATEGORY_MAP) return;
-    await new Promise((resolve,reject)=>{
-        const s=document.createElement("script");
-        s.src="data/category-map.js?v="+Date.now();
-        s.onload=()=>{ CATEGORY_MAP = window.CATEGORY_MAP; resolve(); };
-        s.onerror=(e)=>reject("MAP yüklenemedi");
-        document.body.appendChild(s);
-    });
-}
-
-/* ---------------- SLIDER ---------------- */
-async function generateSlider(mainCAT){
-    await loadCategoryMap();
-
-    const related = CATEGORY_MAP[mainCAT]?.related || [];
-
-    let items = "";
-
-    for(const rc of related){
-        const p = PRODUCTS[rc];
-        if(!p) continue;
-
-        items += `
-        <div class="slide-item">
-            <a href="${p.link}" target="_top"><img src="${p.image}"></a>
-            <div class="product-title">${p.title}</div>
-            ${ p.stock==="YOK"
-                ? `<div class="out-stock">Tükendi</div>`
-                : `<div class="product-price">${p.price}</div>`
-            }
-        </div>`;
-    }
-
-    const html = sliderTemplate(items);
-
-    download(html, `${mainCAT}-slider.html`, "text/html");
-}
-
-/* ---------------- SLIDER TEMPLATE ---------------- */
 function sliderTemplate(items){
-return `
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>Slider</title>
-<meta name="viewport">
-<style>
-body{margin:0;font-family:Arial;}
-.slider-wrap{max-width:1850px;margin:auto;overflow:hidden;position:relative;}
-.slider-track{display:flex;gap:18px;transition:.5s;}
-.slide-item{width:150px;text-align:center;padding:20px 0;}
-.slide-item img{width:150px;height:150px;object-fit:contain;border-radius:12px;}
-.product-title{font-size:14px;font-weight:700;margin-top:10px;}
-.product-price{font-size:15px;font-weight:800;color:#d30000;margin-top:4px;}
-.out-stock{font-size:14px;font-weight:800;color:#999;margin-top:6px;}
-.slider-arrow{position:absolute;top:45%;width:40px;height:40px;background:#fff;border:0;border-radius:50%;cursor:pointer;}
-.slider-prev{left:5px;} .slider-next{right:5px;}
-</style>
 
-<script>
-let index=0;
-window.onload=()=>{
-  const t=document.getElementById("sliderTrack");
-  const w=168;
-  const s=[...t.children];
+    let h = "";
 
-  document.querySelector(".slider-next").onclick=()=>{
-    index++; if(index>=s.length-8) index=0; 
-    t.style.transform="translateX("+(-index*w)+"px)";
-  };
+    h += "<!DOCTYPE html>";
+    h += "<html><head><meta charset='UTF-8'>";
+    h += "<title>Slider</title>";
+    h += "<meta name='viewport' content='width=device-width'>";
 
-  document.querySelector(".slider-prev").onclick=()=>{
-    index--; if(index<0) index=s.length-8; 
-    t.style.transform="translateX("+(-index*w)+"px)";
-  };
-};
-</script>
-</head>
+    h += "<style>";
+    h += "body{margin:0;font-family:Arial;}";
+    h += ".slider-wrap{max-width:1850px;margin:auto;overflow:hidden;position:relative;}";
+    h += ".slider-track{display:flex;gap:18px;transition:.5s;}";
+    h += ".slide-item{width:150px;text-align:center;padding:20px 0;}";
+    h += ".slide-item img{width:150px;height:150px;object-fit:contain;border-radius:12px;}";
+    h += ".product-title{font-size:14px;font-weight:700;margin-top:10px;}";
+    h += ".product-price{font-size:15px;font-weight:800;color:#d30000;margin-top:4px;}";
+    h += ".out-stock{font-size:14px;font-weight:800;color:#999;margin-top:6px;}";
+    h += ".slider-arrow{position:absolute;top:45%;width:40px;height:40px;background:#fff;border:0;border-radius:50%;cursor:pointer;font-size:22px;}";
+    h += ".slider-prev{left:5px;} .slider-next{right:5px;}";
+    h += "</style>";
 
-<body>
-<div class="slider-wrap">
- <button class="slider-arrow slider-prev">❮</button>
- <div class="slider-track" id="sliderTrack">${items}</div>
- <button class="slider-arrow slider-next">❯</button>
-</div>
-</body></html>
-`;
+    h += "<script>";
+    h += "let index=0;";
+    h += "window.onload=function(){";
+    h += "var t=document.getElementById('sliderTrack');";
+    h += "var w=168;";
+    h += "var s=[...t.children];";
+
+    h += "document.querySelector('.slider-next').onclick=function(){";
+    h += "index++; if(index>=s.length-8) index=0;";
+    h += "t.style.transform='translateX(' + (-index*w) + 'px)';";
+    h += "};";
+
+    h += "document.querySelector('.slider-prev').onclick=function(){";
+    h += "index--; if(index<0) index=s.length-8;";
+    h += "t.style.transform='translateX(' + (-index*w) + 'px)';";
+    h += "};";
+
+    h += "}";
+    h += "</script>";
+
+    h += "</head><body>";
+
+    h += "<div class='slider-wrap'>";
+    h += "<button class='slider-arrow slider-prev'>❮</button>";
+    h += "<div class='slider-track' id='sliderTrack'>";
+    h += items;
+    h += "</div>";
+    h += "<button class='slider-arrow slider-next'>❯</button>";
+    h += "</div>";
+
+    h += "</body></html>";
+
+    return h;
 }
-
-/* ---------------- DOWNLOAD ---------------- */
-function download(content, filename, type){
-    const blob=new Blob([content],{type});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download=filename;
-    a.click();
-}
-
-</script>
-
-</body>
-</html>
