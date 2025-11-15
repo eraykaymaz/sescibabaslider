@@ -1,12 +1,111 @@
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel Ürün Görüntüleyici – Final Düzgün Sıralı</title>
 <title>Excel Ürün Görüntüleyici – Final Doğru Sıralı</title>
 
 <style>
 body {
-@@ -109,6 +109,9 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
+  font-family: Arial, sans-serif;
+  padding: 15px;
+  background: #f3f3f3;
+}
+
+.box {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 1200px;
+  margin: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+th {
+  background: #e9e9e9;
+  font-weight: bold;
+}
+
+img.thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border: none;
+  background: none;
+}
+
+.row-nok {
+  background: #ffd6d6 !important;
+}
+
+input.newLink {
+  width: 140px;
+  padding: 3px;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+button.smallBtn {
+  padding: 3px 10px;
+  font-size: 11px;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+button.big {
+  padding: 8px 15px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
+
+  <input type="file" id="excelFile" accept=".xlsx,.xls">
+  <button onclick="loadExcel()">Yükle ve Göster</button>
+  <button class="big" onclick="generateProducts()">HİTLERİ YÜKLE !</button>
+
+  <div id="status" style="margin-top:8px; font-weight:bold;"></div>
+
+  <table id="productTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Görsel</th>
+        <th>Ürün</th>
+        <th>Fiyat</th>
+        <th>Kategori</th>
+        <th>Kategori (API)</th>
+        <th>CAT</th>
+        <th>Link / Güncelle</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+
 let productData = [];
 let excelRows = [];
 
@@ -14,85 +113,135 @@ let excelRows = [];
 //     EXCEL YÜKLEME
 // ===============================
 async function loadExcel() {
-const file = document.getElementById("excelFile").files[0];
-if (!file) return alert("Excel seçilmedi!");
-@@ -122,8 +125,8 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
+  const file = document.getElementById("excelFile").files[0];
+  if (!file) return alert("Excel seçilmedi!");
 
-excelRows = [];
+  document.getElementById("status").innerText = "Excel okunuyor...";
 
-  // EXCEL'DEN GERÇEK SATIR SIRASINI KAYDET — *** PATCH ***
-  for (let i = 1; i < rows.length; i++) {
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf);
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+  excelRows = [];
+
   // ❗❗ DÜZELTME: i=0'DAN BAŞLIYOR ❗❗
   for (let i = 0; i < rows.length; i++) {
-let catName = rows[i][0];
-let catCode = rows[i][1];
-let link = rows[i][2];
-@@ -132,7 +135,7 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
-excelRows.push({ rowIndex: i, catName, catCode, link });
-}
+    let catName = rows[i][0];
+    let catCode = rows[i][1];
+    let link = rows[i][2];
+    if (!catName || !catCode || !link) continue;
 
-  // SIRAYI EXCEL SIRASINA GÖRE ZORUNLU YAP — *** PATCH ***
+    excelRows.push({ rowIndex: i, catName, catCode, link });
+  }
+
   // Sıralamayı EXCEL sırasına göre zorla
-excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
+  excelRows.sort((a, b) => a.rowIndex - b.rowIndex);
 
-document.getElementById("status").innerText = "Ürünler alınıyor...";
-@@ -156,7 +159,7 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
-}
+  document.getElementById("status").innerText = "Ürünler alınıyor...";
 
-productData.push({
-      excelIndex: item.rowIndex,     // *** PATCH ***
+  const tbody = document.querySelector("#productTable tbody");
+  tbody.innerHTML = "";
+  document.getElementById("productTable").style.display = "table";
+
+  productData = [];
+
+  for (let item of excelRows) {
+
+    let d;
+    try {
+      d = await fetch(
+        "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+        encodeURIComponent(item.link)
+      ).then(r => r.json());
+    } catch {
+      d = { title:"Hata", price:"-", stock:"-", image:"", category:"-" };
+    }
+
+    productData.push({
       excelIndex: item.rowIndex,
-excelCategoryName: item.catName,
-catCode: item.catCode,
-link: item.link,
-@@ -168,11 +171,10 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
-});
+      excelCategoryName: item.catName,
+      catCode: item.catCode,
+      link: item.link,
+      title: d.title,
+      price: d.price,
+      image: d.image,
+      stock: d.stock,
+      apiCategory: d.category
+    });
 
-let tr = document.createElement("tr");
+    let tr = document.createElement("tr");
     tr.setAttribute("data-index", item.rowIndex);
 
-if (d.stock === "YOK") tr.classList.add("row-nok");
+    if (d.stock === "YOK") tr.classList.add("row-nok");
 
-    tr.setAttribute("data-index", item.rowIndex);   // *** PATCH ***
+    tr.innerHTML = `
+      <td><img class="thumb" src="${d.image}"></td>
 
-tr.innerHTML = `
-     <td><img class="thumb" src="${d.image}"></td>
+      <td>${d.title.substring(0,60)}...</td>
 
-@@ -205,16 +207,17 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
+      <td>${d.price}</td>
+
+      <td>${item.catName}</td>
+
+      <td>${d.category}</td>
+
+      <td>${item.catCode}</td>
+
+      <td>
+        ${
+          d.stock === "VAR"
+            ? `<a href="${item.link}" target="_blank">Git</a>`
+            : `
+              <input class="newLink" placeholder="Yeni link">
+              <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
+            `
+        }
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById("status").innerText = "Tamamlandı.";
 }
 
 
-// ------------------------------------------
-//     GÜNCELLEME — PATCH UYUMLU
-// ------------------------------------------
 // ===============================
 //     LİNK GÜNCELLEME
 // ===============================
 async function updateLink(btn) {
 
-const tr = btn.closest("tr");
-  const index = parseInt(tr.dataset.index); // *** PATCH ***
+  const tr = btn.closest("tr");
   const index = parseInt(tr.dataset.index);
 
-const input = tr.querySelector(".newLink");
-const newLink = input.value.trim();
-  if (!newLink) return alert("Yeni link boş olamaz!");
+  const input = tr.querySelector(".newLink");
+  const newLink = input.value.trim();
   if (!newLink) return alert("Yeni link boş!");
 
-btn.innerText = "Bekleyin...";
+  btn.innerText = "Bekleyin...";
 
-@@ -239,22 +242,21 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
-   `;
-}
+  let d = await fetch(
+    "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
+    encodeURIComponent(newLink)
+  ).then(r => r.json());
 
-  // JSON GÜNCELLEME — EXCEL SIRALAMALI — *** PATCH ***
-  let real = productData.find(p => p.excelIndex === index);
-  real.link = newLink;
-  real.title = d.title;
-  real.price = d.price;
-  real.image = d.image;
-  real.apiCategory = d.category;
-  real.stock = d.stock;
+  tr.children[0].querySelector("img").src = d.image;
+  tr.children[1].innerHTML = d.title.substring(0,60) + "...";
+  tr.children[2].innerText = d.price;
+  tr.children[4].innerText = d.category;
+
+  if (d.stock === "VAR") {
+    tr.classList.remove("row-nok");
+    tr.children[6].innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
+  } else {
+    tr.classList.add("row-nok");
+    tr.children[6].innerHTML = `
+      <input class="newLink" placeholder="Yeni link">
+      <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
+    `;
+  }
+
   let item = productData.find(p => p.excelIndex === index);
   item.link = newLink;
   item.title = d.title;
@@ -101,24 +250,29 @@ btn.innerText = "Bekleyin...";
   item.apiCategory = d.category;
   item.stock = d.stock;
 
-btn.innerText = "Güncelle";
+  btn.innerText = "Güncelle";
 }
 
 
-// ------------------------------------------
-//            products.json üret
-// ------------------------------------------
 // ===============================
 //     products.json üret
 // ===============================
 function generateProducts() {
 
-if (productData.length === 0)
-@@ -271,4 +273,18 @@ <h3>Excel → Ürün Görüntüleme & HIT Üretici</h3>
-output[p.catCode].push(p.link);
-}
+  if (productData.length === 0)
+    return alert("Önce Excel yükle!");
 
-  const blob = new Blob([JSON.s]()
+  let output = {};
+
+  for (let i = 1; i <= 111; i++) {
+    output["CAT" + String(i).padStart(3, "0")] = [];
+  }
+
+  for (let p of productData) {
+    if (!output[p.catCode]) output[p.catCode] = [];
+    output[p.catCode].push(p.link);
+  }
+
   const blob = new Blob([JSON.stringify(output, null, 2)], {
     type: "application/json"
   });
