@@ -85,6 +85,8 @@ function renderRow(i, catName, CAT, link, api){
     const tbody = document.querySelector("#productTable tbody");
 
     let tr = document.createElement("tr");
+    tr.id = "row_" + i;
+
     if(api.stock === "YOK") tr.classList.add("red-row");
 
     let html = "";
@@ -125,20 +127,8 @@ async function updateLink(i, CAT){
     PRODUCTS[CAT] = newLink;
 
     const api = await fetchAPI(newLink);
-    const row = document.getElementById("row_"+i);
 
-    row.innerHTML = `
-      <td><img src="${api.image}"></td>
-      <td>${api.title}</td>
-      <td>${api.price}</td>
-      <td>-</td>
-      <td>${api.category}</td>
-      <td>${CAT}</td>
-      <td>
-        <a class="git-link" href="${newLink}" target="_blank">Git</a>
-        <button class="slider-btn" onclick="generateSlider('${CAT}')">Slider Üret</button>
-      </td>
-    `;
+    renderRow(i, "-", CAT, newLink, api); // doğru render
 }
 
 /* -------------------------------------------------------
@@ -158,7 +148,7 @@ function blankAPI(){
 }
 
 /* -------------------------------------------------------
-   CATEGORY MAP LOAD
+   CATEGORY MAP YÜKLE
 ------------------------------------------------------- */
 async function loadCategoryMap(){
     if(CATEGORY_MAP) return;
@@ -207,7 +197,7 @@ async function generateSlider(mainCAT){
 }
 
 /* -------------------------------------------------------
-   KIRILMAZ SLIDER HTML OLUŞTURUCU
+   KIRILMAZ SLIDER HTML TEMPLATE
 ------------------------------------------------------- */
 function buildSliderHTML(items){
 
@@ -233,8 +223,8 @@ function buildSliderHTML(items){
     h += "<script>";
     h += "let index=0;";
     h += "window.onload=function(){";
-    h += "const t=document.getElementById('sliderTrack');";
-    h += "const s=[...t.children]; const w=168;";
+    h += "var t=document.getElementById('sliderTrack');";
+    h += "var s=t.children; var w=168;";
     h += "document.querySelector('.slider-next').onclick=function(){index++; if(index>=s.length-8) index=0; t.style.transform='translateX('+(-index*w)+'px)';};";
     h += "document.querySelector('.slider-prev').onclick=function(){index--; if(index<0) index=s.length-8; t.style.transform='translateX('+(-index*w)+'px)';};";
     h += "}";
