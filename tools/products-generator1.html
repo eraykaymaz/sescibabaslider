@@ -2,77 +2,24 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel → Ürün Görüntüleme & Slider Üretici</title>
+<title>Excel → Kategori Bazlı Slider Üretici</title>
 
 <style>
-body{font-family:Arial;padding:15px;background:#f2f2f2;}
-
+body{font-family:Arial;padding:15px;background:#f5f5f5;}
 table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
-th,td{border:1px solid #ccc;padding:4px 6px;}
-
-.red-row{
-  background:#ffe3e3!important;
-  transition: background 0.6s ease;
-}
-
+th,td{border:1px solid #ccc;padding:6px;}
 img{width:65px;height:65px;object-fit:contain;}
-
-.flex-row{
-  display:flex;
-  gap:4px;
-  align-items:center;
-  justify-content:flex-start;
-}
-
-.link-input{
-  width:160px;
-  padding:3px;
-  font-size:12px;
-  border:1px solid #aaa;
-  border-radius:4px;
-}
-
-.button-small{
-  padding:4px 7px;
-  font-size:12px;
-  border:0;
-  border-radius:4px;
-  cursor:pointer;
-}
-.btn-update{background:#1976d2;color:#fff;}
-
-.btn-generate{
-  margin-top:10px;
-  background:#2e7d32;
-  color:#fff;
-  padding:8px 14px;
-  font-size:14px;
-  border:0;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.git-link{
-  color:#0d47a1;
-  font-weight:bold;
-  font-size:12px;
-}
-
-.slider-btn{
-  background:#ff8c00;
-  color:white;
-  padding:5px 8px;
-  font-size:12px;
-  border:0;
-  border-radius:4px;
-  cursor:pointer;
-}
+.red-row{background:#ffe3e3;transition:.3s;}
+.slider-btn{background:#ff8c00;color:#fff;border:0;padding:5px 8px;font-size:12px;border-radius:4px;cursor:pointer;}
+.update-btn{background:#1976d2;color:#fff;border:0;padding:4px 6px;font-size:12px;border-radius:4px;cursor:pointer;margin-left:4px;}
+.link-input{width:150px;padding:4px;font-size:12px;}
+.git-link{color:#0d47a1;font-weight:bold;}
 </style>
-
 </head>
+
 <body>
 
-<h2>Excel → Ürün Görüntüleme & Slider Üretici</h2>
+<h2>Kategori Bazlı HTML Slider Üretici</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -83,7 +30,7 @@ img{width:65px;height:65px;object-fit:contain;}
   <th>Başlık</th>
   <th>Fiyat</th>
   <th>Kategori / API Kategori</th>
-  <th>CAT</th>
+  <th>A-KODU</th>
   <th>Link</th>
   <th>Üret</th>
 </tr>
@@ -92,418 +39,178 @@ img{width:65px;height:65px;object-fit:contain;}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
 
 
-
-
-  <script>
-/*************************************************
- * CATEGORY MAP — 111 KATEGORİ (TAMAMINI GÖMDÜM)
+  /*************************************************
+ * A01–B12 KATEGORİ HARİTASI (111 ADET)
  *************************************************/
-const CATEGORY_MAP =
+const CATEGORY_MAP = {
+"A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
+"A02":{"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]},
+"A03":{"related":["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]},
+"A04":{"related":["A50","A51","A48","A49","A52","A53","A54","A55","A57","A58","A59","A60","A16","A61","A89"]},
+"A05":{"related":["A02","A09","A16","A11","A12","A74","A17","A75","A89","A95","A29","A28","A20","A21","A89"]},
+"A06":{"related":["A07","A09","A02","A10","A11","A50","A74","A16","A55","A71","A89","A95","A97","A93","A47"]},
+"A07":{"related":["A06","A09","A02","A10","A11","A74","A16","A28","A20","A47","A89","A93","A95","A29","A37"]},
+"A08":{"related":["A02","A17","A74","A20","A28","A89","A90","A91","A95","A16","A37","A40","A32","A71","A44"]},
+"A09":{"related":["A06","A07","A10","A02","A11","A50","A74","A97","A95","A16","A89","A37","A40","A55","A93"]},
+"A10":{"related":["A02","A06","A07","A09","A11","A50","A37","A40","A89","A16","A95","A97","A74","A93","A91"]},
+"A11":{"related":["A01","A02","A03","A05","A09","A10","A37","A40","A50","A74","A89","A95","A97","A16","A93"]},
+"A12":{"related":["A02","A05","A17","A28","A20","A29","A74","A89","A91","A71","A93","A16","A40","A32","A37"]},
+"A13":{"related":["A05","A17","A20","A28","A29","A74","A89","A71","A91","A93","A16","A95","A97","A12","A08"]},
+"A14":{"related":["A02","A03","A40","A57","A58","A12","A11","A50","A37","A16","A89","A90","A91","A93","A95"]},
+"A15":{"related":["A02","A50","A55","A06","A07","A09","A71","A74","A89","A95","A16","A90","A93","A47","A28"]},
+"A16":{"related":["A03","A04","A05","A02","A17","A20","A28","A74","A89","A95","A97","A47","A12","A09","A40"]},
+"A17":{"related":["A74","A75","A20","A28","A29","A89","A17","A91","A93","A95","A12","A16","A26","A27","A25"]},
+"A18":{"related":["A17","A20","A28","A29","A74","A89","A91","A93","A16","A71","A95","A08","A37","A12","A13"]},
+"A19":{"related":["A17","A74","A28","A29","A20","A89","A93","A91","A95","A75","A12","A16","A26","A27","A25"]},
+"A20":{"related":["A17","A18","A19","A28","A29","A74","A89","A91","A93","A16","A95","A12","A13","A37","A40"]},
+"A21":{"related":["A17","A18","A19","A20","A28","A27","A26","A25","A89","A91","A93","A16","A95","A12","A13"]},
+"A22":{"related":["A36","A31","A40","A17","A18","A89","A93","A91","A16","A95","A92","A83","A84","A85","A88"]},
+"A23":{"related":["A21","A22","A17","A18","A89","A93","A91","A24","A25","A26","A27","A16","A95","A58","A36"]},
+"A24":{"related":["A23","A17","A27","A26","A25","A89","A93","A91","A16","A95","A58","A31","A36","A40","A03"]},
+"A25":{"related":["A17","A21","A22","A23","A28","A20","A89","A93","A91","A16","A95","A26","A27","A18","A19"]},
+"A26":{"related":["A17","A21","A22","A23","A27","A28","A89","A91","A93","A16","A95","A25","A18","A20","A19"]},
+"A27":{"related":["A17","A21","A23","A26","A25","A28","A89","A91","A93","A16","A95","A24","A18","A19","A20"]},
+"A28":{"related":["A17","A18","A19","A20","A21","A25","A26","A27","A74","A89","A93","A91","A16","A95","A12"]},
+"A29":{"related":["A17","A18","A19","A20","A28","A06","A07","A50","A55","A89","A93","A91","A16","A95","A12"]},
+"A30":{"related":["A17","A18","A19","A20","A28","A29","A16","A95","A93","A89","A12","A61","A71","A07","A06"]},
+"A31":{"related":["A32","A33","A40","A58","A57","A14","A37","A03","A36","A22","A92","A89","A95","A93","A16"]},
+"A32":{"related":["A03","A34","A35","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]},
+"A33":{"related":["A03","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95","A14"]},
+"A34":{"related":["A32","A33","A03","A37","A40","A44","A47","A16","A22","A89","A90","A91","A93","A95","A14"]},
+"A35":{"related":["A34","A32","A33","A03","A22","A92","A89","A90","A91","A93","A57","A58","A16","A95","A14"]},
+"A36":{"related":["A22","A23","A24","A31","A40","A58","A92","A89","A93","A91","A16","A95","A03","A32","A33"]},
+"A37":{"related":["A33","A32","A34","A03","A02","A11","A10","A44","A47","A40","A89","A93","A91","A95","A16"]},
+"A38":{"related":["A36","A22","A92","A89","A93","A91","A58","A31","A40","A03","A32","A33","A16","A95","A57"]},
+"A39":{"related":["A37","A33","A32","A03","A02","A44","A47","A11","A10","A89","A93","A91","A95","A16","A40"]},
 
+"A40":{"related":["A37","A33","A32","A34","A03","A31","A58","A57","A14","A02","A11","A89","A93","A91","A16"]},
+"A41":{"related":["A31","A36","A58","A57","A40","A03","A32","A33","A89","A93","A91","A92","A83","A85","A16"]},
+"A42":{"related":["A37","A40","A33","A32","A03","A02","A11","A58","A16","A89","A91","A93","A95","A14","A57"]},
 
+"A43":{"related":["A37","A33","A32","A34","A03","A02","A11","A10","A89","A93","A91","A95","A16","A12","A20"]},
+"A44":{"related":["A32","A33","A37","A03","A07","A06","A29","A02","A11","A16","A89","A93","A91","A95","A14"]},
 
-    const CATEGORY_MAP = {
-  "CAT001": { "related": ["CAT002","CAT003","CAT004","CAT005","CAT009","CAT011","CAT012","CAT016","CAT032","CAT033","CAT040","CAT047","CAT050","CAT074","CAT089"] },
-  "CAT002": { "related": ["CAT003","CAT004","CAT007","CAT009","CAT011","CAT014","CAT016","CAT032","CAT033","CAT037","CAT040","CAT047","CAT050","CAT074","CAT089"] },
-  "CAT003": { "related": ["CAT032","CAT033","CAT034","CAT037","CAT040","CAT044","CAT047","CAT016","CAT002","CAT011","CAT089","CAT090","CAT091","CAT093","CAT095"] },
-  "CAT004": { "related": ["CAT050","CAT051","CAT048","CAT049","CAT052","CAT053","CAT054","CAT055","CAT057","CAT058","CAT059","CAT060","CAT016","CAT061","CAT089"] },
-  "CAT005": { "related": ["CAT002","CAT009","CAT016","CAT011","CAT012","CAT074","CAT017","CAT075","CAT089","CAT095","CAT029","CAT028","CAT020","CAT021","CAT089"] },
-  "CAT006": { "related": ["CAT007","CAT009","CAT002","CAT010","CAT011","CAT050","CAT074","CAT016","CAT055","CAT071","CAT089","CAT095","CAT097","CAT093","CAT047"] },
-  "CAT007": { "related": ["CAT006","CAT009","CAT002","CAT010","CAT011","CAT074","CAT016","CAT028","CAT020","CAT047","CAT089","CAT093","CAT095","CAT029","CAT037"] },
-  "CAT008": { "related": ["CAT002","CAT017","CAT074","CAT020","CAT028","CAT089","CAT090","CAT091","CAT095","CAT016","CAT037","CAT040","CAT032","CAT071","CAT044"] },
-  "CAT009": { "related": ["CAT006","CAT007","CAT010","CAT002","CAT011","CAT050","CAT074","CAT097","CAT095","CAT016","CAT089","CAT037","CAT040","CAT055","CAT093"] },
-  "CAT010": { "related": ["CAT002","CAT006","CAT007","CAT009","CAT011","CAT050","CAT037","CAT040","CAT089","CAT016","CAT095","CAT097","CAT074","CAT093","CAT091"] },
-  "CAT011": { "related": ["CAT001","CAT002","CAT003","CAT005","CAT009","CAT010","CAT037","CAT040","CAT050","CAT074","CAT089","CAT095","CAT097","CAT016","CAT093"] },
-  "CAT012": { "related": ["CAT002","CAT005","CAT017","CAT028","CAT020","CAT029","CAT074","CAT089","CAT091","CAT071","CAT093","CAT016","CAT040","CAT032","CAT037"] },
-  "CAT013": { "related": ["CAT005","CAT017","CAT020","CAT028","CAT029","CAT074","CAT089","CAT071","CAT091","CAT093","CAT016","CAT095","CAT097","CAT012","CAT008"] },
-  "CAT014": { "related": ["CAT002","CAT003","CAT040","CAT057","CAT058","CAT012","CAT011","CAT050","CAT037","CAT016","CAT089","CAT090","CAT091","CAT093","CAT095"] },
-  "CAT015": { "related": ["CAT002","CAT050","CAT055","CAT006","CAT007","CAT009","CAT071","CAT074","CAT089","CAT095","CAT016","CAT090","CAT093","CAT047","CAT028"] },
-  "CAT016": { "related": ["CAT003","CAT004","CAT005","CAT002","CAT017","CAT020","CAT028","CAT074","CAT089","CAT095","CAT097","CAT047","CAT012","CAT009","CAT040"] },
-  "CAT017": { "related": ["CAT074","CAT075","CAT020","CAT028","CAT029","CAT089","CAT017","CAT091","CAT093","CAT095","CAT012","CAT016","CAT026","CAT027","CAT025"] },
-  "CAT018": { "related": ["CAT017","CAT020","CAT028","CAT029","CAT074","CAT089","CAT091","CAT093","CAT016","CAT071","CAT095","CAT008","CAT037","CAT012","CAT013"] },
-  "CAT019": { "related": ["CAT017","CAT074","CAT028","CAT029","CAT020","CAT089","CAT093","CAT091","CAT095","CAT075","CAT012","CAT016","CAT026","CAT027","CAT025"] },
-  "CAT020": { "related": ["CAT017","CAT018","CAT019","CAT028","CAT029","CAT074","CAT089","CAT091","CAT093","CAT016","CAT095","CAT012","CAT013","CAT037","CAT040"] },
+"A45":{"related":["A17","A21","A18","A25","A26","A27","A28","A89","A93","A91","A16","A95","A37","A03","A02"]},
+"A46":{"related":["A32","A33","A34","A35","A03","A36","A58","A37","A40","A16","A89","A93","A91","A95","A14"]},
 
-  "CAT021": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT027","CAT026","CAT025","CAT089","CAT091","CAT093","CAT016","CAT095","CAT012","CAT013"] },
-  "CAT022": { "related": ["CAT036","CAT031","CAT040","CAT017","CAT018","CAT089","CAT093","CAT091","CAT016","CAT095","CAT092","CAT083","CAT084","CAT085","CAT088"] },
-  "CAT023": { "related": ["CAT021","CAT022","CAT017","CAT018","CAT089","CAT093","CAT091","CAT024","CAT025","CAT026","CAT027","CAT016","CAT095","CAT058","CAT036"] },
-  "CAT024": { "related": ["CAT023","CAT017","CAT027","CAT026","CAT025","CAT089","CAT093","CAT091","CAT016","CAT095","CAT058","CAT031","CAT036","CAT040","CAT003"] },
-  "CAT025": { "related": ["CAT017","CAT021","CAT022","CAT023","CAT028","CAT020","CAT089","CAT093","CAT091","CAT016","CAT095","CAT026","CAT027","CAT018","CAT019"] },
-  "CAT026": { "related": ["CAT017","CAT021","CAT022","CAT023","CAT027","CAT028","CAT089","CAT091","CAT093","CAT016","CAT095","CAT025","CAT018","CAT020","CAT019"] },
-  "CAT027": { "related": ["CAT017","CAT021","CAT023","CAT026","CAT025","CAT028","CAT089","CAT091","CAT093","CAT016","CAT095","CAT024","CAT018","CAT019","CAT020"] },
-  "CAT028": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT021","CAT025","CAT026","CAT027","CAT074","CAT089","CAT093","CAT091","CAT016","CAT095","CAT012"] },
-  "CAT029": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT006","CAT007","CAT050","CAT055","CAT089","CAT093","CAT091","CAT016","CAT095","CAT012"] },
+"A47":{"related":["A03","A32","A33","A34","A37","A40","A44","A16","A95","A89","A93","A91","A02","A11","A12"]},
 
-  "CAT030": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT029","CAT016","CAT095","CAT093","CAT089","CAT012","CAT061","CAT071","CAT007","CAT006"] },
+"A48":{"related":["A49","A52","A54","A55","A56","A57","A58","A04","A60","A16","A89","A93","A95","A61","A53"]},
+"A49":{"related":["A48","A54","A52","A50","A53","A04","A55","A56","A57","A58","A16","A61","A89","A93","A95"]},
 
-  "CAT031": { "related": ["CAT032","CAT033","CAT040","CAT058","CAT057","CAT014","CAT037","CAT003","CAT036","CAT022","CAT092","CAT089","CAT095","CAT093","CAT016"] },
+"A50":{"related":["A04","A48","A49","A52","A53","A54","A58","A55","A56","A59","A16","A89","A93","A95","A02"]},
 
-  "CAT032": { "related": ["CAT003","CAT034","CAT035","CAT037","CAT040","CAT044","CAT047","CAT016","CAT002","CAT011","CAT089","CAT090","CAT091","CAT093","CAT095"] },
-  "CAT033": { "related": ["CAT003","CAT034","CAT037","CAT040","CAT044","CAT047","CAT016","CAT002","CAT011","CAT089","CAT090","CAT091","CAT093","CAT095","CAT014"] },
-  "CAT034": { "related": ["CAT032","CAT033","CAT003","CAT037","CAT040","CAT044","CAT047","CAT016","CAT022","CAT089","CAT090","CAT091","CAT093","CAT095","CAT014"] },
-  "CAT035": { "related": ["CAT034","CAT032","CAT033","CAT003","CAT022","CAT092","CAT089","CAT090","CAT091","CAT093","CAT057","CAT058","CAT016","CAT095","CAT014"] },
-  "CAT036": { "related": ["CAT022","CAT023","CAT024","CAT031","CAT040","CAT058","CAT092","CAT089","CAT093","CAT091","CAT016","CAT095","CAT003","CAT032","CAT033"] },
+"A51":{"related":["A04","A50","A66","A62","A55","A67","A68","A69","A54","A52","A58","A16","A89","A93","A95"]},
 
-  "CAT037": { "related": ["CAT033","CAT032","CAT034","CAT003","CAT002","CAT011","CAT010","CAT044","CAT047","CAT040","CAT089","CAT093","CAT091","CAT095","CAT016"] },
-  "CAT038": { "related": ["CAT036","CAT022","CAT092","CAT089","CAT093","CAT091","CAT058","CAT031","CAT040","CAT003","CAT032","CAT033","CAT016","CAT095","CAT057"] },
-  "CAT039": { "related": ["CAT037","CAT033","CAT032","CAT003","CAT002","CAT044","CAT047","CAT011","CAT010","CAT089","CAT093","CAT091","CAT095","CAT016","CAT040"] },
+"A52":{"related":["A48","A49","A50","A54","A53","A56","A57","A58","A60","A04","A16","A61","A89","A93","A95"]},
 
-  "CAT040": { "related": ["CAT037","CAT033","CAT032","CAT034","CAT003","CAT031","CAT058","CAT057","CAT014","CAT002","CAT011","CAT089","CAT093","CAT091","CAT016"] },
-  "CAT041": { "related": ["CAT031","CAT036","CAT058","CAT057","CAT040","CAT003","CAT032","CAT033","CAT089","CAT093","CAT091","CAT092","CAT083","CAT085","CAT016"] },
-  "CAT042": { "related": ["CAT037","CAT040","CAT033","CAT032","CAT003","CAT002","CAT011","CAT058","CAT016","CAT089","CAT091","CAT093","CAT095","CAT014","CAT057"] },
+"A53":{"related":["A48","A49","A50","A54","A52","A04","A59","A61","A16","A89","A93","A95","A78","A77","A75"]},
 
-  "CAT043": { "related": ["CAT037","CAT033","CAT032","CAT034","CAT003","CAT002","CAT011","CAT010","CAT089","CAT093","CAT091","CAT095","CAT016","CAT012","CAT020"] },
-  "CAT044": { "related": ["CAT032","CAT033","CAT037","CAT003","CAT007","CAT006","CAT029","CAT002","CAT011","CAT016","CAT089","CAT093","CAT091","CAT095","CAT014"] },
+"A54":{"related":["A48","A49","A52","A50","A04","A55","A56","A57","A58","A61","A16","A89","A93","A95","A53"]},
 
-  "CAT045": { "related": ["CAT017","CAT021","CAT018","CAT025","CAT026","CAT027","CAT028","CAT089","CAT093","CAT091","CAT016","CAT095","CAT037","CAT003","CAT002"] },
-  "CAT046": { "related": ["CAT032","CAT033","CAT034","CAT035","CAT003","CAT036","CAT058","CAT037","CAT040","CAT016","CAT089","CAT093","CAT091","CAT095","CAT014"] },
+"A55":{"related":["A48","A49","A52","A50","A54","A56","A57","A58","A61","A04","A89","A93","A95","A97","A09"]},
 
-  "CAT047": { "related": ["CAT003","CAT032","CAT033","CAT034","CAT037","CAT040","CAT044","CAT016","CAT095","CAT089","CAT093","CAT091","CAT002","CAT011","CAT012"] },
+"A56":{"related":["A48","A49","A52","A54","A55","A57","A58","A60","A04","A61","A16","A89","A93","A95","A53"]},
 
-  "CAT048": { "related": ["CAT049","CAT052","CAT054","CAT055","CAT056","CAT057","CAT058","CAT004","CAT060","CAT016","CAT089","CAT093","CAT095","CAT061","CAT053"] },
-  "CAT049": { "related": ["CAT048","CAT054","CAT052","CAT050","CAT053","CAT004","CAT055","CAT056","CAT057","CAT058","CAT016","CAT061","CAT089","CAT093","CAT095"] },
+"A57":{"related":["A48","A52","A54","A55","A56","A04","A58","A59","A60","A16","A89","A93","A95","A33","A03"]},
 
-  "CAT050": { "related": ["CAT004","CAT048","CAT049","CAT052","CAT053","CAT054","CAT058","CAT055","CAT056","CAT059","CAT016","CAT089","CAT093","CAT095","CAT002"] },
-  "CAT051": { "related": ["CAT004","CAT050","CAT066","CAT062","CAT055","CAT067","CAT068","CAT069","CAT054","CAT052","CAT058","CAT016","CAT089","CAT093","CAT095"] },
+"A58":{"related":["A48","A49","A52","A54","A55","A57","A04","A50","A61","A16","A89","A93","A95","A40","A31"]},
 
-  "CAT052": { "related": ["CAT048","CAT049","CAT050","CAT054","CAT053","CAT056","CAT057","CAT058","CAT060","CAT004","CAT016","CAT061","CAT089","CAT093","CAT095"] },
+"A59":{"related":["A48","A49","A50","A53","A57","A04","A17","A20","A28","A74","A89","A93","A95","A16","A43"]},
 
-  "CAT053": { "related": ["CAT048","CAT049","CAT050","CAT054","CAT052","CAT004","CAT059","CAT061","CAT016","CAT089","CAT093","CAT095","CAT078","CAT077","CAT075"] },
+"A60":{"related":["A48","A52","A54","A56","A57","A04","A61","A16","A89","A93","A95","A55","A58","A49","A53"]},
 
-  "CAT054": { "related": ["CAT048","CAT049","CAT052","CAT050","CAT004","CAT055","CAT056","CAT057","CAT058","CAT061","CAT016","CAT089","CAT093","CAT095","CAT053"] },
+"A61":{"related":["A48","A49","A50","A52","A53","A54","A55","A57","A58","A60","A04","A59","A16","A89","A93"]},
 
-  "CAT055": { "related": ["CAT048","CAT049","CAT052","CAT050","CAT054","CAT056","CAT057","CAT058","CAT061","CAT004","CAT089","CAT093","CAT095","CAT097","CAT009"] },
+"A62":{"related":["A63","A64","A65","A66","A67","A68","A69","A70","A71","A72","A73","A51","A54","A17","A74"]},
 
-  "CAT056": { "related": ["CAT048","CAT049","CAT052","CAT054","CAT055","CAT057","CAT058","CAT060","CAT004","CAT061","CAT016","CAT089","CAT093","CAT095","CAT053"] },
+"A63":{"related":["A62","A67","A68","A69","A70","A71","A72","A73","A51","A54","A17","A74","A89","A93","A95"]},
 
-  "CAT057": { "related": ["CAT048","CAT052","CAT054","CAT055","CAT056","CAT004","CAT058","CAT059","CAT060","CAT016","CAT089","CAT093","CAT095","CAT033","CAT003"] },
+"A64":{"related":["A51","A54","A62","A63","A67","A68","A17","A74","A75","A89","A93","A95","A05","A28","A20"]},
 
-  "CAT058": { "related": ["CAT048","CAT049","CAT052","CAT054","CAT055","CAT057","CAT004","CAT050","CAT061","CAT016","CAT089","CAT093","CAT095","CAT040","CAT031"] },
+"A65":{"related":["A62","A63","A66","A51","A54","A68","A69","A17","A74","A89","A93","A95","A73","A71","A70"]},
 
-  "CAT059": { "related": ["CAT048","CAT049","CAT050","CAT053","CAT057","CAT004","CAT017","CAT020","CAT028","CAT074","CAT089","CAT093","CAT095","CAT016","CAT043"] },
+"A66":{"related":["A51","A50","A54","A55","A48","A62","A63","A67","A68","A69","A65","A74","A93","A89","A95"]},
 
-  "CAT060": { "related": ["CAT048","CAT052","CAT054","CAT056","CAT057","CAT004","CAT061","CAT016","CAT089","CAT093","CAT095","CAT055","CAT058","CAT049","CAT053"] },
+"A67":{"related":["A62","A63","A64","A65","A68","A51","A54","A71","A89","A93","A95","A17","A74","A28","A20"]},
 
-  "CAT061": { "related": ["CAT048","CAT049","CAT050","CAT052","CAT053","CAT054","CAT055","CAT057","CAT058","CAT060","CAT004","CAT059","CAT016","CAT089","CAT093"] },
+"A68":{"related":["A62","A63","A65","A67","A51","A54","A66","A69","A70","A17","A74","A89","A93","A95","A73"]},
 
-  "CAT062": { "related": ["CAT063","CAT064","CAT065","CAT066","CAT067","CAT068","CAT069","CAT070","CAT071","CAT072","CAT073","CAT051","CAT054","CAT017","CAT074"] },
+"A69":{"related":["A62","A63","A65","A67","A68","A51","A54","A66","A17","A74","A89","A93","A95","A70","A73"]},
 
-  "CAT063": { "related": ["CAT062","CAT067","CAT068","CAT069","CAT070","CAT071","CAT072","CAT073","CAT051","CAT054","CAT017","CAT074","CAT089","CAT093","CAT095"] },
+"A70":{"related":["A62","A63","A65","A67","A68","A69","A51","A54","A66","A71","A17","A74","A89","A93","A95"]},
 
-  "CAT064": { "related": ["CAT051","CAT054","CAT062","CAT063","CAT067","CAT068","CAT017","CAT074","CAT075","CAT089","CAT093","CAT095","CAT005","CAT028","CAT020"] },
+"A71":{"related":["A62","A63","A67","A70","A51","A54","A66","A74","A89","A93","A95","A09","A06","A07","A28"]},
 
-  "CAT065": { "related": ["CAT062","CAT063","CAT066","CAT051","CAT054","CAT068","CAT069","CAT017","CAT074","CAT089","CAT093","CAT095","CAT073","CAT071","CAT070"] },
+"A72":{"related":["A62","A63","A65","A67","A68","A71","A73","A51","A54","A74","A89","A93","A95","A09","A06"]},
 
-  "CAT066": { "related": ["CAT051","CAT050","CAT054","CAT055","CAT048","CAT062","CAT063","CAT067","CAT068","CAT069","CAT065","CAT074","CAT093","CAT089","CAT095"] },
+"A73":{"related":["A62","A63","A65","A67","A68","A51","A54","A66","A61","A59","A16","A17","A74","A89","A93"]},
 
-  "CAT067": { "related": ["CAT062","CAT063","CAT064","CAT065","CAT068","CAT051","CAT054","CAT071","CAT089","CAT093","CAT095","CAT017","CAT074","CAT028","CAT020"] },
+"A74":{"related":["A17","A18","A19","A20","A28","A75","A76","A77","A78","A79","A89","A91","A93","A16","A95"]},
 
-  "CAT068": { "related": ["CAT062","CAT063","CAT065","CAT067","CAT051","CAT054","CAT066","CAT069","CAT070","CAT017","CAT074","CAT089","CAT093","CAT095","CAT073"] },
+"A75":{"related":["A74","A17","A19","A20","A78","A79","A76","A77","A89","A93","A95","A16","A28","A29","A53"]},
 
-  "CAT069": { "related": ["CAT062","CAT063","CAT065","CAT067","CAT068","CAT051","CAT054","CAT066","CAT017","CAT074","CAT089","CAT093","CAT095","CAT070","CAT073"] },
+"A76":{"related":["A74","A17","A18","A79","A78","A75","A77","A89","A93","A95","A16","A27","A26","A25","A20"]},
 
-  "CAT070": { "related": ["CAT062","CAT063","CAT065","CAT067","CAT068","CAT051","CAT054","CAT066","CAT071","CAT017","CAT074","CAT089","CAT093","CAT095","CAT073"] },
+"A77":{"related":["A75","A76","A74","A78","A79","A17","A29","A53","A89","A93","A95","A16","A20","A05","A28"]},
 
-  "CAT071": { "related": ["CAT062","CAT063","CAT067","CAT070","CAT051","CAT054","CAT066","CAT074","CAT089","CAT093","CAT095","CAT009","CAT006","CAT007","CAT028"] },
+"A78":{"related":["A75","A76","A77","A74","A79","A17","A66","A53","A89","A93","A95","A16","A20","A71","A73"]},
 
-  "CAT072": { "related": ["CAT062","CAT063","CAT065","CAT067","CAT068","CAT071","CAT073","CAT051","CAT054","CAT074","CAT089","CAT093","CAT095","CAT009","CAT006"] },
+"A79":{"related":["A74","A75","A76","A77","A78","A17","A79","A54","A48","A49","A89","A93","A95","A16","A20"]},
 
-  "CAT073": { "related": ["CAT062","CAT063","CAT065","CAT067","CAT068","CAT051","CAT054","CAT066","CAT061","CAT059","CAT016","CAT017","CAT074","CAT089","CAT093"] },
+"A80":{"related":["A81","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A90","A91"]},
 
-  "CAT074": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT075","CAT076","CAT077","CAT078","CAT079","CAT089","CAT091","CAT093","CAT016","CAT095"] },
+"A81":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
 
-  "CAT075": { "related": ["CAT074","CAT017","CAT019","CAT020","CAT078","CAT079","CAT076","CAT077","CAT089","CAT093","CAT095","CAT016","CAT028","CAT029","CAT053"] },
+"A82":{"related":["A80","A81","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
 
-  "CAT076": { "related": ["CAT074","CAT017","CAT018","CAT079","CAT078","CAT075","CAT077","CAT089","CAT093","CAT016","CAT095","CAT027","CAT026","CAT025","CAT020"] },
+"A83":{"related":["A80","A82","A84","A85","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A36"]},
 
-  "CAT077": { "related": ["CAT075","CAT076","CAT074","CAT078","CAT079","CAT017","CAT029","CAT053","CAT089","CAT093","CAT095","CAT016","CAT020","CAT005","CAT028"] },
+"A84":{"related":["A80","A82","A83","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
 
-  "CAT078": { "related": ["CAT075","CAT076","CAT077","CAT074","CAT079","CAT017","CAT066","CAT053","CAT089","CAT093","CAT095","CAT016","CAT020","CAT071","CAT073"] },
+"A85":{"related":["A80","A82","A83","A84","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A72"]},
 
-  "CAT079": { "related": ["CAT074","CAT075","CAT076","CAT077","CAT078","CAT017","CAT079","CAT054","CAT048","CAT049","CAT089","CAT093","CAT095","CAT016","CAT020"] },
+"A86":{"related":["A80","A82","A83","A84","A85","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
 
-  "CAT080": { "related": ["CAT081","CAT082","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT090","CAT091"] },
+"A87":{"related":["A80","A82","A83","A84","A85","A86","A88","A92","A93","A89","A16","A95","A97","A72","A41"]},
 
-  "CAT081": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT097","CAT098"] },
+"A88":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97""]},
 
-  "CAT082": { "related": ["CAT080","CAT081","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT097","CAT098"] },
+"A89":{"related":["A17","A18","A19","A20","A02","A03","A37","A40","A50","A72","A62","A74","A89","A93","A91"]},
 
-  "CAT083": { "related": ["CAT080","CAT082","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT091","CAT089","CAT093","CAT016","CAT095","CAT041","CAT036"] },
+"A90":{"related":["A89","A91","A92","A93","A21","A22","A83","A85","A16","A95","A97","A98","A26","A27","A25"]},
 
-  "CAT084": { "related": ["CAT080","CAT082","CAT083","CAT085","CAT086","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT081","CAT097","CAT098"] },
+"A91":{"related":["A89","A90","A92","A83","A85","A81","A80","A82","A95","A16","A02","A03","A40","A72","A41"]},
 
-  "CAT085": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT086","CAT087","CAT088","CAT092","CAT091","CAT089","CAT093","CAT016","CAT095","CAT041","CAT072"] },
+"A92":{"related":["A80","A81","A82","A83","A84","A85","A86","A87","A88","A91","A89","A93","A16","A95","A97"]},
 
-  "CAT086": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT085","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT081","CAT097","CAT098"] },
+"A93":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A91","A89","A16","A95","A97","A98"]},
 
-  "CAT087": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT085","CAT086","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT097","CAT072","CAT041"] },
+"A94":{"related":["A16","A47","A95","A93","A89","A03","A32","A33","A34","A37","A40","A61","A30","A71","A97"]},
 
-  "CAT088": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT093","CAT089","CAT016","CAT095","CAT081","CAT097","CAT098"] },
+"A95":{"related":["A16","A94","A47","A93","A89","A02","A03","A37","A40","A17","A20","A28","A74","A71","A97"]},
 
-  "CAT089": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT002","CAT003","CAT037","CAT040","CAT050","CAT072","CAT062","CAT074","CAT089","CAT093","CAT091"] },
+"A96":{"related":["A95","A16","A94","A93","A89","A17","A20","A28","A02","A03","A40","A37","A74","A71","A97"]},
 
-  "CAT090": { "related": ["CAT089","CAT091","CAT092","CAT093","CAT021","CAT022","CAT083","CAT085","CAT016","CAT095","CAT097","CAT098","CAT026","CAT027","CAT025"] },
+"A97":{"related":["A09","A10","A71","A62","A63","A54","A55","A79","A81","A82","A93","A98","A95","A16","A89"]},
 
-  "CAT091": { "related": ["CAT089","CAT090","CAT092","CAT083","CAT085","CAT081","CAT080","CAT082","CAT095","CAT016","CAT002","CAT003","CAT040","CAT072","CAT041"] },
+"A98":{"related":["A97","A93","A94","A95","A61","A73","A71","A62","A63","A17","A89","A16","A20","A28","A30"]},
 
-  "CAT092": { "related": ["CAT080","CAT081","CAT082","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT091","CAT089","CAT093","CAT016","CAT095","CAT097"] },
+"A99":{"related":["A97","A98","A81","A80","A82","A93","A95","A16","A89","A90","A92","A91","A83","A85","A84"]},
 
-  "CAT093": { "related": ["CAT080","CAT082","CAT083","CAT084","CAT085","CAT086","CAT087","CAT088","CAT092","CAT091","CAT089","CAT016","CAT095","CAT097","CAT098"] },
-
-  "CAT094": { "related": ["CAT016","CAT047","CAT095","CAT093","CAT089","CAT003","CAT032","CAT033","CAT034","CAT037","CAT040","CAT061","CAT030","CAT071","CAT097"] },
-
-  "CAT095": { "related": ["CAT016","CAT094","CAT047","CAT093","CAT089","CAT002","CAT003","CAT037","CAT040","CAT017","CAT020","CAT028","CAT074","CAT071","CAT097"] },
-
-  "CAT096": { "related": ["CAT095","CAT016","CAT094","CAT093","CAT089","CAT017","CAT020","CAT028","CAT002","CAT003","CAT040","CAT037","CAT074","CAT071","CAT097"] },
-
-  "CAT097": { "related": ["CAT009","CAT010","CAT071","CAT062","CAT063","CAT054","CAT055","CAT079","CAT081","CAT082","CAT093","CAT098","CAT095","CAT016","CAT089"] },
-
-  "CAT098": { "related": ["CAT097","CAT093","CAT094","CAT095","CAT061","CAT073","CAT071","CAT062","CAT063","CAT017","CAT089","CAT016","CAT020","CAT028","CAT030"] },
-
-  "CAT099": { "related": ["CAT097","CAT098","CAT081","CAT080","CAT082","CAT093","CAT095","CAT016","CAT089","CAT090","CAT092","CAT091","CAT083","CAT085","CAT084"] },
-
-  "CAT100": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT089","CAT093","CAT016","CAT095","CAT022","CAT023","CAT025","CAT026","CAT027","CAT021"] },
-
-  "CAT101": { "related": ["CAT100","CAT017","CAT018","CAT019","CAT020","CAT028","CAT089","CAT093","CAT016","CAT095","CAT025","CAT026","CAT027","CAT021","CAT023"] },
-
-  "CAT102": { "related": ["CAT017","CAT018","CAT019","CAT020","CAT028","CAT089","CAT093","CAT091","CAT090","CAT016","CAT095","CAT022","CAT023","CAT021","CAT025"] },
-
-  "CAT103": { "related": ["CAT104","CAT105","CAT106","CAT107","CAT108","CAT109","CAT110","CAT111","CAT017","CAT021","CAT022","CAT089","CAT093","CAT091","CAT016"] },
-
-  "CAT104": { "related": ["CAT103","CAT105","CAT106","CAT107","CAT108","CAT109","CAT110","CAT111","CAT017","CAT021","CAT022","CAT089","CAT093","CAT091","CAT016"] },
-
-  "CAT105": { "related": ["CAT103","CAT104","CAT106","CAT107","CAT108","CAT109","CAT110","CAT111","CAT017","CAT021","CAT089","CAT093","CAT091","CAT016","CAT027"] },
-
-  "CAT106": { "related": ["CAT103","CAT104","CAT105","CAT107","CAT108","CAT109","CAT110","CAT111","CAT017","CAT021","CAT022","CAT089","CAT093","CAT091","CAT016"] },
-
-  "CAT107": { "related": ["CAT103","CAT104","CAT105","CAT106","CAT108","CAT109","CAT110","CAT111","CAT017","CAT021","CAT089","CAT093","CAT091","CAT016","CAT022"] },
-
-  "CAT108": { "related": ["CAT103","CAT104","CAT105","CAT106","CAT107","CAT109","CAT110","CAT111","CAT017","CAT021","CAT089","CAT093","CAT091","CAT016","CAT025"] },
-
-  "CAT109": { "related": ["CAT103","CAT104","CAT105","CAT106","CAT107","CAT108","CAT110","CAT111","CAT017","CAT022","CAT089","CAT093","CAT091","CAT016","CAT023"] },
-
-  "CAT110": { "related": ["CAT103","CAT104","CAT105","CAT106","CAT107","CAT108","CAT109","CAT111","CAT017","CAT022","CAT089","CAT093","CAT091","CAT016","CAT092"] },
-
-  "CAT111": { "related": ["CAT103","CAT104","CAT105","CAT106","CAT107","CAT108","CAT109","CAT110","CAT021","CAT022","CAT089","CAT093","CAT091","CAT016","CAT092"] }
+"B01":{"related":["A17","A18","A19","A20","A28","A89","A93","A16","A95","A22","A23","A25","A26","A27","A21"]},
+"B02":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A16","A95","A25","A26","A27","A21","A23"]},
+"B03":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A90","A16","A95","A22","A23","A21"]},
+"B04":{"related":["B01","A17","A18","A19","A20","A28","A89","A91","A93","A16","A95","A22","A23","A21","A25"]},
+"B05":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A24","A23","A21","A25"]},
+"B06":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
+"B07":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
+"B08":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22"]},
+"B09":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A22","A23","A24"]},
+"B10":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A23","A22","A25"]},
+"B11":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]},
+"B12":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]}
 };
-
-/*************************************************
- * GLOBAL VERİ
- *************************************************/
-let PRODUCTS = {}; // excel + API sonrası güncel link haritası
-
-
-/*************************************************
- * EXCEL YÜKLEME
- *************************************************/
-document.getElementById("excelFile").addEventListener("change", handleExcel);
-
-async function handleExcel(e){
-    const file = e.target.files[0];
-    const data = await file.arrayBuffer();
-    const wb = XLSX.read(data);
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-    const tbody = document.querySelector("#productTable tbody");
-    tbody.innerHTML = "";
-
-    for(let i=1;i<rows.length;i++){
-        const categoryName = rows[i][0];
-        const CAT = rows[i][1];
-        const link = rows[i][2]?.trim();
-
-        if(!CAT) continue;
-
-        if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
-        if(link) PRODUCTS[CAT][0] = link;
-
-        const api = link ? await fetchAPI(link) : {
-            title: "-",
-            image: "",
-            price: "-",
-            category: "-",
-            stock: "YOK"
-        };
-
-        renderRow(i, categoryName, CAT, link, api);
-    }
-}
-
-
-/*************************************************
- * TABLO SATIRI OLUŞTURMA
- *************************************************/
-function renderRow(i, categoryName, CAT, link, api){
-    const tbody = document.querySelector("#productTable tbody");
-    const tr = document.createElement("tr");
-    tr.id = "row_"+i;
-
-    if(api.stock === "YOK") tr.classList.add("red-row");
-
-    tr.innerHTML = `
-        <td id="img_${i}"><img src="${api.image}"></td>
-        <td id="title_${i}">${api.title}</td>
-        <td id="price_${i}">${api.price}</td>
-        <td>
-            ${categoryName}<br>
-            <b id="catapi_${i}" style="color:#555">${api.category}</b>
-        </td>
-        <td>${CAT}</td>
-        <td id="cell_${i}">${linkHTML(i, CAT, link, api.stock)}</td>
-        <td><button class="slider-btn" onclick="createSlider('${CAT}')">Üret</button></td>
-    `;
-
-    tbody.appendChild(tr);
-}
-
-
-function linkHTML(i, CAT, link, stock){
-    if(stock === "VAR" && link){
-        return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
-    }
-
-    return `
-        <div class="flex-row">
-            <input class="link-input" id="inp_${i}" placeholder="Yeni link" value="${link||""}">
-            <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-        </div>
-    `;
-}
-
-
-/*************************************************
- * API ÇEKME
- *************************************************/
-async function fetchAPI(url){
-    try{
-        const r = await fetch(
-            "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(url)
-        );
-        return await r.json();
-    }catch(e){
-        return { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
-    }
-}
-
-
-/*************************************************
- * LİNK GÜNCELLEME (tam satırı yeniler)
- *************************************************/
-window.updateLink = async function(i, CAT){
-    const newLink = document.getElementById("inp_"+i).value.trim();
-    if(!newLink) return;
-
-    PRODUCTS[CAT] = [ newLink ];
-
-    const api = await fetchAPI(newLink);
-
-    document.getElementById("img_"+i).innerHTML = `<img src="${api.image}">`;
-    document.getElementById("title_"+i).innerHTML = api.title;
-    document.getElementById("price_"+i).innerHTML = api.price;
-    document.getElementById("catapi_"+i).innerHTML = api.category;
-
-    const row = document.getElementById("row_"+i);
-    const cell = document.getElementById("cell_"+i);
-
-    if(api.stock === "VAR"){
-        row.classList.remove("red-row");
-        cell.innerHTML = `<a class="git-link" href="${newLink}" target="_blank">Git</a>`;
-    } else {
-        row.classList.add("red-row");
-        cell.innerHTML = linkHTML(i, CAT, newLink, "YOK");
-    }
-};
-
-
-/*************************************************
- * SLIDER ÜRET (CSS + HTML)
- *************************************************/
-window.createSlider = async function(CAT){
-    const related = CATEGORY_MAP[CAT]?.related || [];
-    let items = [];
-
-    for(const rc of related){
-        const link = PRODUCTS[rc]?.[0];
-        if(!link) continue;
-
-        const api = await fetchAPI(link);
-        items.push({ link, ...api });
-    }
-
-    const html = generateSliderHTML(CAT, items);
-
-    const blob = new Blob([html], { type: "text/html" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = CAT + ".html";
-    a.click();
-};
-
-
-/*************************************************
- * SLIDER DOSYA TEMPLATE (CSS ONLY)
- *************************************************/
-function generateSliderHTML(CAT, items){
-return `
-<!DOCTYPE html>
-<html lang='tr'>
-<head>
-<meta charset='UTF-8'>
-<title>${CAT} Slider</title>
-
-<style>
-body{margin:0;padding:0;font-family:Arial;}
-.wrap{position:relative;padding:20px;}
-.slider{display:flex;overflow-x:auto;gap:20px;scroll-behavior:smooth;}
-.item{min-width:150px;text-align:center;}
-img{width:150px;height:150px;object-fit:contain;border-radius:12px;}
-.title{font-size:14px;font-weight:700;margin-top:6px;}
-.price{color:#d30000;font-weight:700;margin-top:4px;}
-.stock{color:#888;font-weight:700;margin-top:4px;}
-.arrow{
-  position:absolute;top:45%;
-  background:#fff;padding:8px;
-  border-radius:50%;cursor:pointer;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
-  user-select:none;
-}
-.left{left:10px;}
-.right{right:10px;}
-</style>
-
-</head>
-<body>
-<div class="wrap">
-  <div class="arrow left" onclick="document.querySelector('.slider').scrollBy({left:-250,behavior:'smooth'})">❮</div>
-  <div class="arrow right" onclick="document.querySelector('.slider').scrollBy({left:250,behavior:'smooth'})">❯</div>
-
-  <div class="slider">
-    ${items.map(p => `
-      <div class="item">
-        <a href="${p.link}" target="_top">
-          <img src="${p.image}">
-        </a>
-        <div class="title">${p.title}</div>
-        ${
-          p.stock === "VAR"
-            ? `<div class="price">${p.price}</div>`
-            : `<div class="stock">Tükendi</div>`
-        }
-      </div>
-    `).join("")}
-  </div>
-</div>
-</body>
-</html>`;
-}
-</script>
-
-</body>
-</html>
-
-
-
-    
