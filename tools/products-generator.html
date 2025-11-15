@@ -5,51 +5,32 @@
 <title>Excel → Ürün Görüntüleme & HIT Üretici</title>
 
 <style>
-body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+body { font-family: Arial; padding: 15px; background:#f2f2f2; }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  margin-top: 20px;
-  font-size: 14px;
-}
+table { width:100%; border-collapse:collapse; background:white; margin-top:15px; font-size:13px; }
+th, td { border:1px solid #ccc; padding:4px 6px; }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
+.red-row { background:#ffe3e3 !important; }
 
-.red-row { background: #ffe1e1 !important; }
-
-button {
-  padding: 6px 10px;
-  font-size: 13px;
-  cursor: pointer;
-}
-.update-btn {
-  background: #1976d2;
-  color:white;
-  border:none;
-  border-radius:4px;
-  margin-left:5px;
-}
-
-.generate-btn {
-  background:#28a745;
-  color:white;
-  padding:10px 16px;
-  border-radius:6px;
-  border:0;
-  margin-top:15px;
-}
+img { width:65px; height:65px; object-fit:contain; }
 
 .link-input {
-  width: 95%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  width:98%; padding:4px; font-size:12px;
+  border:1px solid #aaa; border-radius:4px;
 }
+
+.button-small {
+  padding:4px 8px; font-size:12px;
+  border:0; border-radius:4px; cursor:pointer;
+}
+
+.btn-update { background:#1976d2; color:white; }
+.btn-save { background:#28a745; color:white; }
+.btn-generate {
+  margin-top:10px; background:#2e7d32; color:white;
+  padding:8px 14px; font-size:14px; border:0; border-radius:6px;
+}
+.git-link { color:#0d47a1; font-weight:bold; font-size:12px; }
 </style>
 </head>
 
@@ -58,7 +39,7 @@ button {
 <h2>Excel → Ürün Görüntüleme & HIT Üretici</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
-<button class="generate-btn" onclick="generateProductsJS()">products.js ÜRET</button>
+<button class="btn-generate" onclick="generateProductsJS()">products.js ÜRET</button>
 
 <table id="productTable">
 <thead>
@@ -67,7 +48,7 @@ button {
   <th>Ürün</th>
   <th>Fiyat</th>
   <th>Kategori</th>
-  <th>Kategori (API)</th>
+  <th>(API) Kategori</th>
   <th>CAT</th>
   <th>Link / Güncelle</th>
 </tr>
@@ -86,8 +67,8 @@ document.getElementById("excelFile").addEventListener("change", handleExcel);
 async function handleExcel(e){
     const file = e.target.files[0];
     const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const excel = XLSX.read(data);
+    const sheet = excel.Sheets[excel.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
     const tbody = document.querySelector("#productTable tbody");
@@ -105,7 +86,7 @@ async function handleExcel(e){
         if (link) PRODUCTS[CAT].push(link);
 
         let api = {};
-        if (link) {
+        if (link){
             api = await fetchAPI(link);
         } else {
             api = { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
@@ -115,14 +96,14 @@ async function handleExcel(e){
         if (api.stock === "YOK") tr.classList.add("red-row");
 
         tr.innerHTML = `
-          <td><img src="${api.image || ""}" width="80"></td>
+          <td><img src="${api.image || ""}"></td>
           <td>${api.title}</td>
           <td>${api.price}</td>
           <td>${categoryName}</td>
           <td>${api.category || "-"}</td>
           <td>${CAT}</td>
           <td id="cell_${i}">
-            ${getLinkCellHTML(i, CAT, link)}
+            ${getLinkHTML(i, CAT, link, api.stock)}
           </td>
         `;
 
@@ -130,40 +111,45 @@ async function handleExcel(e){
     }
 }
 
-/* Link hücresini oluşturan fonksiyon */
-function getLinkCellHTML(i, CAT, link){
-    if (!link){
+
+
+function getLinkHTML(i, CAT, link, stock){
+
+    if (stock === "YOK"){
         return `
-          <input class="link-input" id="linkInput_${i}" placeholder="Ürün linki gir">
-          <button class="update-btn" onclick="updateLink(${i}, '${CAT}')">Kaydet</button>
+          <input class="link-input" id="inp_${i}" placeholder="Yeni link gir">
+          <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
         `;
     }
 
     return `
-      <a href="${link}" target="_blank">${link}</a><br>
-      <input class="link-input" id="linkInput_${i}" value="${link}">
-      <button class="update-btn" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+      <a class="git-link" href="${link}" target="_blank">Git</a><br>
+      <input class="link-input" id="inp_${i}" value="${link}">
+      <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
     `;
 }
 
-/* Link güncelleme */
-function updateLink(rowIndex, CAT){
-    const newLink = document.getElementById("linkInput_"+rowIndex).value.trim();
+
+function updateLink(i, CAT){
+    const newLink = document.getElementById("inp_"+i).value.trim();
     if (!newLink) return alert("Lütfen link girin.");
 
-    PRODUCTS[CAT] = [ newLink ];
+    PRODUCTS[CAT] = [newLink];
 
-    document.getElementById("cell_"+rowIndex).innerHTML =
-        getLinkCellHTML(rowIndex, CAT, newLink);
+    document.getElementById("cell_"+i).innerHTML = `
+        <a class="git-link" href="${newLink}" target="_blank">Git</a><br>
+        <input class="link-input" id="inp_${i}" value="${newLink}">
+        <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
+    `;
 
     alert("Link güncellendi!");
 }
 
-/* API çekme */
+
 async function fetchAPI(url){
     try{
         const r = await fetch(
-          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(url)
+          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
         );
         return await r.json();
     }catch(e){
@@ -171,10 +157,10 @@ async function fetchAPI(url){
     }
 }
 
-/* products.js üret */
+
 function generateProductsJS(){
     const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-    const blob = new Blob([text], { type: "application/javascript" });
+    const blob = new Blob([text], { type:"application/javascript" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "products.js";
