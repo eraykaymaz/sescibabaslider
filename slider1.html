@@ -2,248 +2,122 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sessiz Slider — JS'siz</title>
+<title>111in1 Slider Üretici</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-
-/* GENEL */
-body{margin:0;font-family:Arial;background:#fff;}
-.wrapper{max-width:1850px;margin:0 auto;padding:0 10px;}
-
-/* SADECE SEÇİLEN KATEGORİ GÖRÜNÜR */
-.cat-block{display:none;}
-.cat-block.active{display:block;}
-
-/* SLIDER ALANI */
-.slider{
-  position:relative;
-  width:100%;
-  overflow:hidden;
-  height:230px;
-  margin-top:20px;
+body { font-family: Arial; padding: 20px; background:#f5f5f5; }
+h1 { font-size:22px; }
+textarea { width:100%; height:250px; font-size:14px; }
+button {
+    background:#007bff; color:white; padding:10px 20px;
+    border:none; border-radius:6px; cursor:pointer;
+    font-size:16px; margin-top:10px;
 }
-
-/* Auto-scroll için keyframes */
-@keyframes autoScroll {
-  0%   {transform:translateX(0);}
-  25%  {transform:translateX(-25%);}
-  50%  {transform:translateX(-50%);}
-  75%  {transform:translateX(-75%);}
-  100% {transform:translateX(0);}
+button:hover { background:#005fcc; }
+.output-box {
+    margin-top:20px; padding:15px;
+    background:white; border-radius:5px;
+    border:1px solid #ddd;
+    white-space:pre-wrap; font-size:14px;
 }
-
-/* TRACK */
-.track{
-  display:flex;
-  gap:18px;
-  animation:autoScroll 18s infinite linear;
-}
-
-/* SLIDE */
-.slide{
-  flex:0 0 150px;
-  text-align:center;
-}
-.slide img{
-  width:150px;height:150px;object-fit:contain;
-  border-radius:12px;background:#fff;transition:.3s;
-}
-.slide:hover img{
-  transform:scale(1.08);
-  box-shadow:0 4px 14px rgba(0,0,0,.25);
-}
-.title{
-  margin-top:6px;
-  font-size:14px;font-weight:700;
-}
-.price{
-  font-size:15px;font-weight:800;color:#d30000;margin-top:4px;
-}
-.tukendi{
-  margin-top:6px;font-size:14px;font-weight:700;color:#999;
-}
-
-/* BUTONLAR */
-.btn{
-  position:absolute;top:45%;
-  width:40px;height:40px;border-radius:50%;
-  background:#fff;border:0;
-  box-shadow:0 0 6px rgba(0,0,0,.25);
-  cursor:pointer;font-size:22px;
-}
-.prev{left:5px;}
-.next{right:5px;}
-
-/* Radio button hack */
-input[type=radio]{display:none;}
-#nav1:checked ~ .slider .track{transform:translateX(0);animation:none;}
-#nav2:checked ~ .slider .track{transform:translateX(-25%);animation:none;}
-#nav3:checked ~ .slider .track{transform:translateX(-50%);animation:none;}
-#nav4:checked ~ .slider .track{transform:translateX(-75%);animation:none;}
-
-.nav-dots{
-  text-align:center;margin-top:10px;
-}
-.nav-dots label{
-  display:inline-block;width:12px;height:12px;
-  border-radius:50%;background:#bbb;margin:0 4px;cursor:pointer;
-}
-input#nav1:checked ~ .nav-dots label[for=nav1],
-input#nav2:checked ~ .nav-dots label[for=nav2],
-input#nav3:checked ~ .nav-dots label[for=nav3],
-input#nav4:checked ~ .nav-dots label[for=nav4]{
-  background:#333;
-}
-
 </style>
 </head>
 <body>
 
-<div class="wrapper">
+<h1>111in1 Slider Üretici</h1>
+<p>
+Excel’den aldığın ürün listesini aşağıya yapıştır →  
+Her satır şu formatta olmalı:
 
-<!-- ==============================
-     111 KATEGORİDEN BİRİ SEÇİLİR
-============================== -->
+<br><br>
+<b>CAT001 | https://site.com/urun-linki</b>
+</p>
+
+<textarea id="excelInput" placeholder="CAT001 | https://...."></textarea>
+
+<button onclick="createHTML()">Slider Oluştur</button>
+
+<div id="output" class="output-box" style="display:none;"></div>
 
 <script>
-(function(){
-  const url = new URL(location.href);
-  const cat = url.searchParams.get("cat") || "CAT001";
-  const block = document.getElementById(cat);
-  if(block) block.classList.add("active");
-})();
+function clean(t){ return t.trim(); }
+
+function createHTML(){
+    let raw = document.getElementById("excelInput").value.trim();
+    if(!raw){ alert("Excel verisini yapıştır."); return; }
+
+    let lines = raw.split("\n");
+    let categories = {};
+
+    lines.forEach(line=>{
+        let parts = line.split("|");
+        if(parts.length < 2) return;
+
+        let cat = clean(parts[0]);
+        let url = clean(parts[1]);
+
+        if(!categories[cat]) categories[cat] = [];
+        categories[cat].push(url);
+    });
+
+    // HTML gövdesini oluştur
+    let html = `
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+    body{font-family:Arial;margin:0;padding:0;}
+    .cat-block{display:none;padding:10px;}
+    .slider{display:flex;overflow-x:auto;gap:10px;padding:10px;}
+    .item{min-width:150px;border:1px solid #ccc;padding:10px;border-radius:6px;background:white;}
+    .title{font-size:14px;font-weight:bold;margin:5px 0;}
+</style>
+
+<script>
+// URL'den kat parametresini çek
+function getCat(){
+    const params = new URLSearchParams(window.location.search);
+    return params.get("cat");
+}
+window.onload = function(){
+    let c = getCat();
+    if(c){
+        document.getElementById(c).style.display = "block";
+    }
+};
+</script>
+</head>
+<body>
+`;
+
+    // Her kategori için blok oluştur
+    for(let cat in categories){
+        html += `<div class="cat-block" id="${cat}">\n`;
+        html += `<div class="slider">\n`;
+
+        categories[cat].forEach(url=>{
+            html += `
+                <div class="item">
+                    <a href="${url}" target="_blank">
+                        <img src="${url}/image1.jpg" width="150">
+                        <div class="title">Ürün Başlığı</div>
+                        <div class="price">Fiyat Bilgisi</div>
+                    </a>
+                </div>
+            `;
+        });
+
+        html += `</div>\n</div>\n`;
+    }
+
+    html += `</body></html>`;
+
+    document.getElementById("output").innerText = html;
+    document.getElementById("output").style.display = "block";
+}
 </script>
 
-<!-- ==============================
-     CAT001 — ÖRNEK
-============================== -->
-
-<div class="cat-block" id="CAT001">
-
-<!-- Radio hack -->
-<input type="radio" name="nav" id="nav1" checked>
-<input type="radio" name="nav" id="nav2">
-<input type="radio" name="nav" id="nav3">
-<input type="radio" name="nav" id="nav4">
-
-<div class="slider">
-
-  <button class="btn prev" onclick="document.getElementById('nav1').checked=true">❮</button>
-  <button class="btn next" onclick="document.getElementById('nav2').checked=true">❯</button>
-
-  <div class="track">
-
-    <!-- SLIDE 1 -->
-    <div class="slide">
-      <a href="#"><img src="https://via.placeholder.com/150"></a>
-      <div class="title">Ürün 1</div>
-      <div class="price">1.299 ₺</div>
-    </div>
-
-    <!-- SLIDE 2 -->
-    <div class="slide">
-      <a href="#"><img src="https://via.placeholder.com/150"></a>
-      <div class="title">Ürün 2</div>
-      <div class="tukendi">Tükendi</div>
-    </div>
-
-    <!-- SLIDE 3 -->
-    <div class="slide">
-      <a href="#"><img src="https://via.placeholder.com/150"></a>
-      <div class="title">Ürün 3</div>
-      <div class="price">2.199 ₺</div>
-    </div>
-
-  </div>
-</div>
-
-<div class="nav-dots">
-  <label for="nav1"></label>
-  <label for="nav2"></label>
-  <label for="nav3"></label>
-  <label for="nav4"></label>
-</div>
-
-</div>
-
-
-<!-- ==============================
-     CAT002 — ÖRNEK
-============================== -->
-
-<div class="cat-block" id="CAT002">
-<input type="radio" name="navb" id="nav1b" checked>
-<input type="radio" name="navb" id="nav2b">
-
-<div class="slider">
-
-  <button class="btn prev" onclick="document.getElementById('nav1b').checked=true">❮</button>
-  <button class="btn next" onclick="document.getElementById('nav2b').checked=true">❯</button>
-
-  <div class="track">
-
-    <div class="slide">
-      <img src="https://via.placeholder.com/150">
-      <div class="title">CAT002 Ürün 1</div>
-      <div class="price">999 ₺</div>
-    </div>
-
-    <div class="slide">
-      <img src="https://via.placeholder.com/150">
-      <div class="title">CAT002 Ürün 2</div>
-      <div class="tukendi">Tükendi</div>
-    </div>
-
-  </div>
-</div>
-
-<div class="nav-dots">
-  <label for="nav1b"></label>
-  <label for="nav2b"></label>
-</div>
-
-</div>
-
-
-<!-- ==============================
-     CAT003 — ÖRNEK
-============================== -->
-
-<div class="cat-block" id="CAT003">
-<input type="radio" name="navc" id="nav1c" checked>
-<input type="radio" name="navc" id="nav2c">
-
-<div class="slider">
-
-  <button class="btn prev" onclick="document.getElementById('nav1c').checked=true">❮</button>
-  <button class="btn next" onclick="document.getElementById('nav2c').checked=true">❯</button>
-
-  <div class="track">
-
-    <div class="slide">
-      <img src="https://via.placeholder.com/150">
-      <div class="title">CAT003 Ürün 1</div>
-      <div class="price">1.450 ₺</div>
-    </div>
-
-    <div class="slide">
-      <img src="https://via.placeholder.com/150">
-      <div class="title">CAT003 Ürün 2</div>
-      <div class="price">2.950 ₺</div>
-    </div>
-
-  </div>
-</div>
-
-<div class="nav-dots">
-  <label for="nav1c"></label>
-  <label for="nav2c"></label>
-</div>
-
-</div>
-
-
-</div>
 </body>
 </html>
