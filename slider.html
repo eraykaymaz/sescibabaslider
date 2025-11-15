@@ -139,7 +139,7 @@ async function loadSlider() {
   const map = window.CATEGORY_MAP;
   const pro = window.PRODUCTS;
 
-  const related = map[CAT] || [];
+  const related = map[CAT]?.related || [];
   const track = document.getElementById("sliderTrack");
 
   for (let rc of related) {
