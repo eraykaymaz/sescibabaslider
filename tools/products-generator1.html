@@ -2,30 +2,26 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Excel → Ürün Görüntüleme & HIT Üretici</title>
+<title>Excel → Slider Üretici</title>
 
 <style>
 body{font-family:Arial;padding:15px;background:#f2f2f2;}
 table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
-th,td{border:1px solid #ccc;padding:4px 6px;}
-.red-row{background:#ffe3e3!important;transition:background .6s ease;}
-img{width:65px;height:65px;object-fit:contain;}
-.flex-row{display:flex;gap:4px;align-items:center;}
-.link-input{width:160px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
-.button-small{padding:4px 7px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
-.btn-update{background:#1976d2;color:#fff;}
-.btn-generate{margin-top:10px;background:#2e7d32;color:#fff;padding:8px 14px;font-size:14px;border:0;border-radius:6px;cursor:pointer;}
+th,td{border:1px solid #ccc;padding:4px;}
+img{width:60px;height:60px;object-fit:contain;}
+.red-row{background:#ffe3e3;}
+.slider-btn{background:#ff8c00;color:#fff;border:0;padding:4px 6px;font-size:12px;border-radius:4px;cursor:pointer;}
 .git-link{color:#0d47a1;font-weight:bold;font-size:12px;}
-.slider-btn{background:#ff8c00;color:#fff;border:0;padding:4px 6px;font-size:12px;border-radius:4px;cursor:pointer;margin-left:4px;}
+.link-input{width:140px;padding:3px;font-size:12px;border:1px solid #aaa;border-radius:4px;}
+.button-small{padding:3px 6px;font-size:12px;border:0;border-radius:4px;background:#1976d2;color:#fff;cursor:pointer;}
 </style>
 
 </head>
 <body>
 
-<h2>Excel → Ürün Görüntüleme & HIT Üretici</h2>
+<h2>Excel → Ürün Görüntüleme & Slider Üretici</h2>
 
 <input type="file" id="excelFile" accept=".xlsx">
-<button class="btn-generate" onclick="generateProductsJS()">products.js ÜRET</button>
 
 <table id="productTable">
 <thead>
@@ -33,10 +29,8 @@ img{width:65px;height:65px;object-fit:contain;}
   <th>Görsel</th>
   <th>Ürün</th>
   <th>Fiyat</th>
-  <th>Kategori</th>
-  <th>(API) Kategori</th>
   <th>CAT</th>
-  <th>Link / Güncelle</th>
+  <th>Link</th>
   <th>Slider</th>
 </tr>
 </thead>
@@ -45,42 +39,20 @@ img{width:65px;height:65px;object-fit:contain;}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script>
+<!-- ⭐ Artık module script kullanıyoruz -->
+<script type="module">
 
-async function main(){
+/* -------------------------------- */
+/* VERİLERİ YÜKLE                   */
+/* -------------------------------- */
+import CATEGORY_MAP from "./data/category-map.js?v="+Date.now();
+import PRODUCTS_OBJ from "./data/products.js?v="+Date.now();
 
-let PRODUCTS = {};
-let CATEGORY_MAP = {};
-let dataReady = { products:false, map:false };
+let PRODUCTS = PRODUCTS_OBJ;
 
-/* ------------------------------------ */
-/* DOSYALARI YÜKLE                       */
-/* ------------------------------------ */
-function loadDataFiles(){
-    return new Promise(resolve=>{
-        const s1 = document.createElement("script");
-        s1.src = "./data/category-map.js?v="+Date.now();
-        s1.onload = ()=>{ CATEGORY_MAP = window.CATEGORY_MAP; dataReady.map = true; check(); };
-        document.body.appendChild(s1);
-
-        const s2 = document.createElement("script");
-        s2.src = "./data/products.js?v="+Date.now();
-        s2.onload = ()=>{ PRODUCTS = window.PRODUCTS; dataReady.products = true; check(); };
-        document.body.appendChild(s2);
-
-        function check(){
-            if(dataReady.map && dataReady.products){
-                resolve();
-            }
-        }
-    });
-}
-
-await loadDataFiles();
-
-/* ------------------------------------ */
-/* EXCEL YÜKLEME                        */
-/* ------------------------------------ */
+/* -------------------------------- */
+/* EXCEL YÜKLE                      */
+/* -------------------------------- */
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
@@ -88,90 +60,58 @@ async function handleExcel(e){
     const data = await file.arrayBuffer();
     const excel = XLSX.read(data);
     const sheet = excel.Sheets[excel.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
     const tbody = document.querySelector("#productTable tbody");
     tbody.innerHTML = "";
 
-    for(let i=1;i<json.length;i++){
-        const row = json[i];
+    for(let i=1;i<rows.length;i++){
+        const row = rows[i];
         const CAT = row[1];
-        let link = row[2];
+        const link = row[2];
 
         if(!CAT) continue;
 
+        // PRODUCTS içine linki yaz
         if(!PRODUCTS[CAT]) PRODUCTS[CAT] = [];
-        if(link) PRODUCTS[CAT].push(link);
+        if(link) PRODUCTS[CAT][0] = link;
 
-        let api = link ? await fetchAPI(link) : { title:"-", image:"", price:"-", category:"-", stock:"YOK" };
+        const api = link ? await fetchAPI(link) : { title:"-", price:"-", image:"", stock:"YOK" };
 
-        renderRow(i, row, api, CAT);
+        const tr = document.createElement("tr");
+        if(api.stock === "YOK") tr.classList.add("red-row");
+
+        tr.innerHTML = `
+            <td><img src="${api.image}"></td>
+            <td>${api.title}</td>
+            <td>${api.price}</td>
+            <td>${CAT}</td>
+            <td>${link ? `<a class="git-link" href="${link}" target="_blank">Git</a>` : "-"}</td>
+            <td><button class="slider-btn" onclick="createSlider('${CAT}')">Slider Üret</button></td>
+        `;
+        tbody.appendChild(tr);
     }
 }
 
-/* ------------------------------------ */
-/* TABLO SATIRI                         */
-/* ------------------------------------ */
-function renderRow(i, row, api, CAT){
-    const tbody = document.querySelector("#productTable tbody");
-    const tr = document.createElement("tr");
-
-    if(api.stock === "YOK") tr.classList.add("red-row");
-
-    tr.innerHTML = `
-      <td><img src="${api.image||""}"></td>
-      <td>${api.title}</td>
-      <td>${api.price}</td>
-      <td>${row[0]}</td>
-      <td>${api.category||"-"}</td>
-      <td>${CAT}</td>
-      <td>${getLinkHTML(i, CAT, row[2], api.stock)}</td>
-      <td><button class="slider-btn" onclick="createSlider('${CAT}')">Slider Üret</button></td>
-    `;
-
-    tbody.appendChild(tr);
-}
-
-function getLinkHTML(i, CAT, link, stock){
-    if(stock === "VAR" && link){
-        return `<a class="git-link" href="${link}" target="_blank">Git</a>`;
-    }
-    return `
-      <div class="flex-row">
-        <input class="link-input" id="inp_${i}" placeholder="Yeni link">
-        <button class="button-small btn-update" onclick="updateLink(${i}, '${CAT}')">Güncelle</button>
-      </div>
-    `;
-}
-
-/* ------------------------------------ */
-/* API                                   */
-/* ------------------------------------ */
+/* -------------------------------- */
+/* API ÇEK                          */
+/* -------------------------------- */
 async function fetchAPI(url){
     try{
-        const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
+        const r = await fetch(
+          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
+        );
         return await r.json();
     }catch(e){
-        return {title:"-",price:"-",image:"",category:"-",stock:"YOK"};
+        return {title:"-",price:"-",image:"",stock:"YOK"};
     }
 }
 
-/* ------------------------------------ */
-/* PRODUCTS.JS ÜRET                       */
-/* ------------------------------------ */
-function generateProductsJS(){
-    const text = "window.PRODUCTS = " + JSON.stringify(PRODUCTS, null, 2) + ";";
-    const blob = new Blob([text], {type:"application/javascript"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "products.js";
-    a.click();
-}
-
-/* ------------------------------------ */
-/* SLIDER ÜRET (HTML + CSS)              */
-/* ------------------------------------ */
+/* -------------------------------- */
+/* SLIDER ÜRET                      */
+/* -------------------------------- */
 window.createSlider = async function(CAT){
+
     const related = CATEGORY_MAP[CAT]?.related || [];
     let items = [];
 
@@ -183,7 +123,7 @@ window.createSlider = async function(CAT){
         items.push({ link, ...api });
     }
 
-    const html = buildCSSHTMLSlider(CAT, items);
+    const html = sliderHTML(CAT, items);
     const blob = new Blob([html], {type:"text/html"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -191,38 +131,32 @@ window.createSlider = async function(CAT){
     a.click();
 }
 
-/* ------------------------------------ */
-/* SAF HTML + CSS SLIDER               */
-/* ------------------------------------ */
-function buildCSSHTMLSlider(CAT, items){
+/* -------------------------------- */
+/* HTML + CSS SLIDER TEMPLATE       */
+/* -------------------------------- */
+function sliderHTML(CAT, items){
 return `
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <title>${CAT}</title>
-
 <style>
 body{margin:0;padding:0;font-family:Arial;}
-.slider-container{
-  display:flex;overflow-x:auto;gap:18px;padding:20px;scroll-behavior:smooth;
-}
+.slider{display:flex;overflow-x:auto;gap:18px;padding:20px;}
 .item{min-width:150px;text-align:center;}
-.item img{width:150px;height:150px;object-fit:contain;border-radius:12px;background:#fff;}
+.item img{width:150px;height:150px;object-fit:contain;border-radius:12px;}
 .title{margin-top:8px;font-size:14px;font-weight:700;}
 .price{margin-top:4px;font-size:15px;font-weight:800;color:#d30000;}
-.stock{margin-top:4px;font-size:14px;font-weight:700;color:#777;}
+.stock{margin-top:4px;font-size:14px;font-weight:700;color:#aaa;}
 </style>
-
 </head>
 <body>
 
-<div class="slider-container">
+<div class="slider">
 ${items.map(p=>`
   <div class="item">
-    <a href="${p.link}" target="_top">
-      <img src="${p.image}">
-    </a>
+    <a href="${p.link}" target="_top"><img src="${p.image}"></a>
     <div class="title">${p.title}</div>
     ${p.stock==="VAR" ? `<div class="price">${p.price}</div>` : `<div class="stock">Tükendi</div>`}
   </div>
@@ -232,10 +166,6 @@ ${items.map(p=>`
 </body>
 </html>`;
 }
-
-}
-
-main();
 
 </script>
 
