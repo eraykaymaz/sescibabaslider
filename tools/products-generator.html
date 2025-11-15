@@ -15,7 +15,7 @@ body {
   background: white;
   padding: 15px;
   border-radius: 10px;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
@@ -28,7 +28,7 @@ table {
 
 th, td {
   border: 1px solid #ccc;
-  padding: 3px 4px;
+  padding: 4px 6px;
   font-size: 12px;
   line-height: 16px;
 }
@@ -47,21 +47,21 @@ img.thumb {
 }
 
 .row-nok {
-  background: #ffd6d6 !important; /* stok YOK */
+  background: #ffd6d6 !important;
 }
 
 input.newLink {
-  width: 130px;
+  width: 140px;
   padding: 3px;
   font-size: 11px;
   margin-top: 3px;
 }
 
 button.smallBtn {
-  padding: 3px 8px;
+  padding: 3px 10px;
   font-size: 11px;
-  cursor: pointer;
   margin-top: 3px;
+  cursor: pointer;
 }
 
 button.big {
@@ -70,7 +70,6 @@ button.big {
   margin-top: 10px;
   cursor: pointer;
 }
-
 </style>
 </head>
 
@@ -92,7 +91,9 @@ button.big {
         <th>Görsel</th>
         <th>Ürün</th>
         <th>Fiyat</th>
-        <th>Kategoriler</th>
+        <th>Kategori</th>
+        <th>Kategori (API)</th>
+        <th>CAT</th>
         <th>Link / Güncelle</th>
       </tr>
     </thead>
@@ -172,10 +173,11 @@ async function loadExcel() {
 
       <td>${d.price}</td>
 
-      <td>
-        Excel: ${item.catName}<br>
-        API: ${d.category}
-      </td>
+      <td>${item.catName}</td>
+
+      <td>${d.category}</td>
+
+      <td>${item.catCode}</td>
 
       <td>
         ${
@@ -183,7 +185,7 @@ async function loadExcel() {
             ? `<a href="${item.link}" target="_blank">Git</a>`
             : `
               <input class="newLink" placeholder="Yeni link">
-              <button class="smallBtn" onclick="updateLink(this)">OK</button>
+              <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
             `
         }
       </td>
@@ -196,45 +198,38 @@ async function loadExcel() {
 }
 
 
-// ---------------------------
-// LİNK GÜNCELLEME — SATIRI CANLI GÜNCELLER
-// ---------------------------
 async function updateLink(btn) {
-
   const tr = btn.closest("tr");
   const input = tr.querySelector(".newLink");
   const newLink = input.value.trim();
   if (!newLink) return alert("Yeni link boş olamaz!");
 
-  btn.innerText = "...";
+  btn.innerText = "Bekleyin...";
 
   let d = await fetch(
     "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" +
     encodeURIComponent(newLink)
   ).then(r => r.json());
 
-  // satır güncelle
+  // güncelle
   tr.children[0].querySelector("img").src = d.image;
   tr.children[1].innerHTML = d.title.substring(0,60) + "...";
   tr.children[2].innerText = d.price;
-
-  tr.children[3].innerHTML =
-    `Excel: ${productData[tr.rowIndex-1].excelCategoryName}<br>
-     API: ${d.category}`;
+  tr.children[4].innerText = d.category;
 
   if (d.stock === "VAR") {
     tr.classList.remove("row-nok");
-    tr.children[4].innerHTML =
+    tr.children[6].innerHTML =
       `<a href="${newLink}" target="_blank">Git</a>`;
   } else {
     tr.classList.add("row-nok");
-    tr.children[4].innerHTML = `
+    tr.children[6].innerHTML = `
       <input class="newLink" placeholder="Yeni link">
-      <button class="smallBtn" onclick="updateLink(this)">OK</button>
+      <button class="smallBtn" onclick="updateLink(this)">Güncelle</button>
     `;
   }
 
-  // JSON güncellemesi
+  // json güncelle
   const index = tr.rowIndex - 1;
   productData[index].link = newLink;
   productData[index].title = d.title;
@@ -243,17 +238,16 @@ async function updateLink(btn) {
   productData[index].apiCategory = d.category;
   productData[index].stock = d.stock;
 
-  btn.innerText = "OK";
+  btn.innerText = "Güncelle";
 }
 
-
-// ---------------------------
-// HİTLERİ YÜKLE → products.json üret
-// ---------------------------
+// -----------------------------------------------
+// products.json üret
+// -----------------------------------------------
 function generateProducts() {
 
   if (productData.length === 0)
-    return alert("Önce Excel yükle!");
+    return alert("Excel yüklenmedi!");
 
   let output = {};
 
