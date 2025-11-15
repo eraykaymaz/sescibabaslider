@@ -5,22 +5,24 @@
 <title>M4 – Kategori Bazlı Slider Üretici</title>
 
 <style>
-body{font-family:Arial;padding:15px;background:#f5f5f5;}
-table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;font-size:13px;}
-th,td{border:1px solid #ccc;padding:6px;}
-img{width:80px;height:80px;object-fit:contain;} /* 8×8 */
+body{font-family:Arial;padding:10px;background:#f5f5f5;margin:0;}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;font-size:13px;}
+th,td{border:1px solid #ccc;padding:2px 3px;} /* en dar hali */
+img{width:80px;height:80px;object-fit:contain;} /* 8x8 */
 .red{background:#ffe3e3;}
-.btn{padding:4px 8px;border:0;border-radius:4px;cursor:pointer;font-size:12px;}
-.update{background:#1976d2;color:#fff;}
-.slider{background:#ff8c00;color:#fff;}
-.link{width:160px;padding:4px;}
-.git{color:#0a47c2;font-weight:bold;}
+
+.link-input{width:150px;padding:3px;font-size:12px;}
+.btn{padding:3px 6px;font-size:12px;border:0;border-radius:4px;cursor:pointer;}
+.btn-update{background:#1976d2;color:#fff;margin-left:4px;}
+.btn-slider{background:#ff8c00;color:#fff;}
+.git{color:#0a47c2;font-weight:bold;font-size:12px;}
 </style>
 </head>
 
 <body>
 
-<h2>Kategori Bazlı HTML Slider Üretici – M4</h2>
+<h3>Kategori Bazlı HTML Slider Üretici – M4</h3>
+
 <input type="file" id="excelFile" accept=".xlsx">
 
 <table id="productTable">
@@ -33,7 +35,7 @@ img{width:80px;height:80px;object-fit:contain;} /* 8×8 */
   <th>(API) Kategori</th>
   <th>A-KODU</th>
   <th>Link / Güncelle</th>
-  <th>Üret</th>
+  <th>Slider Üret</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -42,6 +44,7 @@ img{width:80px;height:80px;object-fit:contain;} /* 8×8 */
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
+
 /* -------------------------- CATEGORY MAP -------------------------- */
 const CATEGORY_MAP = {
 "A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
@@ -158,54 +161,63 @@ const CATEGORY_MAP = {
 };
 
 /* -------------------------- DATA -------------------------- */
+
 let PRODUCTS = {};
 
+/* -------------------------- EXCEL OKUMA -------------------------- */
 document.getElementById("excelFile").addEventListener("change", handleExcel);
 
 async function handleExcel(e){
-  const f = e.target.files[0];
-  const wb = XLSX.read(await f.arrayBuffer());
+  const file = e.target.files[0];
+  const wb = XLSX.read(await file.arrayBuffer());
   const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 });
 
-  const body = document.querySelector("#productTable tbody");
-  body.innerHTML = "";
+  const tbody = document.querySelector("#productTable tbody");
+  tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
-    const KAT = rows[i][0];
-    const CODE = rows[i][1];
-    const LINK = rows[i][2];
+      const KAT = rows[i][0];
+      const CODE = rows[i][1];
+      const LINK = rows[i][2];
 
-    if(!CODE) continue;
-    if(!PRODUCTS[CODE]) PRODUCTS[CODE]=[];
-    if(LINK) PRODUCTS[CODE][0]=LINK;
+      if(!CODE) continue;
 
-    const api = LINK ? await fetchAPI(LINK) : {title:"-",image:"",price:"-",category:"-",stock:"YOK"};
+      if(!PRODUCTS[CODE]) PRODUCTS[CODE] = [];
+      if(LINK) PRODUCTS[CODE][0] = LINK;
 
-    const tr=document.createElement("tr");
-    if(api.stock==="YOK") tr.classList.add("red");
+      const api = LINK ? await fetchAPI(LINK) : {title:"-",price:"-",image:"",category:"-",stock:"YOK"};
 
-    tr.id="row"+i;
+      const tr = document.createElement("tr");
+      tr.id = "row"+i;
+      if(api.stock==="YOK") tr.classList.add("red");
 
-    tr.innerHTML=`
-      <td><img id="img${i}" src="${api.image}"></td>
-      <td id="t${i}">${api.title}</td>
-      <td id="p${i}">${api.price}</td>
-      <td>${KAT}</td>
-      <td id="ac${i}">${api.category}</td>
-      <td>${CODE}</td>
-      <td id="c${i}">
-        ${api.stock==="VAR" && LINK
-          ? `<a class='git' href='${LINK}' target='_blank'>Git</a>`
-          : `<input id="in${i}" class="link" placeholder="Yeni link">
-             <button class="btn update" onclick="updateLink(${i},'${CODE}')">Kaydet</button>`}
-      </td>
-      <td><button class="btn slider" onclick="makeSlider('${CODE}')">ÜRET</button></td>
-    `;
-    body.appendChild(tr);
+      tr.innerHTML = `
+        <td><img id="img${i}" src="${api.image}"></td>
+        <td id="t${i}">${api.title}</td>
+        <td id="p${i}">${api.price}</td>
+        <td>${KAT}</td>
+        <td id="ac${i}">${api.category}</td>
+        <td>${CODE}</td>
+
+        <td id="cell${i}">
+          ${api.stock==="VAR" && LINK
+            ? `<a class="git" href="${LINK}" target="_blank">Git</a>`
+            : `
+              <input id="in${i}" class="link-input" placeholder="Yeni link">
+              <button class="btn btn-update" onclick="updateLink(${i}, '${CODE}')">Güncelle</button>
+            `}
+        </td>
+
+        <td>
+          <button class="btn btn-slider" onclick="makeSlider('${CODE}')">Slider Üret</button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
   }
 }
 
-/* -------------------------- API GETTER -------------------------- */
+/* -------------------------- API -------------------------- */
 async function fetchAPI(url){
   try{
     return await (await fetch(
@@ -216,62 +228,74 @@ async function fetchAPI(url){
   }
 }
 
-/* -------------------------- LINK UPDATE -------------------------- */
-async function updateLink(i,CODE){
-  const newLink=document.getElementById("in"+i).value.trim();
+/* -------------------------- LINK GÜNCELLE -------------------------- */
+async function updateLink(i, CODE){
+  const newLink = document.getElementById("in"+i).value.trim();
   if(!newLink) return;
 
-  PRODUCTS[CODE]=[newLink];
-  const api=await fetchAPI(newLink);
+  PRODUCTS[CODE] = [newLink];
+  const api = await fetchAPI(newLink);
 
-  document.getElementById("img"+i).src=api.image;
-  document.getElementById("t"+i).innerHTML=api.title;
-  document.getElementById("p"+i).innerHTML=api.price;
-  document.getElementById("ac"+i).innerHTML=api.category;
+  document.getElementById("img"+i).src = api.image;
+  document.getElementById("t"+i).innerHTML = api.title;
+  document.getElementById("p"+i).innerHTML = api.price;
+  document.getElementById("ac"+i).innerHTML = api.category;
 
-  const cell=document.getElementById("c"+i);
+  const cell=document.getElementById("cell"+i);
   const row=document.getElementById("row"+i);
 
   if(api.stock==="VAR"){
     row.classList.remove("red");
-    cell.innerHTML=`<a class='git' href='${newLink}' target='_blank'>Git</a>`;
-  }else{
+    cell.innerHTML = `<a class="git" href="${newLink}" target="_blank">Git</a>`;
+  } else {
     row.classList.add("red");
+    cell.innerHTML = `
+      <input id="in${i}" class="link-input" placeholder="Yeni link">
+      <button class="btn btn-update" onclick="updateLink(${i}, '${CODE}')">Güncelle</button>
+    `;
   }
 }
 
-/* -------------------------- SLIDER GENERATOR -------------------------- */
+/* -------------------------- SLIDER ÜRET -------------------------- */
 async function makeSlider(CODE){
-  const rel=CATEGORY_MAP[CODE]?.related||[];
-  let items=[];
+  const rel = CATEGORY_MAP[CODE]?.related || [];
+  let items = [];
 
   for(const rc of rel){
-    const link=PRODUCTS[rc]?.[0];
+    const link = PRODUCTS[rc]?.[0];
     if(!link) continue;
-    items.push({link,...await fetchAPI(link)});
+
+    const api = await fetchAPI(link);
+    items.push({link,...api});
   }
 
-  const html = genHTML(CODE,items);
-  const blob=new Blob([html],{type:"text/html"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=CODE+".html";
+  const html = sliderHTML(CODE, items);
+  const blob = new Blob([html], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = CODE + ".html";
   a.click();
 }
 
-function genHTML(CODE,items){
-return `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${CODE} Slider</title>
+/* -------------------------- SLIDER ŞABLONU -------------------------- */
+function sliderHTML(CODE, items){
+return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${CODE} Slider</title>
 <style>
 body{margin:0;font-family:Arial;}
-.wrap{padding:20px;display:flex;overflow-x:auto;gap:20px;}
+.wrap{padding:15px;display:flex;overflow-x:auto;gap:20px;}
 .item{text-align:center;}
-img{width:150px;height:150px;object-fit:contain;border-radius:12px;}
+img{width:150px;height:150px;object-fit:contain;border-radius:10px;}
 .title{font-size:14px;font-weight:bold;margin-top:6px;}
 .price{color:#d30000;font-weight:bold;margin-top:4px;}
 .stock{color:#888;font-weight:bold;margin-top:4px;}
 </style>
 </head>
+
 <body>
 <div class="wrap">
 ${items.map(x=>`
@@ -279,11 +303,13 @@ ${items.map(x=>`
   <a href="${x.link}" target="_top"><img src="${x.image}"></a>
   <div class="title">${x.title}</div>
   <div class="${x.stock==="VAR"?"price":"stock"}">${x.stock==="VAR"?x.price:"Tükendi"}</div>
-</div>`).join("")}
+</div>
+`).join("")}
 </div>
 </body>
 </html>`;
 }
+
 </script>
 
 </body>
