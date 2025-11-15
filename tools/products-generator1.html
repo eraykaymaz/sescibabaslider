@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Slider Üretici – Final</title>
+<title>Minimal Slider Üretici – FINAL</title>
 
 <style>
 body{font-family:Arial;padding:10px;background:#f5f5f5;margin:0;}
@@ -18,7 +18,7 @@ img{width:80px;height:80px;object-fit:contain;}
 
 <body>
 
-<h3>Kategori Bazlı Slider Üretici – FINAL</h3>
+<h3>Minimal Kategori Bazlı Slider Üretici</h3>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -40,48 +40,28 @@ img{width:80px;height:80px;object-fit:contain;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 
-/* ============================================================
-      A01 – A02 – A03 → İlk 15'lik Related Map
-============================================================ */
+/* ----------------- SADELEŞTİRİLMİŞ A01–A03 MAP ----------------- */
 const CATEGORY_MAP = {
-
-  "A01": {
-    "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]
-  },
-
-  "A02": {
-    "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]
-  },
-
-  "A03": {
-    "related": ["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]
-  }
-
-  /* → Diğer tüm A-Kodlarını buraya ekleyeceksin */
+  "A01": { "related": ["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"] },
+  "A02": { "related": ["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"] },
+  "A03": { "related": ["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"] }
 };
 
-/* ============================================================
-      GLOBAL
-============================================================ */
+/* ----------------- GLOBAL ----------------- */
 let PRODUCTS = {};
 
-/* ============================================================
-      EXCEL OKUMA
-============================================================ */
+/* ----------------- EXCEL YÜKLE ----------------- */
 document.getElementById("excelFile").addEventListener("change", async (e)=>{
-  const file = e.target.files[0];
-  const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf);
-  const sh = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sh,{header:1});
+  const buf = await e.target.files[0].arrayBuffer();
+  const rows = XLSX.utils.sheet_to_json(XLSX.read(buf).Sheets["Sayfa1"],{header:1});
 
   const tbody = document.querySelector("#productTable tbody");
   tbody.innerHTML = "";
 
   for(let i=1;i<rows.length;i++){
-    const KAT = rows[i][0];
-    const CODE = rows[i][1];
-    let LINK  = rows[i][2];
+    let KAT = rows[i][0];
+    let CODE = rows[i][1];
+    let LINK = rows[i][2];
 
     if(!CODE) continue;
 
@@ -100,12 +80,11 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
       <td>${KAT}<br><b>${api.category}</b></td>
       <td>${CODE}</td>
       <td id="cell_${i}">
-        ${api.stock==="VAR" && LINK ? `
-          <a href="${LINK}" target="_blank">Git</a>
-        `:`
-          <input id="inp_${i}" class="link-input" value="${LINK||""}">
-          <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
-        `}
+        ${api.stock==="VAR" && LINK ? 
+          `<a href="${LINK}" target="_blank">Git</a>` :
+          `<input id="inp_${i}" class="link-input" value="${LINK||""}">
+           <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>`
+        }
       </td>
       <td><button class="btn-slider" onclick="makeSlider('${CODE}')">Slider Üret</button></td>
     `;
@@ -113,22 +92,17 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
   }
 });
 
-/* ============================================================
-      API
-============================================================ */
+/* ----------------- API ----------------- */
 async function fetchAPI(url){
   try{
-    const r = await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
-    return await r.json();
+    return await (await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url))).json();
   }catch(e){
     return {title:"-",image:"",price:"-",category:"-",stock:"YOK"};
   }
 }
 
-/* ============================================================
-      GÜNCELLEME
-============================================================ */
-window.updateLink = async function(i,CODE){
+/* ----------------- GÜNCELLE ----------------- */
+window.updateLink = async (i,CODE)=>{
   const newLink = document.getElementById("inp_"+i).value.trim();
   if(!newLink) return;
 
@@ -146,31 +120,26 @@ window.updateLink = async function(i,CODE){
   if(api.stock==="VAR"){
     row.classList.remove("red");
     cell.innerHTML = `<a href="${newLink}" target="_blank">Git</a>`;
-  }else{
+  } else {
     row.classList.add("red");
     cell.innerHTML = `
       <input id="inp_${i}" class="link-input" value="${newLink}">
-      <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
-    `;
+      <button class="update-btn" onclick="updateLink(${i},'${CODE}')">Güncelle</button>`;
   }
 };
 
-/* ============================================================
-      SLIDER ÜRETME
-============================================================ */
-window.makeSlider = async function(CODE){
+/* ----------------- SLIDER ÜRET ----------------- */
+window.makeSlider = async (CODE)=>{
   const rel = CATEGORY_MAP[CODE]?.related || [];
   let items = [];
 
   for(const r of rel){
-    const link = PRODUCTS[r]?.[0];
-    if(!link) continue;
-    const api = await fetchAPI(link);
-    items.push({link,...api});
+    const l = PRODUCTS[r]?.[0];
+    if(!l) continue;
+    items.push({link:l, ...(await fetchAPI(l))});
   }
 
   const html = sliderHTML(CODE, items);
-
   const blob = new Blob([html],{type:"text/html"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -178,73 +147,24 @@ window.makeSlider = async function(CODE){
   a.click();
 };
 
-/* ============================================================
-      SLIDER HTML — FINAL
-============================================================ */
+/* ----------------- SLIDER TEMPLATE ----------------- */
 function sliderHTML(CODE, items){
 return `
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>${CODE} Slider</title>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${CODE}</title>
 <style>
 body{margin:0;font-family:Arial;}
-.wrap{position:relative;padding:20px;overflow:hidden;}
-.slider{
-  display:flex;
-  overflow-x:auto;
-  gap:20px;
-  padding-bottom:10px;
-  scroll-behavior:smooth;
-}
-.item{
-  flex:0 0 auto;
-  width:150px;
-  text-align:center;
-  transition:.25s;
-}
-.item img{
-  width:150px;
-  height:150px;
-  object-fit:contain;
-  transition:.25s;
-}
+.wrap{position:relative;padding:20px;}
+.slider{display:flex;overflow-x:auto;gap:20px;scroll-behavior:smooth;padding-bottom:10px;}
+.item{flex:0 0 auto;width:150px;text-align:center;transition:.25s;}
+.item img{width:150px;height:150px;object-fit:contain;transition:.25s;}
 .item:hover img{transform:scale(1.08);}
-.title{font-size:14px;font-weight:700;margin-top:6px;}
 .price{color:#c00;font-weight:700;margin-top:4px;}
 .stock{color:#d88;font-weight:700;margin-top:4px;font-size:13px;}
-.btn{
-  width:130px;
-  padding:8px;
-  margin-top:8px;
-  background:#d54c5a;
-  color:#fff;
-  border-radius:8px;
-  border:0;
-  font-weight:700;
-  cursor:pointer;
-  transition:.2s;
-}
-.btn:hover{background:#b33946;}
-.arrow{
-  position:absolute;
-  top:45%;
-  background:#fff;
-  padding:10px 14px;
-  border-radius:50%;
-  font-size:20px;
-  cursor:pointer;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
-  z-index:3;
-}
-.left{left:10px;}
-.right{right:10px;}
-@media(max-width:600px){
-  .arrow{display:none;}
-}
-</style>
-</head>
+.btn{width:130px;padding:8px;margin-top:8px;background:#d54c5a;color:#fff;border-radius:8px;border:0;font-weight:700;cursor:pointer;}
+.arrow{position:absolute;top:45%;background:#fff;padding:10px 14px;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.left{left:10px;} .right{right:10px;}
+@media(max-width:600px){.arrow{display:none;}}
+</style></head>
 
 <body>
 <div class="wrap">
@@ -256,28 +176,26 @@ body{margin:0;font-family:Arial;}
       <div class="item">
         <a href="${x.link}" target="_top">
           <img src="${x.image}">
-          <div class="title">${x.title}</div>
         </a>
+        <div>${x.title}</div>
         ${x.stock==="VAR"
           ? `<div class="price">${x.price} ₺</div>
              <button class="btn" onclick="parent.location.href='${x.link}?add-to-cart=1'">🛒 Sepete Ekle</button>`
-          : `<div class="stock">Tükendi</div>`}
-      </div>
-    `).join("")}
+          : `<div class="stock">Tükendi</div>`
+        }
+      </div>`).join("")}
   </div>
 </div>
 
 <script>
-// Her 1 saniyede otomatik kaydır
+// 1 saniyede otomatik kaydırma
 setInterval(()=>{
-  const el = document.getElementById("sld");
-  el.scrollBy({left:180,behavior:"smooth"});
-  if(el.scrollLeft + el.clientWidth >= el.scrollWidth) el.scrollLeft=0;
+  const s=document.getElementById("sld");
+  s.scrollBy({left:180,behavior:"smooth"});
+  if(s.scrollLeft+s.clientWidth>=s.scrollWidth) s.scrollLeft=0;
 },1000);
 </script>
-
-</body>
-</html>
+</body></html>
 `;
 }
 
