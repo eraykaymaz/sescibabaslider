@@ -6,52 +6,76 @@
 <title>Sescibaba Akıllı Slider</title>
 
 <style>
-body { margin:0; padding:0; background:#fff; font-family:Arial; }
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
 
+/* SLIDER */
 .slider-wrap { overflow:hidden; width:100%; max-width:1850px; margin:0 auto; position:relative; }
-.slider-track { display:flex; gap:18px; transition:transform .5s; }
-
+.slider-track { display:flex; gap:18px; transition:transform .5s ease-in-out; }
 .slide-item { width:150px; text-align:center; padding:20px 0; }
-.slide-item img { width:150px; height:150px; object-fit:contain; border-radius:12px; }
 
-.product-title { font-size:14px; font-weight:700; margin-top:10px; }
+/* IMAGES */
+.slide-item img {
+  width:150px; height:150px; object-fit:contain;
+  border-radius:12px; background:#fff;
+  transition:.3s;
+}
+.slide-item:hover img { transform:scale(1.08); box-shadow:0 4px 14px rgba(0,0,0,.25); }
 
-.product-price { font-size:15px; font-weight:800; color:#d30000; margin-top:4px; }
+/* TITLE */
+.product-title { font-size:14px; font-weight:700; color:#000; margin-top:10px; line-height:16px; }
 
+/* FİYAT */
+.product-price { 
+  font-size:15px; 
+  font-weight:800; 
+  color:#d30000; 
+  margin-top:4px; 
+}
+
+/* TÜKENDİ */
 .out-stock {
-  font-size:12px;
-  color:#cc5555;
-  font-weight:600;
   margin-top:6px;
+  font-size:15px;
+  font-weight:900;
+  color:#ff4d4d;
   opacity:0.85;
 }
 
+/* SEPETE EKLE BUTON */
 .add-cart-btn {
-  margin-top:6px;
-  background:#28a745;
-  color:#fff;
-  border:0;
-  padding:6px 12px;
-  border-radius:6px;
+  margin-top:8px;
+  width:130px;
+  background:#d54c5a;
+  padding:8px 0;
+  border-radius:8px;
+  border:none;
+  color:white;
+  font-weight:700;
   cursor:pointer;
+  transition:.25s;
+}
+.add-cart-btn:hover {
+  background:#c43745;
 }
 
+/* ARROWS */
 .slider-arrow {
   position:absolute; top:45%; transform:translateY(-50%);
-  background:#fff; border:0; width:40px; height:40px; border-radius:50%;
-  box-shadow:0 0 6px rgba(0,0,0,.25);
+  background:#fff; border:0; width:40px; height:40px;
+  border-radius:50%; box-shadow:0 0 6px rgba(0,0,0,.25);
   cursor:pointer; font-size:22px;
 }
-
 .slider-prev { left:5px; }
 .slider-next { right:5px; }
 
-.slider-divider {
-  width:92%; height:2px; background:rgba(0,0,0,.15);
-  margin:10px auto 40px;
-}
+/* DIVIDER */
+.slider-divider { width:92%; height:2px; background:rgba(0,0,0,.15); margin:10px auto 40px; }
 </style>
-
 </head>
 <body>
 
@@ -65,90 +89,97 @@ body { margin:0; padding:0; background:#fff; font-family:Arial; }
 
 <script>
 
+/* ------------------ JS HELPERS ------------------ */
 function loadScript(src){
   return new Promise((resolve,reject)=>{
     const s=document.createElement("script");
     s.src = src+"?v="+Date.now();
-    s.onload=resolve;
-    s.onerror=reject;
+    s.onload=resolve; s.onerror=reject;
     document.body.appendChild(s);
   });
 }
 
-const getParam = key => new URLSearchParams(location.search).get(key);
+const getParam = (key)=> new URLSearchParams(location.search).get(key);
 
-// ✔ TL – USD – EUR fiyat düzeltme fonksiyonu
-function formatPrice(p){
-    if (!p) return "";
-
-    const price = p.replace(/[^0-9.,]/g,"").trim();
-
-    // TRY (siteden gelen default)
-    return "₺" + price;
+/* FİYAT FORMATLAYICI */
+function formatPrice(price){
+  if (!price) return "";
+  if (price.includes(".")) return price + " €";   // EURO
+  if (price.includes(",")) return price + " $";   // USD
+  return price + " ₺";                            // TL → SAĞA ALINDI
 }
 
+/* ------------------ SLIDER ------------------ */
 async function loadSlider(){
-    const CAT = getParam("cat") || "CAT001";
+  const CAT = getParam("cat") || "CAT001";
 
-    await loadScript("data/category-map.js");
-    await loadScript("data/products.js");
+  await loadScript("data/category-map.js");
+  await loadScript("data/products.js");
 
-    const related = window.CATEGORY_MAP[CAT].related;
-    const products = window.PRODUCTS;
-    const track = document.getElementById("sliderTrack");
+  const map = window.CATEGORY_MAP;
+  const pro = window.PRODUCTS;
+  const related = map[CAT].related;
+  const track = document.getElementById("sliderTrack");
 
-    for (let rc of related) {
-        const link = products[rc]?.[0];
-        if (!link) continue;
+  for (let rc of related){
+    const link = pro[rc]?.[0];
+    if (!link) continue;
 
-        const api = await fetch(
-          "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(link)
-        ).then(r=>r.json());
+    /* ÜRÜN API VERİSİ */
+    const api = await fetch(
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url=" + encodeURIComponent(link)
+    ).then(r=>r.json());
 
-        const div = document.createElement("div");
-        div.className = "slide-item";
+    /* HTML OLUŞTUR */
+    const div = document.createElement("div");
+    div.className = "slide-item";
 
-        let bottomHTML = "";
-
-        if (api.stock === "YOK") {
-            bottomHTML = `<div class='out-stock'>Tükendi</div>`;
-        } else {
-            bottomHTML = `
-                <div class="product-price">${formatPrice(api.price)}</div>
-                <button class='add-cart-btn' onclick="addToCart('${link}')">Sepete Ekle</button>
-            `;
-        }
-
-        div.innerHTML = `
-            <a href="${link}" target="_top"><img src="${api.image}"></a>
-            <div class="product-title">${api.title}</div>
-            ${bottomHTML}
+    const priceHTML = api.stock === "YOK"
+      ? `<div class='out-stock'>Tükendi</div>`
+      : `
+         <div class="product-price">${formatPrice(api.price)}</div>
+         <button class="add-cart-btn" onclick="addToCart('${link}')">🛒 Sepete Ekle</button>
         `;
 
-        track.appendChild(div);
-    }
+    div.innerHTML = `
+      <a href="${link}" target="_top"><img src="${api.image}"></a>
+      <div class="product-title">${api.title}</div>
+      ${priceHTML}
+    `;
 
-    initSlider();
+    track.appendChild(div);
+  }
+
+  initSlider();
 }
 
-// Sepete ekle → iframe içinde çalışır
+/* SEPETE EKLE */
 function addToCart(link){
-    window.top.location.href = link + "?add-to-cart=1";
+  window.top.location.href = link + "?add-to-cart=1";
 }
 
+/* SLIDER MOTORU */
 function initSlider(){
-    const track = document.getElementById("sliderTrack");
-    const slides = [...track.children];
-    let index=0, slideWidth = 168;
+  const track=document.getElementById("sliderTrack");
+  const slides=[...track.children];
 
-    function go(i){ track.style.transform = "translateX(-"+(i*slideWidth)+"px)"; }
+  let index=0;
+  const slideWidth=168;
 
-    document.querySelector(".slider-next").onclick = ()=>{
-        index++; if(index >= slides.length-8) index=0; go(index);
-    };
-    document.querySelector(".slider-prev").onclick = ()=>{
-        index--; if(index<0) index = slides.length-8; go(index);
-    };
+  function go(i){
+    track.style.transform="translateX(-"+(i*slideWidth)+"px)";
+  }
+
+  document.querySelector(".slider-next").onclick=()=>{
+    index++;
+    if(index>=slides.length-8) index=0;
+    go(index);
+  };
+  document.querySelector(".slider-prev").onclick=()=>{
+    index--;
+    if(index<0) index=slides.length-8;
+    go(index);
+  };
 }
 
 loadSlider();
