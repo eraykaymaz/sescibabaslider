@@ -2,123 +2,117 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Sescibaba Slider – FINAL iFrame Safe</title>
+<title>15 Ürünlü Test Slider</title>
 
 <style>
 body{
   margin:0;
   padding:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:#fff;
 }
 
 /* WRAP */
 .wrap{
   position:relative;
+  padding:25px 0;
   width:100%;
-  max-width:1920px;
-  margin:auto;
-  padding:32px 0 40px;
   overflow:hidden;
 }
 
 /* SLIDER */
 .slider{
   display:flex;
-  gap:18px;
+  gap:16px;
   overflow-x:auto;
   scroll-behavior:smooth;
-  padding:10px 25px;
+  padding:10px 20px;
 }
 .slider::-webkit-scrollbar{display:none;}
 
-/* KART */
+/* CARD */
 .item{
   width:165px;
   min-width:165px;
-  height:360px;
+  height:350px;
   background:#fff;
   border-radius:12px;
-  padding:12px 10px;
-  box-shadow:0 2px 6px rgba(0,0,0,.12);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  box-shadow:0 2px 5px rgba(0,0,0,.15);
   text-align:center;
+  padding:12px 10px;
   cursor:pointer;
   transition:.25s;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  position:relative;
 }
 .item:hover{
-  box-shadow:0 6px 18px rgba(0,0,0,.22);
-  transform:translateY(-4px);
+  box-shadow:0 7px 15px rgba(0,0,0,.25);
+  transform:translateY(-3px);
 }
 
-/* GÖRSEL */
+/* IMAGE */
 .item img{
-  width:150px;
-  height:150px;
+  width:130px;
+  height:130px;
   object-fit:contain;
+  transition:.25s;
+  margin:auto;
   margin-top:0;
-  transition:transform .25s ease;
 }
-.item:hover img{ transform:scale(1.08); }
+.item:hover img{
+  transform:scale(1.15);
+}
 
-/* BAŞLIK */
+/* TITLE */
 .title{
   margin-top:10px;
   font-size:13px;
   font-weight:700;
-  line-height:16px;
-  height:34px;
+  line-height:15px;
+  height:32px;
   overflow:hidden;
-  -webkit-line-clamp:2;
   display:-webkit-box;
+  -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
 }
 
-/* FİYAT */
+/* PRICE */
 .price{
-  margin-top:8px;
-  font-size:15px;
+  color:#d40000;
+  font-size:16px;
   font-weight:900;
-  color:#c00;
-}
-.price.out{ color:#bd6b68; }
-
-/* TÜKENDİ */
-.tukendi{
-  font-size:13px;
-  margin-top:4px;
-  color:#b69495;
-  font-weight:700;
+  margin-top:8px;
 }
 
 /* BUTTON */
 .btn{
-  width:100%;
-  margin-top:auto;
-  padding:9px 0;
-  border-radius:8px;
+  margin-top:10px;
+  padding:8px 0;
+  border-radius:7px;
   font-size:12px;
   font-weight:700;
-  border:none;
+  cursor:pointer;
   user-select:none;
 }
 
+/* ADD BUTTON */
 .btn.add{
-  background:#d54c5a;
-  color:#fff;
-  cursor:pointer;
+  background:#d6334f;
+  color:white;
 }
-.btn.add:hover{ background:#c13c49; }
-
-.btn.disabled{
-  background:#ccc;
-  color:#777;
-  cursor:not-allowed;
+.btn.add:hover{
+  background:#c1253f;
 }
 
-/* OK TUŞLARI */
+/* OUT OF STOCK */
+.price.out{color:#999;}
+.tukendi{color:#777;margin-top:5px;font-size:13px;font-weight:700;}
+.btn.disabled{background:#ccc;color:#666;cursor:not-allowed;}
+.btn.disabled:hover{background:#ccc;}
+
+/* ARROWS */
 .arrow{
   position:absolute;
   top:50%;
@@ -127,182 +121,170 @@ body{
   height:42px;
   background:#fff;
   border-radius:50%;
-  box-shadow:0 0 10px rgba(0,0,0,.25);
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:22px;
   cursor:pointer;
-  z-index:99;
+  z-index:20;
   user-select:none;
 }
-.arrow:hover{ background:#f1f1f1; }
-
-.left{ left:6px; }
-.right{ right:6px; }
-
+.arrow:hover{background:#f2f2f2;}
+.left{left:5px;}
+.right{right:5px;}
 </style>
 </head>
 <body>
 
+<script>
+/* =======================================================
+   🔥 T-SOFT İÇİN EVENT BLOKLAYICI BYPASS (ZORUNLU)
+   ======================================================= */
+window.addEventListener("click", e => e.stopImmediatePropagation(), true);
+window.addEventListener("pointerdown", e => e.stopImmediatePropagation(), true);
+window.addEventListener("mousedown", e => e.stopImmediatePropagation(), true);
+</script>
+
 <div class="wrap">
 
-  <div class="arrow left" onclick="scrollManual(-1)">❮</div>
-  <div class="arrow right" onclick="scrollManual(1)">❯</div>
+  <div class="arrow left">❮</div>
+  <div class="arrow right">❯</div>
 
   <div class="slider" id="slider">
 
-    <!-- 15 ÜRÜN (5 DEMO) -->
+    <!-- === 1–10 ÜRÜNLER === -->
+    <!-- Ürün 1 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">
       <img src="https://www.sescibaba.com/ml-1a-modelleme-mikrofonu-slate-digital-ml-1a-92055-12-O.webp">
-      <div class="title">ML-1A Modelleme Mikrofonu</div>
+      <div class="title">ML-1A</div>
       <div class="price">24.999 ₺</div>
-      <div class="btn add"
-           onclick="event.stopPropagation(); add('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">
-        Sepete Ekle
-      </div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">Sepete Ekle</div>
     </div>
 
-    <!-- OUT -->
+    <!-- Ürün 2 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel')">
       <img src="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg">
-      <div class="title">Ast-Halo Reflection Filter</div>
-      <div class="price out">19.468 ₺</div>
+      <div class="title">Aston Halo</div>
+      <div class="price out">19.999 ₺</div>
       <div class="tukendi">Tükendi</div>
       <div class="btn disabled">Sepete Ekle</div>
     </div>
 
-    <!-- ÜRÜNLER 3–10 -->
+    <!-- Ürün 3 -->
     <div class="item" onclick="go('https://www.sescibaba.com/carbon8')">
       <img src="https://www.sescibaba.com/carbon8-modal-electronics-carbon-92409-12-O.webp">
       <div class="title">CARBON8X</div>
       <div class="price">41.701 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/carbon8')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 4 -->
     <div class="item" onclick="go('https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer')">
       <img src="https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer-akai-apc64-96203-11-O.jpg">
       <div class="title">AKAI APC64</div>
       <div class="price">13.999 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 5 -->
     <div class="item" onclick="go('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">
       <img src="https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli-ctt-sat4-76964-11-O.webp">
-      <div class="title">SAT4 Mikrofon Paneli</div>
+      <div class="title">SAT4 İzolasyon Paneli</div>
       <div class="price">9.157 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 6 -->
     <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Go Solo Arayüz</div>
+      <div class="title">Go Solo</div>
       <div class="price">999 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/go-solo')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 7 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ds2-desk-stand')">
       <img src="https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg">
-      <div class="title">DS2 Desk Stand</div>
+      <div class="title">Rode DS2 Stand</div>
       <div class="price">5.484 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/ds2-desk-stand')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 8 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">
       <img src="https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg">
       <div class="title">SSL 2 MKII</div>
-      <div class="price">13.999 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="price out">7.499 ₺</div>
+      <div class="tukendi">Tükendi</div>
+      <div class="btn disabled">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 9 -->
     <div class="item" onclick="go('https://www.sescibaba.com/xd80usb-dijital-bateri')">
       <img src="https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp">
-      <div class="title">XD80USB Dijital Bateri</div>
+      <div class="title">XD80USB Bateri</div>
       <div class="price">16.988 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/xd80usb-dijital-bateri')">Sepete Ekle</div>
     </div>
 
+    <!-- Ürün 10 -->
     <div class="item" onclick="go('https://www.sescibaba.com/zg01-175559837212430')">
       <img src="https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp">
       <div class="title">Yamaha ZG01</div>
       <div class="price">18.999 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
+      <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/zg01-175559837212430')">Sepete Ekle</div>
     </div>
 
-    <!-- DEMO 11–15 -->
-    <div class="item">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün 11</div>
-      <div class="price">199 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
-    </div>
-
-    <div class="item">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün 12</div>
-      <div class="price">299 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
-    </div>
-
-    <div class="item">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün 13</div>
-      <div class="price">399 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
-    </div>
-
-    <div class="item">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün 14</div>
-      <div class="price">499 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
-    </div>
-
-    <div class="item">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün 15</div>
-      <div class="price">599 ₺</div>
-      <div class="btn add">Sepete Ekle</div>
-    </div>
+    <!-- === 11–15 DEMO ÜRÜNLER === -->
+    <script>
+      for(let i=11;i<=15;i++){
+        document.write(`
+          <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
+            <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
+            <div class="title">Demo Ürün ${i}</div>
+            <div class="price">1.${i}99 ₺</div>
+            <div class="btn add" onclick="event.stopPropagation(); go('https://www.sescibaba.com/go-solo')">Sepete Ekle</div>
+          </div>
+        `);
+      }
+    </script>
 
   </div>
 </div>
 
-
 <script>
-const slider=document.getElementById("slider");
-
-/* iFrame → Parent yönlendirme */
+// Sayfaya git
 function go(url){
-  parent.postMessage({type:"go",url}, "*");
-}
-function add(url){
-  parent.postMessage({type:"add",url:url+"?add-to-cart=1"}, "*");
+  window.top.location.href = url;
 }
 
-/* AUTO SCROLL */
-let auto=true;
+// Otomatik kaydırma
+let auto = true;
+let slider = document.getElementById('slider');
+
 function autoScroll(){
   if(!auto) return;
   slider.scrollBy({left:170,behavior:"smooth"});
-  if(slider.scrollLeft + slider.clientWidth >= slider.scrollWidth-5){
-    slider.scrollTo({left:0,behavior:"smooth"});
-  }
 }
-let timer=setInterval(autoScroll,2000);
+let timer = setInterval(autoScroll,1800);
 
-/* ARROWS */
-function scrollManual(dir){
-  slider.scrollBy({left:dir*170,behavior:'smooth'});
-  pause();
-}
+// Oklar
+document.querySelector(".left").onclick = ()=>{
+  slider.scrollBy({left:-200,behavior:'smooth'});
+  auto=false; resetAuto();
+};
+document.querySelector(".right").onclick = ()=>{
+  slider.scrollBy({left:200,behavior:'smooth'});
+  auto=false; resetAuto();
+};
 
-/* DURAKLATMA */
-slider.addEventListener("touchstart",pause);
-function pause(){
-  auto=false;
-  clearTimeout(window.resume);
-  window.resume=setTimeout(()=>auto=true,7000);
+// Dokunmatik
+slider.addEventListener("touchstart", ()=>{ auto=false; resetAuto(); });
+
+function resetAuto(){
+  clearTimeout(window.restartTimeout);
+  window.restartTimeout = setTimeout(()=>{ auto=true; },6000);
 }
 </script>
 
