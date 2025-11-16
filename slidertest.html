@@ -2,33 +2,184 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider</title>
+<title>A01–A05 Excel Slider Üretici (FINAL)</title>
 
 <style>
-body{
-  margin:0;
-  padding:0;
-  font-family:Arial;
-  background:#fff;
+body{font-family:Arial;padding:15px;background:#f7f7f7;}
+table{width:100%;border-collapse:collapse;background:#fff;margin-top:15px;font-size:13px;}
+th,td{border:1px solid #ccc;padding:6px;text-align:left;}
+img{width:70px;height:70px;object-fit:contain;}
+.red{background:#ffe3e3;}
+.btn{padding:5px 10px;border:0;border-radius:5px;cursor:pointer;font-size:12px;}
+.update{background:#1976d2;color:#fff}
+.gen{background:#ff7f00;color:#fff}
+.input{width:150px;padding:4px}
+.git{color:#0d47a1;font-weight:bold}
+</style>
+</head>
+<body>
+
+<h2>A01–A05 Excel → 15 Ürünlük Slider Üretici</h2>
+
+<input type="file" id="excelFile" accept=".xlsx">
+
+<table id="productTable">
+<thead>
+<tr>
+  <th>Görsel</th>
+  <th>Başlık</th>
+  <th>Fiyat</th>
+  <th>Kategori</th>
+  <th>A-Kodu</th>
+  <th>Link</th>
+  <th>Üret</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+/* ==========================================
+   A01–A05 RELATED MAP (15 ürün çıkarır)
+========================================== */
+const CATEGORY_MAP = {
+"A01":["A02","A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A01"],
+"A02":["A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A01","A02"],
+"A03":["A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A01","A02","A03"],
+"A04":["A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A01","A02","A03","A04"],
+"A05":["A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A01","A02","A03","A04","A05"]
+};
+
+let PRODUCTS = {};   // { A01:['link'], ... }
+
+/* ==========================================
+   EXCEL OKUMA
+========================================== */
+document.getElementById("excelFile").addEventListener("change", async (e)=>{
+  const file=e.target.files[0];
+  const data=await file.arrayBuffer();
+  const wb=XLSX.read(data);
+  const sheet=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(sheet,{header:1});
+  const body=document.querySelector("#productTable tbody");
+  body.innerHTML="";
+
+  for(let i=1;i<rows.length;i++){
+    let catName=rows[i][0];
+    let CODE=rows[i][1];
+    let LINK=rows[i][2];
+
+    if(!CODE) continue;
+
+    if(!PRODUCTS[CODE]) PRODUCTS[CODE]=[];
+    if(LINK) PRODUCTS[CODE][0]=LINK;
+
+    let api = LINK ? await fetchAPI(LINK) : {title:"-",image:"",price:"-",stock:"YOK"};
+
+    body.appendChild(renderRow(i,catName,CODE,LINK,api));
+  }
+});
+
+/* ==========================================
+   TABLO SATIRI
+========================================== */
+function renderRow(i,catName,CODE,LINK,api){
+  const tr=document.createElement("tr");
+  if(api.stock==="YOK") tr.classList.add("red");
+
+  tr.innerHTML=`
+    <td><img src="${api.image}"></td>
+    <td>${api.title}</td>
+    <td>${api.price}</td>
+    <td>${catName}</td>
+    <td>${CODE}</td>
+    <td class="cell">
+      ${LINK ? `<a href="${LINK}" class="git" target="_blank">Git</a>` :
+      `<input id="inp_${i}" class="input" placeholder="Link">
+       <button class="btn update" onclick="updateLink(${i},'${CODE}')">OK</button>`}
+    </td>
+    <td><button class="btn gen" onclick="generateSlider('${CODE}')">ÜRET</button></td>
+  `;
+
+  return tr;
 }
 
-/* WRAP */
-.wrap{
-  width:100%;
-  overflow:hidden;
-  position:relative;
-  padding:25px 0;
+/* ==========================================
+   LİNK GÜNCELLE
+========================================== */
+async function updateLink(i,CODE){
+  const newLink=document.getElementById("inp_"+i).value.trim();
+  if(!newLink) return;
+
+  PRODUCTS[CODE]=[newLink];
+
+  const api=await fetchAPI(newLink);
+
+  const row=document.getElementById("inp_"+i).closest("tr");
+  row.children[0].innerHTML=`<img src="${api.image}">`;
+  row.children[1].innerHTML=api.title;
+  row.children[2].innerHTML=api.price;
+  row.children[5].innerHTML=`<a href="${newLink}" class="git" target="_blank">Git</a>`;
+  row.classList.toggle("red", api.stock==="YOK");
 }
 
-/* SLIDER */
-.slider{
-  display:flex;
-  gap:18px;
-  padding:10px 20px;
-  overflow-x:auto;
-  scroll-behavior:smooth;
+/* ==========================================
+   API ÇEKME
+========================================== */
+async function fetchAPI(url){
+  try{
+    const r=await fetch(
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
+    );
+    return await r.json();
+  }catch{
+    return {title:"-",price:"-",image:"",stock:"YOK"};
+  }
 }
+
+/* ==========================================
+   SLIDER ÜRET (15 ÜRÜN)
+========================================== */
+async function generateSlider(CODE){
+  const related=CATEGORY_MAP[CODE] || [];
+  let items=[];
+
+  for(const rc of related){
+    const link=PRODUCTS[rc]?.[0];
+    if(!link) continue;
+
+    const api=await fetchAPI(link);
+    items.push({...api,link});
+    if(items.length===15) break;
+  }
+
+  const html = sliderHTML(items);
+  const blob=new Blob([html],{type:"text/html"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=CODE+"-slider.html";
+  a.click();
+}
+
+/* ==========================================
+   3D HOVERLI – OK TUŞLU – AUTO SLIDE
+   T-SOFT UYUMLU SLIDER TEMPLATE
+========================================== */
+function sliderHTML(items){
+return `
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slider</title>
+
+<style>
+body{margin:0;padding:0;font-family:Arial;background:#fff;}
+.wrap{width:100%;overflow:hidden;position:relative;padding:25px 0;}
+.slider{display:flex;gap:18px;padding:10px 20px;overflow-x:auto;scroll-behavior:smooth;}
 .slider::-webkit-scrollbar{display:none}
 
 /* CARD */
@@ -52,17 +203,15 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,.25);
 }
 
-/* IMAGE */
 .item img{
   width:150px;
   height:150px;
   object-fit:contain;
+  margin:auto;
   transition:.25s;
-  margin:0 auto;
 }
-.item:hover img{ transform:scale(1.07) }
+.item:hover img{ transform:scale(1.07); }
 
-/* TITLE */
 .title{
   font-size:14px;
   font-weight:700;
@@ -74,49 +223,29 @@ body{
   -webkit-box-orient:vertical;
 }
 
-/* PRICE */
-.price{
-  font-size:18px;
-  font-weight:900;
-  color:#c00;
-  margin-top:8px;
-}
-.price.out{ color:#bd6b68 }
+.price{font-size:18px;font-weight:900;color:#c00;margin-top:8px;}
+.price.out{color:#bd6b68;}
+.tukendi{font-size:13px;color:#b69495;font-weight:700;margin-top:3px;}
 
-/* TÜKENDİ */
-.tukendi{
-  font-size:13px;
-  font-weight:700;
-  color:#b69495;
-  margin-top:3px;
-}
-
-/* BUTTON */
 .btn{
   margin-top:auto;
   padding:9px 0;
   border-radius:8px;
   font-size:13px;
   font-weight:700;
-  transition:.25s;
-  user-select:none;
 }
 
-/* ACTIVE */
 .btn.add{
   background:#d54c5a;
   color:#fff;
 }
-.btn.add:hover{ background:#c13c49 }
-
-/* DISABLED */
 .btn.disabled{
   background:#ccc;
   color:#666;
   cursor:not-allowed;
 }
 
-/* ARROWS */
+/* OKLAR */
 .arrow{
   position:absolute;
   top:50%;
@@ -131,136 +260,57 @@ body{
   font-size:24px;
   cursor:pointer;
   box-shadow:0 2px 10px rgba(0,0,0,.25);
-  z-index:30;
+  z-index:20;
 }
 .left{left:5px}
 .right{right:5px}
 
-@media(max-width:768px){
-  .arrow{display:none}
-}
+@media(max-width:768px){ .arrow{display:none;} }
 </style>
 </head>
+
 <body>
 
 <div class="wrap">
-
   <div class="arrow left">❮</div>
   <div class="arrow right">❯</div>
 
   <div class="slider" id="slider">
 
-    <!-- ÜRÜNLER (10 ADET) -->
-    <div class="item" data-url="https://www.sescibaba.com/ml-1a-modelleme-mikrofonu">
-      <img src="https://www.sescibaba.com/ml-1a-modelleme-mikrofonu-slate-digital-ml-1a-92055-12-O.webp">
-      <div class="title">ML-1A Modelleme Mikrofonu</div>
-      <div class="price">24.999 ₺</div>
-      <div class="btn add" data-id="12751">Sepete Ekle</div>
-    </div>
+${items.map(p=>`
+  <div class="item" onclick="go('${p.link}')">
+    <img src="${p.image}">
+    <div class="title">${p.title}</div>
 
-    <div class="item" data-url="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel">
-      <img src="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg">
-      <div class="title">Aston Halo Reflection Filter</div>
-      <div class="price out">19.999 ₺</div>
-      <div class="tukendi">Tükendi</div>
-      <div class="btn disabled">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/carbon8">
-      <img src="https://www.sescibaba.com/carbon8-modal-electronics-carbon-92409-12-O.webp">
-      <div class="title">CARBON8X Synth</div>
-      <div class="price">41.701 ₺</div>
-      <div class="btn add" data-id="13359">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer">
-      <img src="https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer-akai-apc64-96203-11-O.jpg">
-      <div class="title">AKAI APC64 Live Controller</div>
-      <div class="price">13.999 ₺</div>
-      <div class="btn add" data-id="14901">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli">
-      <img src="https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli-ctt-sat4-76964-11-O.webp">
-      <div class="title">SAT4 İzolasyon Paneli</div>
-      <div class="price">9.157 ₺</div>
-      <div class="btn add" data-id="11844">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/go-solo">
-      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">GoSolo Ses Kartı</div>
-      <div class="price">999 ₺</div>
-      <div class="btn add" data-id="14033">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/ds2-desk-stand">
-      <img src="https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg">
-      <div class="title">RODE DS2 Stand</div>
-      <div class="price">5.484 ₺</div>
-      <div class="btn add" data-id="16294">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/ssl-2-mkii-ses-karti">
-      <img src="https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg">
-      <div class="title">SSL2 MKII Ses Kartı</div>
-      <div class="price out">7.499 ₺</div>
-      <div class="tukendi">Tükendi</div>
-      <div class="btn disabled">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/xd80usb-dijital-bateri">
-      <img src="https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp">
-      <div class="title">XD80USB Dijital Bateri</div>
-      <div class="price">16.988 ₺</div>
-      <div class="btn add" data-id="15304">Sepete Ekle</div>
-    </div>
-
-    <div class="item" data-url="https://www.sescibaba.com/zg01-175559837212430">
-      <img src="https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp">
-      <div class="title">Yamaha ZG01</div>
-      <div class="price">18.999 ₺</div>
-      <div class="btn add" data-id="13952">Sepete Ekle</div>
-    </div>
+    ${p.stock==="YOK"
+      ? `<div class="price out">${p.price}</div>
+         <div class="tukendi">Tükendi</div>
+         <div class='btn disabled'>Sepete Ekle</div>`
+      : `<div class="price">${p.price}</div>
+         <div class='btn add' onclick="cart('${p.id || ""}');event.stopPropagation();">Sepete Ekle</div>`}
+  </div>
+`).join("")}
 
   </div>
 </div>
 
 <script>
-// ==== ÜRÜN TIKLAMA ====
-function goToProduct(url){
-  parent.postMessage({ cmd:"go", url:url }, "*");
+// Ürüne git
+function go(url){ window.top.location.href=url; }
+
+// Sepete ekle
+function cart(id){
+  if(!id) return;
+  window.top.location.href = "?add-to-cart="+id;
 }
 
-// ==== SEPETE EKLE ====
-function addCart(id){
-  parent.postMessage({ cmd:"cart", id:id, sub:0, count:1 }, "*");
-}
-
-// ==== TIKLAMA YAKALAMA (HEPSİ ÇALIŞIR) ====
-document.addEventListener("click", e=>{
-  let btn  = e.target.closest(".btn.add");
-  let item = e.target.closest(".item");
-
-  if(btn && btn.dataset.id){
-    addCart(btn.dataset.id);
-    e.stopPropagation();
-    return;
-  }
-
-  if(item && item.dataset.url){
-    goToProduct(item.dataset.url);
-  }
-});
-
-// ==== AUTO SCROLL ====
-let slider = document.getElementById("slider");
+// Auto slide
+let slider=document.getElementById("slider");
 let auto=true;
-
 function autoScroll(){
   if(auto) slider.scrollBy({left:200,behavior:"smooth"});
 }
-let autoTimer = setInterval(autoScroll,2500);
+let timer=setInterval(autoScroll,2500);
 
 function stopAuto(){
   auto=false;
@@ -268,16 +318,16 @@ function stopAuto(){
   window.resume=setTimeout(()=>auto=true,6000);
 }
 
-document.querySelector(".left").onclick=()=>{
-  slider.scrollBy({left:-200,behavior:"smooth"});
-  stopAuto();
-};
-document.querySelector(".right").onclick=()=>{
-  slider.scrollBy({left:200,behavior:"smooth"});
-  stopAuto();
-};
+document.querySelector(".left").onclick=()=>{ slider.scrollBy({left:-200,behavior:"smooth"}); stopAuto(); };
+document.querySelector(".right").onclick=()=>{ slider.scrollBy({left:200,behavior:"smooth"}); stopAuto(); };
 
 slider.addEventListener("touchstart", stopAuto);
+</script>
+
+</body>
+</html>
+`;
+}
 </script>
 
 </body>
