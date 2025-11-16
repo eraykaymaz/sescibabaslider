@@ -95,9 +95,10 @@ function renderRow(i,catName,CODE,LINK,api){
     <td>${catName}</td>
     <td>${CODE}</td>
     <td class="cell">
-      ${LINK ? `<a href="${LINK}" class="git" target="_blank">Git</a>` :
-      `<input id="inp_${i}" class="input" placeholder="Link">
-       <button class="btn update" onclick="updateLink(${i},'${CODE}')">OK</button>` }
+      ${api.stock==="VAR" && LINK
+        ? `<a href="${LINK}" class="git" target="_blank">Git</a>`
+        : `<input id="inp_${i}" class="input" value="${LINK||""}" placeholder="Link">
+           <button class="btn update" onclick="updateLink(${i},'${CODE}')">Güncelle</button>`}
     </td>
     <td><button class="btn gen" onclick="generateSlider('${CODE}')">ÜRET</button></td>
   `;
@@ -115,11 +116,22 @@ async function updateLink(i,CODE){
   const api=await fetchAPI(newLink);
 
   const row=document.getElementById("inp_"+i).closest("tr");
+
+  // Ürün bilgilerini güncelle
   row.children[0].innerHTML=`<img src="${api.image}">`;
   row.children[1].innerHTML=api.title;
   row.children[2].innerHTML=api.price;
-  row.children[5].innerHTML=`<a href="${newLink}" target="_blank" class="git">Git</a>`;
-  row.classList.toggle("red", api.stock==="YOK");
+
+  // Link hücresi styling
+  if(api.stock==="VAR"){
+    row.children[5].innerHTML=`<a href="${newLink}" target="_blank" class="git">Git</a>`;
+    row.classList.remove("red");
+  } else {
+    row.children[5].innerHTML=
+      `<input id="inp_${i}" class="input" value="${newLink}">
+       <button class="btn update" onclick="updateLink(${i},'${CODE}')">Güncelle</button>`;
+    row.classList.add("red");
+  }
 }
 
 /* =========================
