@@ -12,12 +12,12 @@ img{width:70px;height:70px;object-fit:contain;}
 .red{background:#ffe3e3;}
 .btn{padding:5px 10px;border:0;border-radius:5px;cursor:pointer;font-size:12px;}
 .update{background:#1976d2;color:#fff}
-.gen{background:#ff7f00;color:#fff}
+.gen{background:#ff7f00;color:#fff; white-space:nowrap;}
 .input{width:150px;padding:4px}
 .git{color:#0d47a1;font-weight:bold}
+.flex{display:flex;gap:6px;align-items:center;}
 </style>
 </head>
-
 <body>
 
 <h2>Hit-Maker</h2>
@@ -30,7 +30,7 @@ img{width:70px;height:70px;object-fit:contain;}
   <th>Görsel</th>
   <th>Başlık</th>
   <th>Fiyat</th>
-  <th>Kategori / API Kategori</th>
+  <th>Kategori</th>
   <th>A-Kodu</th>
   <th>Link</th>
   <th>Slider Üret</th>
@@ -40,11 +40,11 @@ img{width:70px;height:70px;object-fit:contain;}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
 
-
-
-  const CATEGORY_MAP = {
+/* -------------------------- CATEGORY MAP (A01–B12 TAM) -------------------------- */
+const CATEGORY_MAP = {
 "A01":{"related":["A02","A03","A04","A05","A09","A11","A12","A16","A32","A33","A40","A47","A50","A74","A89"]},
 "A02":{"related":["A03","A04","A07","A09","A11","A14","A16","A32","A33","A37","A40","A47","A50","A74","A89"]},
 "A03":{"related":["A32","A33","A34","A37","A40","A44","A47","A16","A02","A11","A89","A90","A91","A93","A95"]},
@@ -127,11 +127,11 @@ img{width:70px;height:70px;object-fit:contain;}
 "A80":{"related":["A81","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A90","A91"]},
 "A81":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
 "A82":{"related":["A80","A81","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
-"А83":{"related":["A80","A82","A84","A85","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A36"]},
+"A83":{"related":["A80","A82","A84","A85","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A36"]},
 "A84":{"related":["A80","A82","A83","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
 "A85":{"related":["A80","A82","A83","A84","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A72"]},
-"A86":{"related":["A80","A82","A83","A84","A85","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
-"A87":{"related":["A80","A82","A83","A84","A85","A86","A88","A92","A93","A89","A16","A95","A97","A72","A41"]},
+"A86":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
+"A87":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A72","A41"]},
 "A88":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97"]},
 "A89":{"related":["A17","A18","A19","A20","A02","A03","A37","A40","A50","A72","A62","A74","A89","A93","A91"]},
 "A90":{"related":["A89","A91","A92","A93","A21","A22","A83","A85","A16","A95","A97","A98","A26","A27","A25"]},
@@ -151,14 +151,17 @@ img{width:70px;height:70px;object-fit:contain;}
 "B05":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A24","A23","A21","A25"]},
 "B06":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
 "B07":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
-"B08":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22"]},
+"B08":{"related":["A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22"]},
 "B09":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A22","A23","A24"]},
 "B10":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A23","A22","A25"]},
 "B11":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]},
 "B12":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]}
 };
+
+/* -------------------------- GLOBAL -------------------------- */
 let PRODUCTS = {};
 
+/* -------------------------- EXCEL OKUMA -------------------------- */
 document.getElementById("excelFile").addEventListener("change", async (e)=>{
   const file=e.target.files[0];
   const data=await file.arrayBuffer();
@@ -177,14 +180,17 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
     if(!PRODUCTS[CODE]) PRODUCTS[CODE]=[];
     if(LINK) PRODUCTS[CODE][0]=LINK;
 
-    let api = LINK ? await fetchAPI(LINK) : {title:"-",image:"",price:"-",stock:"YOK",category:"-"};
+    let api = LINK ? await fetchAPI(LINK)
+                   : {title:"-",image:"",price:"-",stock:"YOK",category:"-"};
 
     body.appendChild(renderRow(i,catName,CODE,LINK,api));
   }
 });
 
+/* -------------------------- SATIR OLUŞTUR -------------------------- */
 function renderRow(i,catName,CODE,LINK,api){
   const tr=document.createElement("tr");
+
   if(api.stock==="YOK") tr.classList.add("red");
 
   tr.innerHTML=`
@@ -193,17 +199,33 @@ function renderRow(i,catName,CODE,LINK,api){
     <td>${api.price}</td>
     <td>${catName} / API: ${api.category}</td>
     <td>${CODE}</td>
+
     <td class="cell">
-      ${LINK 
-        ? `<a href="${LINK}" class="git" target="_blank">Git</a>`
-        : `<input id="inp_${i}" class="input" placeholder="Yeni link">
-           <button class="btn update" onclick="updateLink(${i},'${CODE}')">OK</button>`}
+      ${
+        api.stock==="YOK"
+        ? `
+          <div class="flex">
+            <input id="inp_${i}" class="input" placeholder="Yeni link">
+            <button class="btn update" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
+          </div>
+        `
+        :
+          LINK
+          ? `<a href="${LINK}" class="git" target="_blank">Git</a>`
+          : `
+            <div class="flex">
+              <input id="inp_${i}" class="input" placeholder="Yeni link">
+              <button class="btn update" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
+            </div>`
+      }
     </td>
+
     <td><button class="btn gen" onclick="generateSlider('${CODE}')">Slider Üret</button></td>
   `;
   return tr;
 }
 
+/* -------------------------- LİNK GÜNCELLE -------------------------- */
 async function updateLink(i,CODE){
   const newLink=document.getElementById("inp_"+i).value.trim();
   if(!newLink) return;
@@ -212,32 +234,52 @@ async function updateLink(i,CODE){
   const api=await fetchAPI(newLink);
 
   const row=document.getElementById("inp_"+i).closest("tr");
+
   row.children[0].innerHTML=`<img src="${api.image}">`;
   row.children[1].innerHTML=api.title;
   row.children[2].innerHTML=api.price;
-  row.children[3].innerHTML=row.children[3].innerHTML.split(" / API:")[0] + " / API: " + api.category;
-  row.children[5].innerHTML=`<a href="${newLink}" target="_blank" class="git">Git</a>`;
-  row.classList.toggle("red", api.stock==="YOK");
+
+  const catBase=row.children[3].innerHTML.split("/ API:")[0];
+  row.children[3].innerHTML=`${catBase} / API: ${api.category}`;
+
+  if(api.stock==="YOK"){
+    row.children[5].innerHTML=`
+      <div class="flex">
+        <input id="inp_${i}" class="input" placeholder="Yeni link">
+        <button class="btn update" onclick="updateLink(${i},'${CODE}')">Güncelle</button>
+      </div>`;
+    row.classList.add("red");
+  } else {
+    row.children[5].innerHTML=`<a href="${newLink}" class="git" target="_blank">Git</a>`;
+    row.classList.remove("red");
+  }
 }
+
+/* -------------------------- API -------------------------- */
 async function fetchAPI(url){
   try{
-    const r=await fetch("https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url));
+    const r=await fetch(
+      "https://yellow-fog-3fba.eray-kaymaz.workers.dev/?url="+encodeURIComponent(url)
+    );
     return await r.json();
   }catch{
     return {title:"-",price:"-",image:"",stock:"YOK",category:"-"};
   }
 }
 
+/* -------------------------- SLIDER ÜRET -------------------------- */
 async function generateSlider(CODE){
   const related=CATEGORY_MAP[CODE]?.related || [];
   let items=[];
 
-  for(const rc of related){
-    const link=PRODUCTS[rc]?.[0];
+  for(const r of related){
+    const link=PRODUCTS[r]?.[0];
     if(!link) continue;
+
     const api=await fetchAPI(link);
     items.push({...api,link});
-    if(items.length===15) break;
+
+    if(items.length>=15) break;
   }
 
   const html=sliderHTML(items);
@@ -248,6 +290,7 @@ async function generateSlider(CODE){
   a.click();
 }
 
+/* -------------------------- SLIDER HTML -------------------------- */
 function sliderHTML(items){
 return `
 <!DOCTYPE html>
@@ -260,7 +303,8 @@ body{margin:0;padding:0;font-family:Arial;}
 .item{width:170px;height:350px;padding:12px;border-radius:14px;background:#fff;
      box-shadow:0 2px 6px rgba(0,0,0,.12);display:flex;flex-direction:column;text-align:center;cursor:pointer}
 .item img{width:150px;height:150px;object-fit:contain;margin:auto;}
-.title{font-size:14px;font-weight:700;height:36px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.title{font-size:14px;font-weight:700;height:36px;overflow:hidden;
+       display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
 .price{font-size:18px;font-weight:900;color:#c00}
 .price.out{color:#bd6b68}
 .tukendi{font-size:13px;color:#b69495;font-weight:700}
@@ -276,16 +320,26 @@ ${items.map(p=>`
   <div class="item" onclick="parent.location.href='${p.link}'">
     <img src="${p.image}">
     <div class="title">${p.title}</div>
-    ${p.stock==="YOK"
-      ? `<div class="price out">${p.price}</div><div class="tukendi">Tükendi</div><div class='btn disabled'>Sepete Ekle</div>`
-      : `<div class="price">${p.price}</div><div class='btn add'>Sepete Ekle</div>`}
+
+    ${
+      p.stock==="YOK"
+      ? `
+         <div class="price out">${p.price}</div>
+         <div class="tukendi">Tükendi</div>
+         <div class="btn disabled">Sepete Ekle</div>
+        `
+      : `
+         <div class="price">${p.price}</div>
+         <div class="btn add">Sepete Ekle</div>
+        `
+    }
   </div>
 `).join("")}
 </div>
 </div>
 </body></html>`;
 }
-</script>
 
+</script>
 </body>
 </html>
