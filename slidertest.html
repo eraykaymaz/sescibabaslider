@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>15 Ürünlü Slider – Final</title>
+<title>15 Ürünlü Slider</title>
 
 <style>
 body{
@@ -12,21 +12,23 @@ body{
   background:#fff;
 }
 
-/* WRAP */
+/* WRAPPER */
 .wrap{
   position:relative;
-  padding:30px 0;
   width:100%;
+  max-width:1920px;
+  margin:auto;
+  padding:32px 0 40px;
   overflow:hidden;
 }
 
 /* SLIDER */
 .slider{
   display:flex;
-  gap:16px;
+  gap:18px;
   overflow-x:auto;
   scroll-behavior:smooth;
-  padding:0 22px;
+  padding:10px 25px;
 }
 .slider::-webkit-scrollbar{display:none;}
 
@@ -34,37 +36,32 @@ body{
 .item{
   width:165px;
   min-width:165px;
-  height:355px;
+  height:360px;
   background:#fff;
   border-radius:12px;
   padding:12px 10px;
-  box-shadow:0 2px 6px rgba(0,0,0,.14);
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
   text-align:center;
   cursor:pointer;
-  transition:.22s;
+  transition:.25s;
 }
 .item:hover{
-  box-shadow:0 6px 18px rgba(0,0,0,.25);
-  transform:translateY(-3px);
+  box-shadow:0 6px 18px rgba(0,0,0,.22);
+  transform:translateY(-4px);
 }
 
 /* IMAGE */
-.imgbox{
-  width:100%;
-  height:150px;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;   /* GÖRSELİ TAVANA DAYAYAN NOKTA */
-  overflow:hidden;
-}
-.imgbox img{
+.item img{
   width:150px;
   height:150px;
   object-fit:contain;
-  transition:.25s;
+  margin-top:0;
+  transition:transform .25s ease;
 }
 .item:hover img{
   transform:scale(1.08);
@@ -72,7 +69,7 @@ body{
 
 /* TITLE */
 .title{
-  margin-top:8px;
+  margin-top:10px;
   font-size:13px;
   font-weight:700;
   line-height:16px;
@@ -90,13 +87,11 @@ body{
   font-weight:900;
   color:#c00;
 }
-.price.out{
-  color:#bd6b68;
-}
+.price.out{ color:#bd6b68; }
 
 /* TÜKENDİ */
 .tukendi{
-  font-size:12px;
+  font-size:13px;
   margin-top:4px;
   color:#b69495;
   font-weight:700;
@@ -104,20 +99,21 @@ body{
 
 /* BUTTON */
 .btn{
+  width:100%;
   margin-top:auto;
   padding:9px 0;
   border-radius:8px;
   border:none;
   font-size:12px;
   font-weight:700;
-  user-select:none;
   transition:.2s;
+  user-select:none;
 }
 
 /* ACTIVE */
 .btn.add{
   background:#d54c5a;
-  color:white;
+  color:#fff;
   cursor:pointer;
 }
 .btn.add:hover{
@@ -149,7 +145,7 @@ body{
   user-select:none;
   z-index:99;
 }
-.arrow:hover{ background:#f3f3f3; }
+.arrow:hover{ background:#f1f1f1; }
 
 .left{ left:6px; }
 .right{ right:6px; }
@@ -168,30 +164,94 @@ body{
 
   <div class="slider" id="slider">
 
-    <!-- 15 ÜRÜNLÜ DEMO SET -->
-    ${[
-      {t:"ML-1A Modelleme Mikrofonu", img:"https://www.sescibaba.com/ml-1a-modelleme-mikrofonu-slate-digital-ml-1a-92055-12-O.webp", p:"24.999 ₺", o:false, u:"https://www.sescibaba.com/ml-1a-modelleme-mikrofonu"},
-      {t:"Ast-Halo Reflection Filter", img:"https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg", p:"19.468 ₺", o:true, u:"https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel"},
-      {t:"CARBON8X Synth", img:"https://www.sescibaba.com/carbon8-modal-electronics-carbon-92409-12-O.webp", p:"41.701 ₺", o:false, u:"https://www.sescibaba.com/carbon8"},
-      {t:"AKAI APC64 Live Controller", img:"https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer-akai-apc64-96203-11-O.jpg", p:"13.999 ₺", o:false, u:"https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer"},
-      {t:"SAT4 Mikrofon İzolasyon Paneli", img:"https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli-ctt-sat4-76964-11-O.webp", p:"9.157 ₺", o:false, u:"https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli"},
-      {t:"Go Solo Ses Arayüzü", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"999 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-      {t:"DS2 Desk Stand", img:"https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg", p:"5.484 ₺", o:false, u:"https://www.sescibaba.com/ds2-desk-stand"},
-      {t:"SSL 2 MKII Ses Kartı", img:"https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg", p:"7.499 ₺", o:false, u:"https://www.sescibaba.com/ssl-2-mkii-ses-karti"},
-      {t:"XD80USB Dijital Bateri", img:"https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp", p:"16.988 ₺", o:false, u:"https://www.sescibaba.com/xd80usb-dijital-bateri"},
-      {t:"Yamaha ZG01", img:"https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp", p:"18.999 ₺", o:false, u:"https://www.sescibaba.com/zg01-175559837212430"},
-      {t:"Demo Ürün 11", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"1.189 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-      {t:"Demo Ürün 12", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"1.299 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-      {t:"Demo Ürün 13", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"1.399 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-      {t:"Demo Ürün 14", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"1.499 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-      {t:"Demo Ürün 15", img:"https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg", p:"1.599 ₺", o:false, u:"https://www.sescibaba.com/go-solo"},
-    ].map(x=>`
-      <div class="item" onclick="go('${x.u}')">
-        <div class="imgbox"><img src="${x.img}"></div>
-        <div class="title">${x.t}</div>
-        <div class="price ${x.o?'out':''}">${x.p}</div>
-        ${x.o?'<div class="tukendi">Tükendi</div>':''}
-        <div class="btn ${x.o?'disabled':'add'}" onclick="${x.o?'event.stopPropagation()':'event.stopPropagation(); add(\''+x.u+'\')'}">Sepete Ekle</div>
+    <!-- ÜRÜN 1 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">
+      <img src="https://www.sescibaba.com/ml-1a-modelleme-mikrofonu-slate-digital-ml-1a-92055-12-O.webp">
+      <div class="title">ML-1A Modelleme Mikrofonu</div>
+      <div class="price">24.999 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 2 OUT -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel')">
+      <img src="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg">
+      <div class="title">Ast-Halo Reflection Filter</div>
+      <div class="price out">19.468 ₺</div>
+      <div class="tukendi">Tükendi</div>
+      <div class="btn disabled">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 3 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/carbon8')">
+      <img src="https://www.sescibaba.com/carbon8-modal-electronics-carbon-92409-12-O.webp">
+      <div class="title">CARBON8X Synth</div>
+      <div class="price">41.701 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/carbon8')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 4 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer')">
+      <img src="https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer-akai-apc64-96203-11-O.jpg">
+      <div class="title">AKAI APC64 Kontrol Ünitesi</div>
+      <div class="price">13.999 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 5 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">
+      <img src="https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli-ctt-sat4-76964-11-O.webp">
+      <div class="title">SAT4 Mikrofon İzolasyon Paneli</div>
+      <div class="price">9.157 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 6 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
+      <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
+      <div class="title">Go Solo Ses/MIDI Arayüzü</div>
+      <div class="price">999 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/go-solo')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 7 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ds2-desk-stand')">
+      <img src="https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg">
+      <div class="title">DS2 Desk Stand</div>
+      <div class="price">5.484 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ds2-desk-stand')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 8 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">
+      <img src="https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg">
+      <div class="title">SSL 2 MKII Ses Kartı</div>
+      <div class="price">7.499 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 9 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/xd80usb-dijital-bateri')">
+      <img src="https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp">
+      <div class="title">XD80USB Dijital Bateri</div>
+      <div class="price">16.988 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/xd80usb-dijital-bateri')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 10 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/zg01-175559837212430')">
+      <img src="https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp">
+      <div class="title">Yamaha ZG01</div>
+      <div class="price">18.999 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/zg01-175559837212430')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 11–15 DEMO -->
+    ${Array.from({length:5}).map((_,i)=>`
+      <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
+        <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
+        <div class="title">Demo Ürün ${i+11}</div>
+        <div class="price">${(i+1)*199} ₺</div>
+        <div class="btn add">Sepete Ekle</div>
       </div>
     `).join("")}
 
@@ -201,7 +261,7 @@ body{
 <script>
 const slider=document.getElementById("slider");
 
-/* ÜRÜNE GİT */
+/* ÜRÜNE TIKLA */
 function go(url){
   window.top.location.href=url;
 }
@@ -211,7 +271,7 @@ function add(url){
   window.top.location.href=url+"?add-to-cart=1";
 }
 
-/* AUTO */
+/* AUTO SCROLL */
 let auto=true;
 function autoScroll(){
   if(!auto) return;
@@ -222,20 +282,19 @@ function autoScroll(){
 }
 let timer=setInterval(autoScroll,2000);
 
-/* MANUAL */
+/* MANUAL SCROLL */
 function scrollManual(dir){
   slider.scrollBy({left:dir*170,behavior:"smooth"});
   pauseAuto();
 }
 
-/* TOUCH */
+/* TOUCH PAUSE */
 slider.addEventListener("touchstart", pauseAuto);
 
-/* PAUSE */
 function pauseAuto(){
   auto=false;
-  clearTimeout(window.restartTimer);
-  window.restartTimer=setTimeout(()=>auto=true,7000);
+  clearTimeout(window.resumeTimer);
+  window.resumeTimer=setTimeout(()=>auto=true,7000);
 }
 </script>
 
