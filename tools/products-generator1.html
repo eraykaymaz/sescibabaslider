@@ -16,11 +16,26 @@ img{width:70px;height:70px;object-fit:contain;}
 .input{width:150px;padding:4px}
 .git{color:#0d47a1;font-weight:bold}
 .flex{display:flex;gap:6px;align-items:center;}
+
+.excel-btn{
+  margin-top:10px;
+  padding:8px 14px;
+  background:#2e7d32;
+  color:#fff;
+  border:0;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+}
 </style>
 </head>
 <body>
 
 <h2>Hit-Maker</h2>
+
+<button class="excel-btn" onclick="exportExcel()">Excel Çıktı Al</button>
+
+<br><br>
 
 <input type="file" id="excelFile" accept=".xlsx">
 
@@ -130,8 +145,8 @@ const CATEGORY_MAP = {
 "A83":{"related":["A80","A82","A84","A85","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A36"]},
 "A84":{"related":["A80","A82","A83","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
 "A85":{"related":["A80","A82","A83","A84","A86","A87","A88","A92","A91","A89","A93","A16","A95","A41","A72"]},
-"A86":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97","A98"]},
-"A87":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A72","A41"]},
+"A86":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A98"]},
+"A87":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A97","A41"]},
 "A88":{"related":["A80","A82","A83","A84","A85","A86","A87","A88","A92","A93","A89","A16","A95","A81","A97"]},
 "A89":{"related":["A17","A18","A19","A20","A02","A03","A37","A40","A50","A72","A62","A74","A89","A93","A91"]},
 "A90":{"related":["A89","A91","A92","A93","A21","A22","A83","A85","A16","A95","A97","A98","A26","A27","A25"]},
@@ -151,7 +166,7 @@ const CATEGORY_MAP = {
 "B05":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A24","A23","A21","A25"]},
 "B06":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
 "B07":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A23","A21","A25"]},
-"B08":{"related":["A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22"]},
+"B08":{"related":["A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A25","A23","A22","A24"]},
 "B09":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A22","A23","A24"]},
 "B10":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A21","A23","A22","A25"]},
 "B11":{"related":["B01","A17","A18","A19","A20","A28","A89","A93","A91","A16","A95","A22","A21","A23","A24"]},
@@ -187,7 +202,7 @@ document.getElementById("excelFile").addEventListener("change", async (e)=>{
   }
 });
 
-/* -------------------------- SATIR OLUŞTUR -------------------------- */
+// =============================== SATIR OLUŞTUR ===============================
 function renderRow(i,catName,CODE,LINK,api){
   const tr=document.createElement("tr");
 
@@ -225,7 +240,7 @@ function renderRow(i,catName,CODE,LINK,api){
   return tr;
 }
 
-/* -------------------------- LİNK GÜNCELLE -------------------------- */
+// =============================== LİNK GÜNCELLE ===============================
 async function updateLink(i,CODE){
   const newLink=document.getElementById("inp_"+i).value.trim();
   if(!newLink) return;
@@ -255,7 +270,7 @@ async function updateLink(i,CODE){
   }
 }
 
-/* -------------------------- API -------------------------- */
+// =============================== API ===============================
 async function fetchAPI(url){
   try{
     const r=await fetch(
@@ -267,7 +282,7 @@ async function fetchAPI(url){
   }
 }
 
-/* -------------------------- SLIDER ÜRET -------------------------- */
+// =============================== SLIDER ÜRET ===============================
 async function generateSlider(CODE){
   const related=CATEGORY_MAP[CODE]?.related || [];
   let items=[];
@@ -290,7 +305,7 @@ async function generateSlider(CODE){
   a.click();
 }
 
-/* -------------------------- SLIDER HTML -------------------------- */
+// =============================== SLIDER HTML ===============================
 function sliderHTML(items){
 return `
 <!DOCTYPE html>
@@ -340,6 +355,32 @@ ${items.map(p=>`
 </body></html>`;
 }
 
+// =============================== EXCEL ÇIKTI AL ===============================
+function exportExcel(){
+  let wb = XLSX.utils.book_new();
+  let wsData = [
+    ["Kategori", "A-Kodu", "Link"]
+  ];
+
+  for(const CODE in PRODUCTS){
+    let link = PRODUCTS[CODE]?.[0] || "";
+    let cat = "";
+
+    document.querySelectorAll("#productTable tbody tr").forEach(row=>{
+      if(row.children[4].innerText === CODE){
+        cat = row.children[3].innerText.split(" / API")[0].trim();
+      }
+    });
+
+    wsData.push([cat, CODE, link]);
+  }
+
+  let ws = XLSX.utils.aoa_to_sheet(wsData);
+  XLSX.utils.book_append_sheet(wb, ws, "DATA");
+  XLSX.writeFile(wb, "HitMaker-Export.xlsx");
+}
+
 </script>
+
 </body>
 </html>
