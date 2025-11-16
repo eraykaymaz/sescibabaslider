@@ -3,91 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sescibaba Slider - 3D Ayraclı Versiyon</title>
 <title>Sescibaba Slider - Temiz Kenarlı & 3D Ayraclı</title>
 <style>
 body {
-margin: 0;
-padding: 0;
-background: #fff;
-font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  font-family: Arial, sans-serif;
 }
 
 /* === SLIDER === */
 .slider-wrap-sescibabaprodcss {
-overflow: hidden;
-width: 100%;
-max-width: 1850px;
-margin: 0 auto 0 auto;
-position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1850px;
+  margin: 0 auto 0 auto;
+  position: relative;
 }
 
 /* Track */
 .slider-track-sescibabaprodcss {
-display: flex;
-gap: 18px;
-transition: transform 0.5s ease-in-out;
-touch-action: pan-y;
+  display: flex;
+  gap: 18px;
+  transition: transform 0.5s ease-in-out;
+  touch-action: pan-y;
 }
 
 /* Ürün kutusu */
 .slide-sescibabaprodcss {
-flex: 0 0 auto;
-width: 150px;
-text-align: center;
-padding: 25px 0 20px;
-box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 150px;
+  text-align: center;
+  padding: 25px 0 20px;
+  box-sizing: border-box;
 }
 
 /* 🔹 Görseller - çerçeve kaldırıldı */
 .slide-sescibabaprodcss img {
-width: 150px;
-height: 150px;
-border-radius: 10px;
-  object-fit: contain;          /* 🔹 orantılı küçültme */
-  background-color: #f9f9f9;
-  padding: 5px;
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
   object-fit: contain;   /* oran koruyarak küçülür */
   background: none;      /* arka plan ve padding kaldırıldı */
-transition: transform .3s ease, box-shadow .3s ease;
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
 /* Hover sadece masaüstü için */
 @media (hover:hover) {
-.slide-sescibabaprodcss:hover img {
-transform: scale(1.08);
-box-shadow: 0 4px 14px rgba(0,0,0,.3);
-z-index: 10;
-}
+  .slide-sescibabaprodcss:hover img {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.3);
+    z-index: 10;
+  }
 }
 
 /* Yazılar */
 .slide-sescibabaprodcss p {
-font-size: 15px;
-color: #000;
-margin-top: 10px;
-font-weight: 700;
+  font-size: 15px;
+  color: #000;
+  margin-top: 10px;
+  font-weight: 700;
 }
 
 /* Oklar */
 .slider-arrow {
-position: absolute;
-top: 45%;
-transform: translateY(-50%);
-background: rgba(255,255,255,.9);
-border: none;
-font-size: 22px;
-cursor: pointer;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-box-shadow: 0 0 6px rgba(0,0,0,.25);
-transition: background .3s, transform .2s;
-z-index: 20;
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.9);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 6px rgba(0,0,0,.25);
+  transition: background .3s, transform .2s;
+  z-index: 20;
 }
 .slider-arrow:hover {
-background: rgba(0,0,0,.15);
-transform: translateY(-50%) scale(1.1);
+  background: rgba(0,0,0,.15);
+  transform: translateY(-50%) scale(1.1);
 }
 .slider-prev { left: 5px; }
 .slider-next { right: 5px; }
@@ -95,166 +91,133 @@ transform: translateY(-50%) scale(1.1);
 @media(max-width:1200px){ .slide-sescibabaprodcss{width:140px;} }
 @media(max-width:992px){ .slide-sescibabaprodcss{width:130px;} }
 @media(max-width:768px){
-.slider-arrow{display:none}
-.slide-sescibabaprodcss{width:120px;}
-.slider-track-sescibabaprodcss{gap:15px;}
+  .slider-arrow{display:none}
+  .slide-sescibabaprodcss{width:120px;}
+  .slider-track-sescibabaprodcss{gap:15px;}
 }
 
-/* 🔹 Alt çizgi (3D ayraç) */
 /* 🔹 Alt çizgi (3D ayraç) + boşluk */
 .slider-divider {
-width: 92%;
-height: 2px;
-background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
-  margin: 10px auto 20px;  /* 🔸 biraz yukarı alındı */
+  width: 92%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
   margin: 10px auto 40px;  /* 🔸 alt boşluk artırıldı (30px daha fazla) */
-border-radius: 2px;
-box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.2);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.2);
 }
 </style>
 </head>
 <body>
 
 <div class="slider-wrap-sescibabaprodcss" id="sliderWrap">
-<button class="slider-arrow slider-prev">❮</button>
-<div class="slider-track-sescibabaprodcss" id="sliderTrack">
+  <button class="slider-arrow slider-prev">❮</button>
+  <div class="slider-track-sescibabaprodcss" id="sliderTrack">
 
-<!-- 🔹 Ürünler -->
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/studyo-tipi-kulaklik" target="_top"><img src="https://www.sescibaba.com/neumann-ndh-20-black-edition-kapali-studyo-kulakligi-neumann-ndh-20-93977-90-O.jpg" alt="Kulaklıklar"></a><p>Kulaklıklar</p></div>
+    <!-- 🔹 Ürünler -->
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/studyo-tipi-kulaklik" target="_top"><img src="https://www.sescibaba.com/neumann-ndh-20-black-edition-kapali-studyo-kulakligi-neumann-ndh-20-93977-90-O.jpg" alt="Kulaklıklar"></a><p>Kulaklıklar</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Referans Monitörler"></a><p>Referans Monitörler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/aktif-referans-monitor" target="_top"><img src="https://www.sescibaba.com/8010-referans-monitoru-genelec-8010-94966-94-O.jpg" alt="Referans Monitörler"></a><p>Referans Monitörler</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo" target="_top"><img src="https://www.sescibaba.com/3-metre-trs-trs-kablo-enova-konnektor-maxon-mxa-22-summit-kablo-sescibaba-sbtrs-74011-10-K.webp" alt="Monitör Kablosu"></a><p>Monitör Kablosu</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/midi-klavyeler" target="_top"><img src="https://www.sescibaba.com/flkey-mini-midi-klavye-novation-flkey-93959-93-O.jpg" alt="Midi Klavyeler"></a><p>Midi Klavyeler</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/condenser-mikrofon" target="_top"><img src="https://www.sescibaba.com/nt1-5th-9413-rode-nt1-90701-94-K.webp" alt="Condenser Mikrofonlar"></a><p>Condenser Mikrofonlar</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/dinamik-mikrofonlar" target="_top"><img src="https://www.sescibaba.com/e-825-s-kardioid-dinamik-mikrofon-sennheiser-e-825-s-93339-59-K.jpg" alt="Dinamik Mikrofon"></a><p>Dinamik Mikrofon</p></div>
 
-<!-- 🔸 Pop Filtre - yeni görsel -->
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/gm-pop-filter-pop-filtre-gator-frameworks-gm-pop-filter-94975-98-O.jpg" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
+    <!-- 🔸 Pop Filtre - yeni görsel -->
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/pop-filtre-/-soundsheild" target="_top"><img src="https://www.sescibaba.com/gm-pop-filter-pop-filtre-gator-frameworks-gm-pop-filter-94975-98-O.jpg" alt="Pop Filtre"></a><p>Pop Filtre</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/goxlr-mic-cable-xlr" target="_top"><img src="https://www.sescibaba.com/goxlr-mic-cable-xlr-tc-helicon-88473-85-O.webp" alt="Mikrofon Kablosu"></a><p>Mikrofon Kablosu</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/mikrofon-aksesuarlari?brand=325" target="_top"><img src="https://www.sescibaba.com/deluxe-tek-bolumlu-boom-kollu-tripod-mikrofon-standi-gfw-mic-2110-gator-frameworks-gfw-mic-2110-78634-98-O.webp" alt="Standlar"></a><p>Standlar</p></div>
 
-<div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
+    <div class="slide-sescibabaprodcss"><a href="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear" target="_top"><img src="https://www.sescibaba.com/kulakustu-kulaklik-tasima-cantasi-oxogear-oxogear-kulakustu-kulaklik-tasima-cantasi-91578-12-K.webp" alt="Kulaklık Çantası"></a><p>Kulaklık Çantası</p></div>
 
+  </div>
+  <button class="slider-arrow slider-next">❯</button>
 </div>
-<button class="slider-arrow slider-next">❯</button>
-</div>
 
-<!-- 🔹 3D efektli alt ayracı -->
 <!-- 🔹 3D efektli alt ayracı + ekstra boşluk -->
 <div class="slider-divider"></div>
 
 <script>
 (() => {
-const track = document.getElementById("sliderTrack");
-const slides = Array.from(track.children);
-const next = document.querySelector(".slider-next");
-const prev = document.querySelector(".slider-prev");
-const totalSlides = slides.length;
+  const track = document.getElementById("sliderTrack");
+  const slides = Array.from(track.children);
+  const next = document.querySelector(".slider-next");
+  const prev = document.querySelector(".slider-prev");
+  const totalSlides = slides.length;
 
-let slideWidth;
-let visibleCount;
-let index = 0;
-let paused = false;
-let autoPlay;
-let restartTimer;
+  let slideWidth;
+  let visibleCount;
+  let index = 0;
+  let paused = false;
+  let autoPlay;
+  let restartTimer;
 
-function updateSizes() {
-slideWidth = slides[0].offsetWidth + 18;
-if (window.innerWidth < 768) {
-visibleCount = Math.floor(window.innerWidth / (slideWidth + 5));
-} else {
-visibleCount = 8;
-}
-}
+  function updateSizes() {
+    slideWidth = slides[0].offsetWidth + 18;
+    if (window.innerWidth < 768) {
+      visibleCount = Math.floor(window.innerWidth / (slideWidth + 5));
+    } else {
+      visibleCount = 8;
+    }
+  }
 
-function goToSlide(i) {
-track.style.transform = `translateX(-${i * slideWidth}px)`;
-}
+  function goToSlide(i) {
+    track.style.transform = `translateX(-${i * slideWidth}px)`;
+  }
 
-function startAuto() {
-autoPlay = setInterval(() => {
-if (!paused) {
-index++;
-if (index > totalSlides - visibleCount) index = 0;
-goToSlide(index);
-}
-}, 3000);
-}
-
-function stopAuto(tempPause = false) {
-clearInterval(autoPlay);
-if (tempPause) {
-clearTimeout(restartTimer);
-restartTimer = setTimeout(() => startAuto(), 3000);
-}
-}
-
-updateSizes();
-startAuto();
-
-if (window.matchMedia("(hover: hover)").matches) {
-document
-.getElementById("sliderWrap")
-.addEventListener("mouseenter", () => (paused = true));
-document
-.getElementById("sliderWrap")
-.addEventListener("mouseleave", () => (paused = false));
-}
-
-next.addEventListener("click", () => {
-stopAuto(true);
-index++;
-if (index > totalSlides - visibleCount) index = 0;
-goToSlide(index);
-});
-
-prev.addEventListener("click", () => {
-stopAuto(true);
-index--;
-if (index < 0) index = totalSlides - visibleCount;
-goToSlide(index);
-});
-
-// 🔹 Dokunmatik swipe
-let startX = 0;
-let endX = 0;
-
-  track.addEventListener(
-    "touchstart",
-    (e) => {
-      startX = e.touches[0].clientX;
-      stopAuto(true);
-    },
-    { passive: true }
-  );
-
-  track.addEventListener(
-    "touchmove",
-    (e) => {
-      endX = e.touches[0].clientX;
-    },
-    { passive: true }
-  );
-
-  track.addEventListener(
-    "touchend",
-    () => {
-      const delta = startX - endX;
-      if (Math.abs(delta) > 50) {
-        if (delta > 0) {
-          index++;
-          if (index > totalSlides - visibleCount) index = 0;
-        } else {
-          index--;
-          if (index < 0) index = totalSlides - visibleCount;
-        }
+  function startAuto() {
+    autoPlay = setInterval(() => {
+      if (!paused) {
+        index++;
+        if (index > totalSlides - visibleCount) index = 0;
         goToSlide(index);
+      }
+    }, 3000);
+  }
+
+  function stopAuto(tempPause = false) {
+    clearInterval(autoPlay);
+    if (tempPause) {
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(() => startAuto(), 3000);
+    }
+  }
+
+  updateSizes();
+  startAuto();
+
+  if (window.matchMedia("(hover: hover)").matches) {
+    document
+      .getElementById("sliderWrap")
+      .addEventListener("mouseenter", () => (paused = true));
+    document
+      .getElementById("sliderWrap")
+      .addEventListener("mouseleave", () => (paused = false));
+  }
+
+  next.addEventListener("click", () => {
+    stopAuto(true);
+    index++;
+    if (index > totalSlides - visibleCount) index = 0;
+    goToSlide(index);
+  });
+
+  prev.addEventListener("click", () => {
+    stopAuto(true);
+    index--;
+    if (index < 0) index = totalSlides - visibleCount;
+    goToSlide(index);
+  });
+
+  // 🔹 Dokunmatik swipe
+  let startX = 0;
+  let endX = 0;
+
   track.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
     stopAuto(true);
@@ -273,18 +236,15 @@ let endX = 0;
       } else {
         index--;
         if (index < 0) index = totalSlides - visibleCount;
-}
-    },
-    { passive: true }
-  );
+      }
       goToSlide(index);
     }
   }, { passive: true });
 
-window.addEventListener("resize", () => {
-updateSizes();
-goToSlide(index);
-});
+  window.addEventListener("resize", () => {
+    updateSizes();
+    goToSlide(index);
+  });
 })();
 </script>
 </body>
