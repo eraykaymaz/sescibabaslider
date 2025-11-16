@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Slider Final Small</title>
+<title>10 Ürünlü Slider</title>
 
 <style>
 body{
@@ -12,32 +12,35 @@ body{
   background:#fff;
 }
 
+/* WRAPPER */
 .wrap{
   position:relative;
   width:100%;
   max-width:1920px;
   margin:auto;
-  padding:25px 0 40px;
+  padding:28px 0 40px;
   overflow:hidden;
 }
 
+/* SLIDER */
 .slider{
   display:flex;
   gap:16px;
   overflow-x:auto;
   scroll-behavior:smooth;
-  padding:10px 20px;
+  padding:10px 22px;
 }
 .slider::-webkit-scrollbar{display:none;}
 
+/* CARD */
 .item{
-  width:160px;
-  min-width:160px;
-  height:340px;
+  width:165px;
+  min-width:165px;
+  height:350px;
   background:#fff;
   border-radius:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,.14);
   padding:12px 10px;
+  box-shadow:0 2px 6px rgba(0,0,0,.14);
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
@@ -50,10 +53,10 @@ body{
   transform:translateY(-4px);
 }
 
-/* IMG */
+/* IMAGE */
 .item img{
-  width:140px;
-  height:140px;
+  width:145px;
+  height:145px;
   object-fit:contain;
   margin:auto;
   margin-bottom:6px;
@@ -78,9 +81,7 @@ body{
   font-weight:900;
   color:#c00;
 }
-.price.out{
-  color:#bd6b68;
-}
+.price.out{ color:#bd6b68; }
 
 /* TÜKENDİ */
 .tukendi{
@@ -102,10 +103,10 @@ body{
   transition:.2s;
 }
 
-/* ACTIVE */
+/* ACTIVE BUTTON */
 .btn.add{
   background:#d54c5a;
-  color:#fff;
+  color:white;
   cursor:pointer;
 }
 .btn.add:hover{
@@ -128,19 +129,19 @@ body{
   height:42px;
   background:#fff;
   border-radius:50%;
+  box-shadow:0 0 10px rgba(0,0,0,.25);
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   font-size:22px;
   cursor:pointer;
-  box-shadow:0 0 10px rgba(0,0,0,.25);
   user-select:none;
   z-index:99;
 }
-.arrow:hover{ background:#f3f3f3; }
+.arrow:hover{ background:#f1f1f1; }
 
-.left{ left:8px; }
-.right{ right:8px; }
+.left{ left:6px; }
+.right{ right:6px; }
 
 @media(max-width:600px){
   .arrow{ display:none; }
@@ -164,11 +165,11 @@ body{
       <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">Sepete Ekle</div>
     </div>
 
-    <!-- ÜRÜN 2 - STOK YOK -->
+    <!-- ÜRÜN 2 (Tükendi) -->
     <div class="item" onclick="go('https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel')">
       <img src="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg">
       <div class="title">Ast-Halo Reflection Filter</div>
-      <div class="price out">19.999 ₺</div>
+      <div class="price out">19.468 ₺</div>
       <div class="tukendi">Tükendi</div>
       <div class="btn disabled">Sepete Ekle</div>
     </div>
@@ -197,15 +198,45 @@ body{
       <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">Sepete Ekle</div>
     </div>
 
-    <!-- 6–15 DEMO -->
-    ${Array.from({length:10}).map((_,i)=>`
+    <!-- ÜRÜN 6 -->
     <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
-      <div class="title">Demo Ürün ${i+6}</div>
-      <div class="price">${(i+1)*499} ₺</div>
+      <div class="title">Go Solo Ses Arayüzü</div>
+      <div class="price">999 ₺</div>
       <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/go-solo')">Sepete Ekle</div>
     </div>
-    `).join("")}
+
+    <!-- ÜRÜN 7 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ds2-desk-stand')">
+      <img src="https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg">
+      <div class="title">DS2 Desk Stand</div>
+      <div class="price">5.484 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ds2-desk-stand')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 8 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">
+      <img src="https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg">
+      <div class="title">SSL 2 MKII Ses Kartı</div>
+      <div class="price">7.499 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 9 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/xd80usb-dijital-bateri')">
+      <img src="https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp">
+      <div class="title">XD80USB Dijital Bateri</div>
+      <div class="price">16.988 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/xd80usb-dijital-bateri')">Sepete Ekle</div>
+    </div>
+
+    <!-- ÜRÜN 10 -->
+    <div class="item" onclick="go('https://www.sescibaba.com/zg01-175559837212430')">
+      <img src="https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp">
+      <div class="title">Yamaha ZG01</div>
+      <div class="price">18.999 ₺</div>
+      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/zg01-175559837212430')">Sepete Ekle</div>
+    </div>
 
   </div>
 </div>
@@ -213,17 +244,17 @@ body{
 <script>
 const slider=document.getElementById("slider");
 
-/* ---- ÜRÜN SAYFASINA GİT ---- */
+/* ÜRÜNE TIKLA */
 function go(url){
   window.top.location.href=url;
 }
 
-/* ---- SEPETE EKLE ---- */
+/* SEPETE EKLE */
 function add(url){
   window.top.location.href=url+"?add-to-cart=1";
 }
 
-/* ---- AUTO SCROLL ---- */
+/* AUTO SCROLL */
 let auto=true;
 function autoScroll(){
   if(!auto) return;
@@ -234,16 +265,15 @@ function autoScroll(){
 }
 let timer=setInterval(autoScroll,2000);
 
-/* ---- MANUAL ---- */
+/* MANUAL SCROLL */
 function scrollManual(dir){
   slider.scrollBy({left:dir*170,behavior:"smooth"});
   pauseAuto();
 }
 
-/* ---- TOUCH ---- */
+/* TOUCH PAUSE */
 slider.addEventListener("touchstart", pauseAuto);
 
-/* ---- PAUSE ---- */
 function pauseAuto(){
   auto=false;
   clearTimeout(window.restartTimer);
