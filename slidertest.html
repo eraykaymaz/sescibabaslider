@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Slider Final – iFrame Compatible</title>
+<title>Sescibaba Slider – FINAL iFrame Safe</title>
 
 <style>
 body{
@@ -12,6 +12,7 @@ body{
   background:#fff;
 }
 
+/* WRAP */
 .wrap{
   position:relative;
   width:100%;
@@ -21,6 +22,7 @@ body{
   overflow:hidden;
 }
 
+/* SLIDER */
 .slider{
   display:flex;
   gap:18px;
@@ -30,6 +32,7 @@ body{
 }
 .slider::-webkit-scrollbar{display:none;}
 
+/* KART */
 .item{
   width:165px;
   min-width:165px;
@@ -50,6 +53,7 @@ body{
   transform:translateY(-4px);
 }
 
+/* GÖRSEL */
 .item img{
   width:150px;
   height:150px;
@@ -59,6 +63,7 @@ body{
 }
 .item:hover img{ transform:scale(1.08); }
 
+/* BAŞLIK */
 .title{
   margin-top:10px;
   font-size:13px;
@@ -71,6 +76,7 @@ body{
   -webkit-box-orient:vertical;
 }
 
+/* FİYAT */
 .price{
   margin-top:8px;
   font-size:15px;
@@ -79,6 +85,7 @@ body{
 }
 .price.out{ color:#bd6b68; }
 
+/* TÜKENDİ */
 .tukendi{
   font-size:13px;
   margin-top:4px;
@@ -86,6 +93,7 @@ body{
   font-weight:700;
 }
 
+/* BUTTON */
 .btn{
   width:100%;
   margin-top:auto;
@@ -110,6 +118,7 @@ body{
   cursor:not-allowed;
 }
 
+/* OK TUŞLARI */
 .arrow{
   position:absolute;
   top:50%;
@@ -125,11 +134,13 @@ body{
   font-size:22px;
   cursor:pointer;
   z-index:99;
+  user-select:none;
 }
 .arrow:hover{ background:#f1f1f1; }
 
 .left{ left:6px; }
 .right{ right:6px; }
+
 </style>
 </head>
 <body>
@@ -141,16 +152,18 @@ body{
 
   <div class="slider" id="slider">
 
-    <!-- --- 15 ÜRÜNÜN TAM LISTESI BURADA --- -->
-    <!-- 1 -->
+    <!-- 15 ÜRÜN (5 DEMO) -->
     <div class="item" onclick="go('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">
       <img src="https://www.sescibaba.com/ml-1a-modelleme-mikrofonu-slate-digital-ml-1a-92055-12-O.webp">
       <div class="title">ML-1A Modelleme Mikrofonu</div>
       <div class="price">24.999 ₺</div>
-      <div class="btn add" onclick="event.stopPropagation(); add('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">Sepete Ekle</div>
+      <div class="btn add"
+           onclick="event.stopPropagation(); add('https://www.sescibaba.com/ml-1a-modelleme-mikrofonu')">
+        Sepete Ekle
+      </div>
     </div>
 
-    <!-- 2 OUT -->
+    <!-- OUT -->
     <div class="item" onclick="go('https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel')">
       <img src="https://www.sescibaba.com/ast-halo-reflection-filter-ve-vokal-panel-aston-microphones-ast-halo-96058-57-O.jpg">
       <div class="title">Ast-Halo Reflection Filter</div>
@@ -159,15 +172,14 @@ body{
       <div class="btn disabled">Sepete Ekle</div>
     </div>
 
-    <!-- 3 -->
+    <!-- ÜRÜNLER 3–10 -->
     <div class="item" onclick="go('https://www.sescibaba.com/carbon8')">
       <img src="https://www.sescibaba.com/carbon8-modal-electronics-carbon-92409-12-O.webp">
-      <div class="title">CARBON8X Synth</div>
+      <div class="title">CARBON8X</div>
       <div class="price">41.701 ₺</div>
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 4 -->
     <div class="item" onclick="go('https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer')">
       <img src="https://www.sescibaba.com/akai-apc64-ableton-live-kontrol-unitesi-sequencer-akai-apc64-96203-11-O.jpg">
       <div class="title">AKAI APC64</div>
@@ -175,7 +187,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 5 -->
     <div class="item" onclick="go('https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli')">
       <img src="https://www.sescibaba.com/sat4-tripodlu-dikdortgen-345-mikrofon-izolasyon-paneli-ctt-sat4-76964-11-O.webp">
       <div class="title">SAT4 Mikrofon Paneli</div>
@@ -183,7 +194,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 6 -->
     <div class="item" onclick="go('https://www.sescibaba.com/go-solo')">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Go Solo Arayüz</div>
@@ -191,7 +201,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 7 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ds2-desk-stand')">
       <img src="https://www.sescibaba.com/ds2-desk-stand-rode-ds2-93499-10-O.jpg">
       <div class="title">DS2 Desk Stand</div>
@@ -199,7 +208,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 8 -->
     <div class="item" onclick="go('https://www.sescibaba.com/ssl-2-mkii-ses-karti')">
       <img src="https://www.sescibaba.com/ssl-2-mkii-ses-karti-ssl-ssl2-93073-11-O.jpg">
       <div class="title">SSL 2 MKII</div>
@@ -207,7 +215,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 9 -->
     <div class="item" onclick="go('https://www.sescibaba.com/xd80usb-dijital-bateri')">
       <img src="https://www.sescibaba.com/xd80usb-dijital-bateri-behringer-xd80usb-75496-43-O.webp">
       <div class="title">XD80USB Dijital Bateri</div>
@@ -215,7 +222,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 10 -->
     <div class="item" onclick="go('https://www.sescibaba.com/zg01-175559837212430')">
       <img src="https://www.sescibaba.com/zg01-175559837212430-yamaha-zg01-92369-12-O.webp">
       <div class="title">Yamaha ZG01</div>
@@ -223,7 +229,7 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 11 -->
+    <!-- DEMO 11–15 -->
     <div class="item">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Demo Ürün 11</div>
@@ -231,7 +237,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 12 -->
     <div class="item">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Demo Ürün 12</div>
@@ -239,7 +244,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 13 -->
     <div class="item">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Demo Ürün 13</div>
@@ -247,7 +251,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 14 -->
     <div class="item">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Demo Ürün 14</div>
@@ -255,7 +258,6 @@ body{
       <div class="btn add">Sepete Ekle</div>
     </div>
 
-    <!-- 15 -->
     <div class="item">
       <img src="https://www.sescibaba.com/go-solo-tc-helicon-tc0089-92972-80-O.jpg">
       <div class="title">Demo Ürün 15</div>
@@ -266,13 +268,14 @@ body{
   </div>
 </div>
 
+
 <script>
 const slider=document.getElementById("slider");
 
+/* iFrame → Parent yönlendirme */
 function go(url){
   parent.postMessage({type:"go",url}, "*");
 }
-
 function add(url){
   parent.postMessage({type:"add",url:url+"?add-to-cart=1"}, "*");
 }
@@ -288,13 +291,14 @@ function autoScroll(){
 }
 let timer=setInterval(autoScroll,2000);
 
+/* ARROWS */
 function scrollManual(dir){
   slider.scrollBy({left:dir*170,behavior:'smooth'});
   pause();
 }
 
+/* DURAKLATMA */
 slider.addEventListener("touchstart",pause);
-
 function pause(){
   auto=false;
   clearTimeout(window.resume);
